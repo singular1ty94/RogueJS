@@ -1,20 +1,11 @@
 /* Styling for Rogue.Js */
 #RogueCanvas{
    width: 960px; 
-   height: 300px; 
-   margin: 0 auto;
-   margin-top:50px;
-   border: 1px solid lightgray;
+    height: 300px; 
+    margin: 0 auto;
+    margin-top:50px;
+    border: 1px solid lightgray;
 } 
-
-#RogueHUD{
-   width: 960px; 
-   height: 15px; 
-   margin: 0 auto;
-   margin-top:0px;
-   border: 1px solid lightgray;
-} 
-
 
 body{
     background: #000; 

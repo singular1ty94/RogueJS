@@ -8,10 +8,6 @@
                                                          
                     singular1ty94                               
 
-Version 0.0.4
-+ Implemented second display screen
-+ Implemented function to display and render a bar with text
-
 Version 0.0.3
 + Implemented FOV! (but it doesn't remember discovered tiles)
 + Moved style to new folder, updated index page
