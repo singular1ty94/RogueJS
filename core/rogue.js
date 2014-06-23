@@ -3,6 +3,7 @@
 var w = 80;
 var h = 25;
 var display = null;
+var hud = null;
 var map = null;
 var player = null;
 var engine = null;
@@ -16,6 +17,7 @@ var RogueJS = {
     */
     init: function () {
         display = new ROT.Display({width: w, height: h, fontSize: 12});
+        hud = new ROT.Display({width:w, height:1, fontSize:12});
         
         //Generate the map and make the player.
         map = new ROT.Map.Rogue(w, h);
@@ -23,8 +25,11 @@ var RogueJS = {
             data[x+","+y] = type;
             display.DEBUG(x, y, type);
         });
-        this.createPlayer();        
+        this.createPlayer();
+        
+        //Bind the displays
         document.getElementById("RogueCanvas").appendChild(display.getContainer());
+        document.getElementById("RogueHUD").appendChild(hud.getContainer());
         
         //Setup the scehduler and engine
         var scheduler = new ROT.Scheduler.Simple();
@@ -36,6 +41,9 @@ var RogueJS = {
         fov = new ROT.FOV.PreciseShadowcasting(this.lightPasses);
         //Output callback
         recalculateMap();
+        
+        //Draw a bar
+        drawBar(1, 0, 10, player._MaxHP, player._HP, "#0a0", "#060", "HEALTH");
     },
     
     //Drop the player in the top-left room.
@@ -55,6 +63,9 @@ var RogueJS = {
     
 }
 
+/**
+* Drawing the FOV from the player
+*/
 var recalculateMap = function(){
     //Loop through entire map and reset.
     for(y in map.map){
@@ -71,10 +82,38 @@ var recalculateMap = function(){
     });
 }
 
+
+//Drawing a value bar
+var drawBar = function(posX, posY, width, maxValue, value, colorFore, colorBack, title){
+    var startString = Math.ceil((width - title.length) / 2);
+    var displayIncre = Math.floor(maxValue / width); //Get the increment amount
+    var displayAmt = Math.floor((value / maxValue) * displayIncre);
+    var titleFormatted = "";
+    
+    //Render the bar
+    for(var i = 0; i < displayAmt; i++){
+        hud.draw((posX + i), posY, null, colorBack, colorFore); //Deliberately switching colors to be clever.
+        if(i >= startString){
+            titleFormatted += "%c{white}%b{" + colorFore + "}" + title.charAt(i - startString)
+        }
+    }
+    for(var i = displayAmt; i < width; i++){
+        hud.draw((posX + i), posY, null, colorFore, colorBack); //Deliberately switching colors to be clever.
+        if(i >= startString){
+            titleFormatted += "%c{white}%b{" + colorBack + "}" + title.charAt(i - startString)
+        }
+    }
+    
+    //Draw the string
+    hud.drawText(startString + posX, posY, titleFormatted);
+}
+
 //Defining a player
 var Player = function(x, y){
     this._x = x;
     this._y = y;
+    this._MaxHP = 100;
+    this._HP = this._MaxHP;
     this._draw();
 }
 
