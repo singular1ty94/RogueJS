@@ -8,6 +8,10 @@
                                                          
                     singular1ty94                               
 
+Version 0.0.2
++ Created Engine and Scheduler
++ Allowed Player to move
++ Stopped player from moving through walls!
 
 Version 0.0.1
 + Created ROGUE-style map
