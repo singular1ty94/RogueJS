@@ -1,0 +1,34 @@
+/* Styling for Rogue.Js */
+#RogueCanvas{
+   width: 960px; 
+    height: 300px; 
+    margin: 0 auto;
+    margin-top:50px;
+    border: 1px solid lightgray;
+} 
+
+body{
+    background: #000; 
+    margin: 0; 
+    padding: 0; 
+    width: 100%; 
+    height: 100%;
+}
+
+h1{
+    color:lightgray;
+    size:24pt;
+    font-family: "andale mono" monospace;
+}
+
+p{
+    color:lightgray;
+    size:14pt;
+    font-family: "andale mono" monospace;
+}
+
+.title{
+    width:960px;
+    margin: 0 auto;
+    text-align: center;
+}
