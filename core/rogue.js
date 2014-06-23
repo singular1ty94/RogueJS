@@ -1,57 +1,57 @@
 //ROGUE.JS A JAVASCRIPT ROGUELIKE BY SINGULAR1TY94
-
-var w = 80;
-var h = 25;
-var display = null;
-var hud = null;
-var map = null;
-var player = null;
-var engine = null;
-var fov = null;
 var data = {};
-var FOV_RADIUS = 10;
-
 var RogueJS = {
+    
+    w : 80,
+    h : 25,
+    display : null,
+    hud : null,
+    map : null,
+    player : null,
+    engine : null,
+    fov : null,
+    FOV_RADIUS : 10,
+    
     /**
     * Our constructor, for all intents and purposes.
     */
     init: function () {
-        display = new ROT.Display({width: w, height: h, fontSize: 12});
-        hud = new ROT.Display({width:w, height:1, fontSize:12});
+        this.display = new ROT.Display({width: this.w, height: this.h, fontSize: 12});
+        this.hud = new ROT.Display({width:this.w, height:1, fontSize:12});
         
         //Generate the map and make the player.
-        map = new ROT.Map.Rogue(w, h);
-        map.create(function(x, y, type){
+        this.map = new ROT.Map.Rogue(this.w, this.h);
+        this.map.create(function(x, y, type){
             data[x+","+y] = type;
-            display.DEBUG(x, y, type);
+            //this.display(x, y, type);
         });
         this.createPlayer();
         
         //Bind the displays
-        document.getElementById("RogueCanvas").appendChild(display.getContainer());
-        document.getElementById("RogueHUD").appendChild(hud.getContainer());
+        document.getElementById("RogueCanvas").appendChild(this.display.getContainer());
+        document.getElementById("RogueHUD").appendChild(this.hud.getContainer());
         
         //Setup the scehduler and engine
         var scheduler = new ROT.Scheduler.Simple();
-        scheduler.add(player, true);
-        engine = new ROT.Engine(scheduler);
-        engine.start();
+        scheduler.add(this.player, true);
+        this.engine = new ROT.Engine(scheduler);
+        this.engine.start();
         
         //The fov
-        fov = new ROT.FOV.PreciseShadowcasting(this.lightPasses);
+        this.fov = new ROT.FOV.PreciseShadowcasting(this.lightPasses);
         //Output callback
         recalculateMap();
         
         //Draw a bar
-        drawBar(1, 0, 10, player._MaxHP, player._HP, "#0a0", "#060", "HEALTH");
+        drawBar(1, 0, 10, this.player._MaxHP, this.player._HP, "#0a0", "#060", "HEALTH");
     },
     
     //Drop the player in the top-left room.
     createPlayer: function(){
-        var room = map.rooms;
+        var room = this.map.rooms;
         var x = room[0][0].x + 1;
         var y = room[0][0].y + 1;
-        player = new Player(x, y);
+        this.player = new Player(x, y);
     },    
     
     //Input callback for the FOV
@@ -68,17 +68,17 @@ var RogueJS = {
 */
 var recalculateMap = function(){
     //Loop through entire map and reset.
-    for(y in map.map){
-        for(x in map.map){
-            display.draw(x, y, map[x + "," + y]);   //Reset the tile.
+    for(y in RogueJS.map.map){
+        for(x in RogueJS.map.map){
+            RogueJS.display.draw(x, y, RogueJS.map[x + "," + y]);   //Reset the tile.
         }
     }    
     
     //Recompute the fov from the player's perspective.
-    fov.compute(player._x, player._y, FOV_RADIUS, function(x, y, r, visibility) {
+    RogueJS.fov.compute(RogueJS.player._x, RogueJS.player._y, RogueJS.FOV_RADIUS, function(x, y, r, visibility) {
         var ch = (r ? "" : "@");
         var color = (data[x+","+y] ? "#555": "#333");
-        display.draw(x, y, ch, "#fff", color);
+        RogueJS.display.draw(x, y, ch, "#fff", color);
     });
 }
 
@@ -92,20 +92,20 @@ var drawBar = function(posX, posY, width, maxValue, value, colorFore, colorBack,
     
     //Render the bar
     for(var i = 0; i < displayAmt; i++){
-        hud.draw((posX + i), posY, null, colorBack, colorFore); //Deliberately switching colors to be clever.
+        RogueJS.hud.draw((posX + i), posY, null, colorBack, colorFore); //Deliberately switching colors to be clever.
         if(i >= startString){
             titleFormatted += "%c{white}%b{" + colorFore + "}" + title.charAt(i - startString)
         }
     }
     for(var i = displayAmt; i < width; i++){
-        hud.draw((posX + i), posY, null, colorFore, colorBack); //Deliberately switching colors to be clever.
+        RogueJS.hud.draw((posX + i), posY, null, colorFore, colorBack); //Deliberately switching colors to be clever.
         if(i >= startString){
             titleFormatted += "%c{white}%b{" + colorBack + "}" + title.charAt(i - startString)
         }
     }
     
     //Draw the string
-    hud.drawText(startString + posX, posY, titleFormatted);
+    RogueJS.hud.drawText(startString + posX, posY, titleFormatted);
 }
 
 //Defining a player
@@ -119,13 +119,13 @@ var Player = function(x, y){
 
 //The player's drawing function
 Player.prototype._draw = function(){
-    display.draw(this._x, this._y, "@", "#fff");
+    RogueJS.display.draw(this._x, this._y, "@", "#fff");
 }
 
 //The function that the engine will be calling by default
 Player.prototype.act = function(){
     //Lockup the engine to await user input
-    engine.lock();
+    RogueJS.engine.lock();
     //Await user input on the player object - must have handleEvent function.
     window.addEventListener("keydown", this); 
 }
@@ -152,12 +152,12 @@ Player.prototype.handleEvent = function(e){
     
     if (data[newX+","+newY] == 1){ return;} //Cannot move there
     
-    display.draw(this._x, this._y, map[this._x + "," + this._y]);
+    RogueJS.display.draw(this._x, this._y, RogueJS.map[this._x + "," + this._y]);
     this._x = newX;
     this._y = newY;
     this._draw();
     //Clear the event listener and unlock the engine
     window.removeEventListener("keydown", this);
-    engine.unlock();
+    RogueJS.engine.unlock();
     recalculateMap();
 }

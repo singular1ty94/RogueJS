@@ -8,6 +8,9 @@
                                                          
                     singular1ty94                               
 
+Version 0.0.5
++ Swapped to a protected namespace style
+
 Version 0.0.4
 + Implemented second display screen
 + Implemented function to display and render a bar with text
