@@ -8,6 +8,13 @@
                                                          
                     singular1ty94                               
 
+Version 0.0.7
++ Implemented rough pathfinding for actors
++ Moved actors to their own file
++ Provided getters for player variables
++ Moved player to its own file
++ Provided actor with getters for x/y
+
 Version 0.0.6
 + Finally implemented additional actors
 + Implemented drawing actors only if in fov
