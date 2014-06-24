@@ -8,6 +8,12 @@
                                                          
                     singular1ty94                               
 
+Version 0.0.6
++ Finally implemented additional actors
++ Implemented drawing actors only if in fov
++ Every object is now responsible for adding itself to scheduling
++ Stopped player being able to enter actor's position
+
 Version 0.0.5
 + Swapped to a protected namespace style
 
