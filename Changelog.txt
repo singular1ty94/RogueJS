@@ -8,6 +8,14 @@
                                                          
                     singular1ty94                               
 
+Version 0.0.8
++ Implemented random room finding feature
++ Map generates random number of mobs into random rooms
++ Changed digging algorithm, enlarged font-size and map
++ Actors have default bckColor setting/override
++ Gave actors maxHP and dmg parameters
++ Implemented discovered tiles (map doesn't vanish now)
+
 Version 0.0.7
 + Implemented rough pathfinding for actors
 + Moved actors to their own file

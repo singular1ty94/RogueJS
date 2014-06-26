@@ -1,7 +1,7 @@
 /* Styling for Rogue.Js */
 #RogueCanvas{
    width: 960px; 
-   height: 300px; 
+   height: 450px; 
    margin: 0 auto;
    margin-top:50px;
    border: 1px solid lightgray;
@@ -9,7 +9,7 @@
 
 #RogueHUD{
    width: 960px; 
-   height: 15px; 
+   height: 20px; 
    margin: 0 auto;
    margin-top:0px;
    border: 1px solid lightgray;

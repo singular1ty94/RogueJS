@@ -3,14 +3,26 @@
 ** Stores information about actors, how to draw them,
 ** and their movement properties.
 */
-var Actor = function(x, y, char, color){
+var Actor = function(x, y, char, color, maxHP, dmg){
     this._x = x;
     this._y = y;
     this._char = char;
     this._color = color;
-    this._draw = function(){
+    this._maxHP = maxHP;
+    this._hp = this._maxHP;     //Init with full health.
+    this._dmg = dmg;
+    
+    /**
+    * Handles drawing back to the Display, only if the Actor is
+    * in the Player's FOV.
+    * @param bckColor the background color to use, defaults to COLOR_FOV_FLOOR
+    */
+    this._draw = function(bckColor){
+        var bckColor = bckColor || COLOR_FOV_FLOOR; //Set default value
+        
+        //Only draw if we're in the player's fov
         if(IsInFOV(this._x, this._y)){
-            RogueJS.display.draw(this._x, this._y, this._char, this._color, COLOR_FOV_FLOOR);
+            RogueJS.display.draw(this._x, this._y, this._char, this._color, bckColor);
         }else{
             RogueJS.display.draw(this._x, this._y, RogueJS.map[this._x + "," + this._y]);
         }   

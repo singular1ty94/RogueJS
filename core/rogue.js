@@ -2,11 +2,16 @@
 var RogueJSData = {};
 var RogueJSEntities = [];
 
-var COLOR_FOV_WALL = "#555";
-var COLOR_FOV_FLOOR = "#333";
+var COLOR_FOV_WALL = "#888";
+var COLOR_FOV_FLOOR = "#555";
+var COLOR_DISCOVERED_WALL = "#444";
+var COLOR_DISCOVERED_FLOOR = "#222";
+var MIN_MOBS = 3;
+var MAX_MOBS = 10;
+
 var RogueJS = {    
-    w : 80,
-    h : 25,
+    w : 95,
+    h : 28,
     display : null,
     hud : null,
     map : null,
@@ -16,26 +21,27 @@ var RogueJS = {
     scheduler: null,
     FOV_RADIUS : 10,
     fovmap : [],
+    discovered : [],
     
-    /**
-    * Our constructor, for all intents and purposes.
-    */
     init: function () {
-        this.display = new ROT.Display({width: this.w, height: this.h, fontSize: 12});
-        this.hud = new ROT.Display({width:this.w, height:1, fontSize:12});
+        this.display = new ROT.Display({width: this.w, height: this.h, fontSize: 16});
+        this.hud = new ROT.Display({width:this.w, height:1, fontSize:16});
         this.scheduler = new ROT.Scheduler.Simple();
-        
-        //Generate the map and make the player.
-        this.map = new ROT.Map.Rogue(this.w, this.h);
-        this.map.create(function(x, y, type){
-            RogueJSData[x+","+y] = type;
-        });
-        this.createPlayer();
-        this.createActor();
         
         //Bind the displays
         document.getElementById("RogueCanvas").appendChild(this.display.getContainer());
         document.getElementById("RogueHUD").appendChild(this.hud.getContainer());
+        
+        //Generate the map and make the player.
+        this.map = new ROT.Map.Digger(this.w, this.h);
+        this.map.create(function(x, y, type){
+            RogueJSData[x+","+y] = type;
+            RogueJS.discovered[x+","+y] = 0;   //undiscovered
+            //RogueJS.display.DEBUG(x, y, type);
+        });        
+        
+        this.createPlayer();
+        this.createActor();
         
         //Setup the scehduler and engine
         this.engine = new ROT.Engine(this.scheduler);
@@ -52,20 +58,21 @@ var RogueJS = {
     
     //Drop the player in the top-left room.
     createPlayer: function(){
-        var room = this.map.rooms;
-        var x = room[0][0].x + 1;
-        var y = room[0][0].y + 1;
-        this.player = new Player(x, y);
+        var pos = FreeRoomAndPosition();
+        this.player = new Player(pos[0], pos[1]);
         RogueJSEntities.push(this.player);
     }, 
     
     //Create entity
     createActor: function(){
-        var room = this.map.rooms;
-        var x = room[0][0].x + 5;
-        var y = room[0][0].y + 1;
-        var entity = new Actor(x, y, "t", "#f00");
-        RogueJSEntities.push(entity);
+        for(var num = 0; num < getRandom(MIN_MOBS, MAX_MOBS); num++){
+            var arr = FreeRoomAndPosition();
+            var x = arr[0];
+            var y = arr[1];
+            var entity = new Actor(x, y, "t", "#f00");
+            RogueJSEntities.push(entity);
+        }
+        
     },
     
     //Input callback for the FOV
@@ -78,16 +85,23 @@ var RogueJS = {
 }
 
 /**
-* Drawing the FOV from the player
+* Drawing the FOV from the player.
+* Loops through the map, wipes out all cells,
+* then draws the fov, then draws entities ontop.
 */
 var recalculateMap = function(){
     //Loop through entire map and reset.
-    for(y in RogueJS.map.map){
-        for(x in RogueJS.map.map){
-            RogueJS.display.draw(x, y, RogueJS.map[x + "," + y]);   //Reset the tile.
-            RogueJS.fovmap[x+","+y] = 0;
+    for(var y = 0; y < RogueJS.h; y++){
+        for(var x = 0; x < RogueJS.w; x++){
+            //Check if we have NOT discovered the tile, make it black
+            if(RogueJS.discovered[x+","+y] == 0){
+                RogueJS.display.draw(x, y, "", "#000", "#000");
+            }else{
+                var color = (RogueJSData[x+","+y] ? COLOR_DISCOVERED_WALL: COLOR_DISCOVERED_FLOOR);
+                RogueJS.display.draw(x, y, "", "#fff", color);
+            }
         }
-    }    
+    }
     
     //Recompute the fov from the player's perspective.
     RogueJS.fov.compute(RogueJS.player._x, RogueJS.player._y, RogueJS.FOV_RADIUS, function(x, y, r, visibility) {
@@ -95,6 +109,7 @@ var recalculateMap = function(){
         var color = (RogueJSData[x+","+y] ? COLOR_FOV_WALL: COLOR_FOV_FLOOR);
         RogueJS.display.draw(x, y, ch, "#fff", color);
         RogueJS.fovmap[x+","+y] = 1;
+        RogueJS.discovered[x+","+y] = 1;   //now been discovered
     });
     
     for(var i = 1; i < RogueJSEntities.length; i++){
@@ -103,7 +118,18 @@ var recalculateMap = function(){
 }
 
 
-//Drawing a value bar
+/**
+* A method to draw a typical RPG bar, that colors partway
+* over a darker color to display percentages out of a whole.
+* @param posX The cell's x position
+* @param posY The cell's y position
+* @param width The width of the bar, in cells
+* @param maxValue The maximum value the bar can hold
+* @param value The current value the bar is holding
+* @param colorFore The lighter foreground color
+* @param colorBack The darker background (empty) color
+* @param title The words to print on the bar
+*/
 var drawBar = function(posX, posY, width, maxValue, value, colorFore, colorBack, title){
     var startString = Math.ceil((width - title.length) / 2);
     var displayIncre = Math.floor(maxValue / width); //Get the increment amount
@@ -128,7 +154,11 @@ var drawBar = function(posX, posY, width, maxValue, value, colorFore, colorBack,
     RogueJS.hud.drawText(startString + posX, posY, titleFormatted);
 }
 
-//Is this tile in the FOV?
+/**
+* Is the specified tile within the player's fov?
+* @param tileX, tileY - the tile position to check
+* @return true or false, if the tile is in the fovmap
+*/
 var IsInFOV = function(tileX, tileY){
     if(RogueJS.fovmap[tileX + "," + tileY] == 1){
         //We are in fov
@@ -146,4 +176,14 @@ var IsOccupied = function(tileX, tileY){
         }
     }
     return false;
+}
+
+//Find a random room
+var FreeRoomAndPosition = function(){    
+    var i = getRandom(0, RogueJS.map.getRooms().length);
+    return RogueJS.map.getRooms()[i].getCenter();
+}
+
+function getRandom(min, max){
+    return Math.floor(Math.random() * (max - min) + min);
 }
