@@ -10,11 +10,24 @@ var Player = function(x, y){
     this._MaxHP = 100;
     this._HP = this._MaxHP;
     this._draw();
+    this._damage = 5;
+    this._name = "Player";
     
+    this.getName = function(){return this._name;}
     this.getX = function(){return this._x;}
     this.getY = function(){return this._y;}
+    this.getDamage = function(){return this._damage;}
+    this.getHP = function(){return this._HP;}
+    this.getMaxHP = function(){return this._MaxHP;}
     
     RogueJS.scheduler.add(this, true);
+    
+    this.damageHP = function(amt){
+        this._HP -= amt;
+    }
+    this.isDead = function(){
+        return (this._HP <= 0 ? true: false);
+    }
 }
 
 //The player's drawing function
@@ -41,27 +54,48 @@ Player.prototype.handleEvent = function(e){
     keyMap[35] = 5;
     keyMap[37] = 6;
     keyMap[36] = 7;
+    keyMap[190] = 99;   //period, stay in spot
+    keyMap[46] = 99;    //delete on numpad, stay in spot
     
     var code = e.keyCode;
     
     if(!(code in keyMap)) { return; }  //Return nothing if the key is invalid
     
-    var diff = ROT.DIRS[8][keyMap[code]];
-    var newX = this._x + diff[0];
-    var newY = this._y + diff[1];
+    var newX, newY;
+    
+    if(keyMap[code] == 99){ //stay in spot
+        newX = this._x;
+        newY = this._y;
+        
+        //Clear the event listener and unlock the engine
+        window.removeEventListener("keydown", this);
+        RogueJS.engine.unlock();
+        recalculateMap();
+        return;
+    }else{
+        var diff = ROT.DIRS[8][keyMap[code]];
+        newX = this._x + diff[0];
+        newY = this._y + diff[1];
+    }
     
     if (RogueJSData[newX+","+newY] == 1){ 
-        return; 
+        return; //Cannot move there
     } else if (IsOccupied(newX, newY)){
-        return;
-    } //Cannot move there
-    
-    RogueJS.display.draw(this._x, this._y, RogueJS.map[this._x + "," + this._y]);
-    this._x = newX;
-    this._y = newY;
-    this._draw();
-    //Clear the event listener and unlock the engine
-    window.removeEventListener("keydown", this);
-    RogueJS.engine.unlock();
-    recalculateMap();
+        attackTile(this, newX, newY);
+        //Clear the event listener and unlock the engine
+        window.removeEventListener("keydown", this);
+        RogueJS.engine.unlock();
+        recalculateMap();
+    }else {
+        //Regular move
+        RogueJS.display.draw(this._x, this._y, RogueJS.map[this._x + "," + this._y]);
+        this._x = newX;
+        this._y = newY;
+        this._draw();
+
+        //Clear the event listener and unlock the engine
+        window.removeEventListener("keydown", this);
+        RogueJS.engine.unlock();
+        recalculateMap();
+    }
 }

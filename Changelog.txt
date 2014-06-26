@@ -8,6 +8,20 @@
                                                          
                     singular1ty94                               
 
+Version 0.0.9
++ Fixed enemies being placed atop of players/other actors.
++ Prevented actors from occupying eachother's cells while chasing the player
++ Gave player HP / isDead functions and getters for HP
++ Stopped actors being placed in walls
++ Changes to the HUD
++ Implemented HUDMessage
++ Implemented combat engine
+    + Player can attack and kill enemies
+    + Bunch of status messages to go along with
+    + Enemies can now attack player
+    + Fixed bug where 'ghost' of enemy would keep assaulting the player
++ Player can now stay in one spot (using period '.' or numpad delete)
+
 Version 0.0.8
 + Implemented random room finding feature
 + Map generates random number of mobs into random rooms

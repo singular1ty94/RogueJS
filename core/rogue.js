@@ -1,6 +1,7 @@
 //ROGUE.JS A JAVASCRIPT ROGUELIKE BY SINGULAR1TY94
 var RogueJSData = {};
 var RogueJSEntities = [];
+var RogueJSMessages = ["Welcome to the Dungeons of %c{red}DOOM%c{}!"];
 
 var COLOR_FOV_WALL = "#888";
 var COLOR_FOV_FLOOR = "#555";
@@ -52,8 +53,8 @@ var RogueJS = {
         //Output callback
         recalculateMap();
         
-        //Draw a bar
-        drawBar(1, 0, 10, this.player._MaxHP, this.player._HP, "#0a0", "#060", "HEALTH");
+        //Update the HUD
+        UpdateHUD();
     },
     
     //Drop the player in the top-left room.
@@ -65,14 +66,13 @@ var RogueJS = {
     
     //Create entity
     createActor: function(){
-        for(var num = 0; num < getRandom(MIN_MOBS, MAX_MOBS); num++){
-            var arr = FreeRoomAndPosition();
-            var x = arr[0];
-            var y = arr[1];
-            var entity = new Actor(x, y, "t", "#f00");
-            RogueJSEntities.push(entity);
-        }
-        
+        for(var num = 0; num < getRandom(MIN_MOBS, MAX_MOBS); num ++){
+            var arr = FreeRoomAndPosition();    //Get the center of a room.
+            if(!IsOccupied(arr[0], arr[1])){
+                var entity = new Actor(arr[0], arr[1], "t", "#f00", "Troll", 10, 2);
+                RogueJSEntities.push(entity);
+            }          
+        }  
     },
     
     //Input callback for the FOV
@@ -168,8 +168,11 @@ var IsInFOV = function(tileX, tileY){
     }
 }
 
-//Check to see if actor is occupying spot
+//Check to see if actor or player is occupying spot
 var IsOccupied = function(tileX, tileY){
+    if(RogueJS.player.getX() == tileX && RogueJS.player.getY() == tileY){
+        return true;
+    }
     for(var i = 1; i < RogueJSEntities.length; i++){
         if(RogueJSEntities[i]._x == tileX && RogueJSEntities[i]._y == tileY){
             return true;
@@ -186,4 +189,82 @@ var FreeRoomAndPosition = function(){
 
 function getRandom(min, max){
     return Math.floor(Math.random() * (max - min) + min);
+}
+
+//Returns the Entity (or player) at the tile specified.
+function GetObjectAtTile(tileX, tileY){
+    if(RogueJS.player.getX() == tileX && RogueJS.player.getY() == tileY){
+        return RogueJS.player;
+    }
+    for(var i = 1; i < RogueJSEntities.length; i++){
+        if(RogueJSEntities[i]._x == tileX && RogueJSEntities[i]._y == tileY){
+            return RogueJSEntities[i];
+        }
+    }
+    return;
+}
+
+/**
+* Handles one object (like an actor or player) 
+* attacking another tile co-ordinates. These tile co-ords
+* resolve into an entity, and then damage is dealt according
+* to getDamage(), damageHP(), isDead() and instanceof Actor/Player
+* @param attacker The attacker, likely the player or an Actor
+* @param tileX The x coord to attack
+* @param tileY The y coord to attack
+*/
+function attackTile(attacker, tileX, tileY){
+    //First, determine if there is actually an enemy there.
+    if(IsOccupied(tileX, tileY)){
+        //There's something occupying that cell (assume it's attackable).
+        var defender = GetObjectAtTile(tileX, tileY);
+        
+        //Attacker deals damage to defender.
+        defender.damageHP(attacker.getDamage());
+        var msg = attacker.getName() + " attacks " + defender.getName() + " for " + attacker.getDamage() + " %c{red}damage!";
+        HUDMessage(msg);
+        
+        //Check for death
+        if(defender.isDead()){
+            if(defender instanceof Actor){   //is not the player
+                var x = RogueJSEntities.indexOf(defender);
+                RogueJS.scheduler.remove(defender);
+                RogueJSEntities.splice(x, 1);   //Remove from the array
+                recalculateMap();
+                var msg = "The " + defender.getName() + " %c{red}is dead!";
+                HUDMessage(msg);
+            }else if(defender instanceof Player){
+                //GameOver();
+            }
+        }       
+    }else{
+        //Ain't nothing to attack there.
+        return;
+    }
+}
+
+/**
+* Update the HUD Message.
+*/
+function HUDMessage(str){
+    RogueJSMessages.push(str);
+    UpdateHUD();
+}
+
+/**
+* Update the HUD with the player's stats
+* and most recent message.
+*/
+function UpdateHUD(){
+    //Wipe out the display
+    RogueJS.hud.clear();
+    
+    //Show player's health
+    drawBar(1, 0, 10, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), "#0a0", "#060", "HEALTH");
+    
+    //Pop the most recent message
+    RogueJS.hud.drawText(16, 0, RogueJSMessages.pop());
+    
+    //Refresh.
+    setTimeout(UpdateHUD, 1500);
 }

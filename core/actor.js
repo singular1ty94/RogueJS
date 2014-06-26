@@ -3,13 +3,14 @@
 ** Stores information about actors, how to draw them,
 ** and their movement properties.
 */
-var Actor = function(x, y, char, color, maxHP, dmg){
+var Actor = function(x, y, char, color, name, maxHP, dmg){
     this._x = x;
     this._y = y;
     this._char = char;
     this._color = color;
+    this._name = name;
     this._maxHP = maxHP;
-    this._hp = this._maxHP;     //Init with full health.
+    this._HP = this._maxHP;     //Init with full health.
     this._dmg = dmg;
     
     /**
@@ -43,9 +44,12 @@ var Actor = function(x, y, char, color, maxHP, dmg){
             }
             astar.compute(this._x, this._y, pathCallback);
             path.shift(); //Remove previous position
-            if (path.length <= 2) {
-                //One space away from player
-            } else {
+            if (path.length <= 1) {
+                //The player occupies the path, we attack!
+                attackTile(this, RogueJS.player.getX(), RogueJS.player.getY());
+            } else if(IsOccupied(path[0][0], path[0][1])){
+                //Another entity (NOT the player) occupies the spot
+            }else {
                 x = path[0][0];
                 y = path[0][1];
                 RogueJS.display.draw(this._x, this._y, RogueJS.map[this._x + "," + this._y]);
@@ -58,6 +62,14 @@ var Actor = function(x, y, char, color, maxHP, dmg){
     
     this.getX = function(){return this._x;}
     this.getY = function(){return this._y;}
+    this.getName = function(){return this._name;}
+    this.getDamage = function(){return this._dmg;}
+    this.damageHP = function(amt){
+        this._HP -= amt;
+    }
+    this.isDead = function(){
+        return (this._HP <= 0 ? true: false);
+    }
     
     RogueJS.scheduler.add(this, true); 
 }
