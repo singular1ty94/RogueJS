@@ -82,7 +82,6 @@ var RogueJS = {
             if(!IsOccupied(arr[0], arr[1])){
                 //Get a random monster that's suitable for this level.
                 var r = getRandom(0, this.monsters[this.level - 1].length);
-                console.log(r);
                 
                 //Create the entity according to the data file.
                 var entity = new Actor(arr[0], arr[1], 
@@ -90,7 +89,7 @@ var RogueJS = {
                                        this.monsters[this.level-1][r].color, 
                                        this.monsters[this.level-1][r].name, 
                                        this.monsters[this.level-1][r].maxHP,
-                                       this.monsters[this.level-1][r].dmg);
+                                       this.monsters[this.level-1][r].weapon);
                 
                 //Push it to the list of all entities.
                 RogueJSEntities.push(entity);

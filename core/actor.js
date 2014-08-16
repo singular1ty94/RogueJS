@@ -3,7 +3,7 @@
 ** Stores information about actors, how to draw them,
 ** and their movement properties.
 */
-var Actor = function(x, y, char, color, name, maxHP, dmg){
+var Actor = function(x, y, char, color, name, maxHP, weapon){
     this._x = x;
     this._y = y;
     this._char = char;
@@ -11,7 +11,7 @@ var Actor = function(x, y, char, color, name, maxHP, dmg){
     this._name = name;
     this._maxHP = maxHP;
     this._HP = this._maxHP;     //Init with full health.
-    this._dmg = dmg;
+    this._weapon = new Weapon(weapon.name, weapon.char, weapon.color, weapon.dmg, weapon.price);
     
     /**
     * Handles drawing back to the Display, only if the Actor is
@@ -63,7 +63,10 @@ var Actor = function(x, y, char, color, name, maxHP, dmg){
     this.getX = function(){return this._x;}
     this.getY = function(){return this._y;}
     this.getName = function(){return this._name;}
-    this.getDamage = function(){return this._dmg;}
+    this.getDamage = function(){
+        //Returns the damage from the equipped weapon.
+        return this._weapon.getDamage();
+    }
     this.damageHP = function(amt){
         this._HP -= amt;
     }

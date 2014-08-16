@@ -10,13 +10,20 @@ var Player = function(x, y){
     this._MaxHP = 100;
     this._HP = this._MaxHP;
     this._draw();
-    this._damage = 5;
     this._name = "Player";
+    this._weapon = new Weapon(weapons.playerWeapon.name, 
+                             weapons.playerWeapon.char,
+                             weapons.playerWeapon.color,
+                             weapons.playerWeapon.dmg,
+                             weapons.playerWeapon.price);
     
     this.getName = function(){return this._name;}
     this.getX = function(){return this._x;}
     this.getY = function(){return this._y;}
-    this.getDamage = function(){return this._damage;}
+    this.getDamage = function(){
+        //Returns the damage from the weapon.
+        return this._weapon.getDamage();
+    }
     this.getHP = function(){return this._HP;}
     this.getMaxHP = function(){return this._MaxHP;}
     
@@ -27,6 +34,14 @@ var Player = function(x, y){
     }
     this.isDead = function(){
         return (this._HP <= 0 ? true: false);
+    }
+    
+    /**
+    * Takes an instantiated Weapon and replaces the
+    * current weapon.
+    */
+    this.changeWeapon = function(newWeapon){
+        this._weapon = newWeapon;
     }
 }
 

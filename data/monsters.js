@@ -18,7 +18,7 @@ monsters = [
             color: '#f00',
             name: 'Troll',
             maxHP: 10,
-            dmg: 2
+            weapon: weapons.Club
         },
         
         //A powerful, but frail enemy.
@@ -27,7 +27,7 @@ monsters = [
             color: '#282',
             name: 'Goblin',
             maxHP: 8,
-            dmg: 3
+            weapon: weapons.Dagger
         }
     ]
 ]

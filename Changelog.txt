@@ -8,6 +8,12 @@
                                                          
                     singular1ty94                               
 
+Version 0.0.11
++ Removed Actor/Player dmg attribute
++ Added Weapons data file.
++ Actors and Players now use weapons and dictate damage based on that.
++ Put function for player to change weapon.
+
 Version 0.0.10
 + Added data file to read in monster types per level.
 + Added skeleton framework for weapons.
