@@ -8,6 +8,10 @@
                                                          
                     singular1ty94                               
 
+Version 0.0.10
++ Added data file to read in monster types per level.
++ Added skeleton framework for weapons.
+
 Version 0.0.9
 + Fixed enemies being placed atop of players/other actors.
 + Prevented actors from occupying eachother's cells while chasing the player

@@ -23,11 +23,20 @@ var RogueJS = {
     FOV_RADIUS : 10,
     fovmap : [],
     discovered : [],
+    monsters : null,
+    level: 1,
     
     init: function () {
         this.display = new ROT.Display({width: this.w, height: this.h, fontSize: 16});
         this.hud = new ROT.Display({width:this.w, height:1, fontSize:16});
         this.scheduler = new ROT.Scheduler.Simple();
+        
+        //Read in the monters file.
+        try{
+            this.monsters = eval(monsters);
+        }catch(err){
+            console.log("[FATAL] Can't read enemies.");
+        }
         
         //Bind the displays
         document.getElementById("RogueCanvas").appendChild(this.display.getContainer());
@@ -68,8 +77,22 @@ var RogueJS = {
     createActor: function(){
         for(var num = 0; num < getRandom(MIN_MOBS, MAX_MOBS); num ++){
             var arr = FreeRoomAndPosition();    //Get the center of a room.
+            
+            //Check the room isn't occupied.
             if(!IsOccupied(arr[0], arr[1])){
-                var entity = new Actor(arr[0], arr[1], "t", "#f00", "Troll", 10, 2);
+                //Get a random monster that's suitable for this level.
+                var r = getRandom(0, this.monsters[this.level - 1].length);
+                console.log(r);
+                
+                //Create the entity according to the data file.
+                var entity = new Actor(arr[0], arr[1], 
+                                       this.monsters[this.level-1][r].char, 
+                                       this.monsters[this.level-1][r].color, 
+                                       this.monsters[this.level-1][r].name, 
+                                       this.monsters[this.level-1][r].maxHP,
+                                       this.monsters[this.level-1][r].dmg);
+                
+                //Push it to the list of all entities.
                 RogueJSEntities.push(entity);
             }          
         }  

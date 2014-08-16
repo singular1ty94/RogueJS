@@ -12,8 +12,28 @@
    height: 20px; 
    margin: 0 auto;
    margin-top:0px;
-   border: 1px solid lightgray;
+    border: 1px solid lightgray;
 } 
+
+#RogueOptions{
+   width: 960px; 
+   height: 40px; 
+   margin: 0 auto;
+   margin-top:0px;
+} 
+
+a {
+    display:inline-block;
+    padding:5px;
+    text-decoration: none;
+    background-color: darkgray;
+    border: 2px solid lightgray;
+    margin: 2px;
+    width:40px;
+    color:white;
+    font-size: 12px;
+    text-align: center;
+}
 
 
 body{
