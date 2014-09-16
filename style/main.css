@@ -1,26 +1,33 @@
 /* Styling for Rogue.Js */
 #RogueCanvas{
-   width: 960px; 
+   width: 1180px;
    height: 450px; 
-   margin: 0 auto;
-   margin-top:50px;
+    float:left;
    border: 1px solid lightgray;
 } 
 
+#container{
+    width: 1185px;
+    height:450px;
+    margin:0 auto;
+    margin-top: 50px;
+    padding:0;
+}
+
 #RogueHUD{
-   width: 960px; 
+   width: 1185px;
    height: 20px; 
    margin: 0 auto;
    margin-top:0px;
     border: 1px solid lightgray;
 } 
 
-#RogueOptions{
-   width: 960px; 
-   height: 40px; 
-   margin: 0 auto;
-   margin-top:0px;
-} 
+#RoguePanel{
+    width: 220px;
+    height: 450px;
+    float:left;
+    border: 1px solid lightgray;
+}
 
 a {
     display:inline-block;
@@ -47,6 +54,13 @@ body{
 h1{
     color:lightgray;
     size:24pt;
+    font-family: "andale mono" monospace;
+}
+
+h3{
+    color:lightgray;
+    size:20pt;
+    margin: 10px;
     font-family: "andale mono" monospace;
 }
 

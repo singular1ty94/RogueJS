@@ -97,6 +97,11 @@ var RogueJS = {
         }  
     },
     
+    //Create the weapons.
+    createWeapons : function(){
+
+    },
+
     //Input callback for the FOV
     lightPasses : function(x, y) {
         var key = x+","+y;
