@@ -3,10 +3,10 @@ var RogueJSData = {};
 var RogueJSEntities = [];
 var RogueJSMessages = ["Welcome to the Dungeons of %c{red}DOOM%c{}!"];
 
-var COLOR_FOV_WALL = "#888";
-var COLOR_FOV_FLOOR = "#555";
-var COLOR_DISCOVERED_WALL = "#444";
-var COLOR_DISCOVERED_FLOOR = "#222";
+var COLOR_FOV_WALL = "#777";
+var COLOR_FOV_FLOOR = "#444";
+var COLOR_DISCOVERED_WALL = "#333";
+var COLOR_DISCOVERED_FLOOR = "#111";
 var MIN_MOBS = 3;
 var MAX_MOBS = 10;
 
@@ -125,6 +125,9 @@ var recalculateMap = function(){
         }
     }
     
+    //Reset the fov
+    RogueJS.fovmap = [];
+
     //Recompute the fov from the player's perspective.
     RogueJS.fov.compute(RogueJS.player._x, RogueJS.player._y, RogueJS.FOV_RADIUS, function(x, y, r, visibility) {
         var ch = (r ? "" : "@");
@@ -182,7 +185,7 @@ var drawBar = function(posX, posY, width, maxValue, value, colorFore, colorBack,
 * @return true or false, if the tile is in the fovmap
 */
 var IsInFOV = function(tileX, tileY){
-    if(RogueJS.fovmap[tileX + "," + tileY] == 1){
+    if(RogueJS.fovmap[tileX + "," + tileY] === 1){
         //We are in fov
         return true;
     }else{
