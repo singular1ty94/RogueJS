@@ -36,5 +36,14 @@ weapons = {
         char: '/',
         dmg: 2,
         price: 60
+    },
+
+    //Another basic weapon
+    Scimitar : {
+        name: 'Scimitar',
+        color: '#6210ff',
+        char: '/',
+        dmg: 3,
+        price: 90
     }
 }
