@@ -6,27 +6,17 @@
         <link type="text/css" rel="stylesheet" href="style/main.css" />
     </head>
     <body>
-    <div class="title">
-        <h1>Rogue.js</h1>   
-        <p>A Javascript Roguelike by singular1ty94 || 2014 - 2016</p>
-    </div>
     <div id="container">
         <div id="RogueCanvas"></div>
-        <div id="RoguePanel">
-            <h3>Inventory</h3>
-        </div>
     </div>
     <div id='RogueHUD'></div>
+    <div id='Restart'>
+        <a href="#" onClick="javascript:restart()">Restart</a>
+    </div>
     <script type="text/javascript" src="ext/jquery-2.1.1.js"></script>
     <script type="text/javascript">
         $(document).ready(function(){
-            $("#RoguePanel").show("hide");
-
             RogueJS.init();
-
-            //Show...
-            $("#RogueCanvas").css("width", 960);
-            $("#RoguePanel").show("slow");
         });
     </script>
     </body>
