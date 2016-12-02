@@ -32,7 +32,8 @@ var Actor = function(x, y, char, color, name, maxHP, weapon){
     }
     
     this.act = function(){
-        if(IsInFOV(this._x, this._y)){
+        if(RogueJS.player && IsInFOV(this._x, this._y)){
+            RogueJS.engine.lock();
             var x = RogueJS.player.getX();
             var y = RogueJS.player.getY();
             var passableCallback = function(x, y) {
@@ -59,11 +60,15 @@ var Actor = function(x, y, char, color, name, maxHP, weapon){
                 this._y = y;
                 this._draw();
             }
+            RogueJS.engine.unlock();
         }else{
             RogueJS.display.draw(this._x, this._y, RogueJS.map[this._x + "," + this._y]);
             this._x = this._x;
             this._y = this._y;
             this._draw();
+        }
+        if(RogueJS.player){
+            recalculateMap();
         }
     }
     

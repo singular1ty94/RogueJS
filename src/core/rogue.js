@@ -1,7 +1,7 @@
 //ROGUE.JS A JAVASCRIPT ROGUELIKE BY SINGULAR1TY94
 var RogueJSData = {};
-var RogueJSEntities = [];
-var RogueJSMessages = ["Welcome to the Dungeons of %c{red}DOOM%c{}!"];
+var Entities = [];
+var Messages = ["Welcome to the Dungeons of %c{red}DOOM%c{}!"];
 
 var COLOR_FOV_WALL = "#777";
 var COLOR_FOV_FLOOR = "#444";
@@ -23,7 +23,6 @@ var RogueJS = {
     FOV_RADIUS : 10,
     fovmap : [],
     discovered : [],
-    monsters : null,
     level: 1,
     
     init: function () {
@@ -31,34 +30,20 @@ var RogueJS = {
         this.hud = new ROT.Display({width:this.w, height:1, fontSize:16});
         this.scheduler = new ROT.Scheduler.Simple();
         
-        //Read in the monters file.
-        try{
-            this.monsters = eval(monsters);
-        }catch(err){
-            console.log("[FATAL] Can't read enemies.");
-        }
-        
         //Bind the displays
         document.getElementById("RogueCanvas").appendChild(this.display.getContainer());
         document.getElementById("RogueHUD").appendChild(this.hud.getContainer());
         
-        //Generate the map and make the player.
-        this.map = new ROT.Map.Digger(this.w, this.h);
-        this.map.create(function(x, y, type){
-            RogueJSData[x+","+y] = type;
-            RogueJS.discovered[x+","+y] = 0;   //undiscovered
-            //RogueJS.display.DEBUG(x, y, type);
-        });        
-        
-        this.createPlayer();
-        this.createActor();
+        //Make the first level
+        this.makeLevel(1);
         
         //Setup the scehduler and engine
         this.engine = new ROT.Engine(this.scheduler);
         this.engine.start();
         
         //The fov
-        this.fov = new ROT.FOV.PreciseShadowcasting(this.lightPasses);
+        this.fov = new ROT.FOV.PreciseShadowcasting(lightPasses);
+        
         //Output callback
         recalculateMap();
         
@@ -70,29 +55,28 @@ var RogueJS = {
     createPlayer: function(){
         var pos = FreeRoomAndPosition();
         this.player = new Player(pos[0], pos[1]);
-        RogueJSEntities.push(this.player);
+        Entities.push(this.player);
     }, 
     
-    //Create entity
-    createActor: function(){
+    //Create entities in the map
+    createActors: function(level){
         for(var num = 0; num < getRandom(MIN_MOBS, MAX_MOBS); num ++){
-            var arr = FreeRoomAndPosition();    //Get the center of a room.
+            var arr = FreeRoomAndPosition();
             
             //Check the room isn't occupied.
             if(!IsOccupied(arr[0], arr[1])){
-                //Get a random monster that's suitable for this level.
-                var r = getRandom(0, this.monsters[this.level - 1].length);
+                var targetLevel = level - 1; //0-index array
+                var r = getRandom(0, monsters[targetLevel].length);
                 
                 //Create the entity according to the data file.
                 var entity = new Actor(arr[0], arr[1], 
-                                       this.monsters[this.level-1][r].char, 
-                                       this.monsters[this.level-1][r].color, 
-                                       this.monsters[this.level-1][r].name, 
-                                       this.monsters[this.level-1][r].maxHP,
-                                       this.monsters[this.level-1][r].weapon);
-                
-                //Push it to the list of all entities.
-                RogueJSEntities.push(entity);
+                                       monsters[targetLevel][r].char, 
+                                       monsters[targetLevel][r].color, 
+                                       monsters[targetLevel][r].name, 
+                                       monsters[targetLevel][r].maxHP,
+                                       monsters[targetLevel][r].weapon);
+                                
+                Entities.push(entity);
             }          
         }  
     },
@@ -102,13 +86,54 @@ var RogueJS = {
 
     },
 
-    //Input callback for the FOV
-    lightPasses : function(x, y) {
-        var key = x+","+y;
-        if (key in RogueJSData) { return (RogueJSData[key] == 0); }
-        return false;
+    makeLevel : function(level){
+        //Generate the map and make the player.
+        this.map = new ROT.Map.Digger(this.w, this.h);
+        this.map.create(function(x, y, type){
+            RogueJSData[x+","+y] = type;
+            RogueJS.discovered[x+","+y] = 0;   //undiscovered
+        });        
+        
+        this.createPlayer();
+        this.createActors(level);
+    },
+
+    postmortem: function(){
+        RogueJS.engine.lock();
+
+        for(var i = 0; i < 10; i++){
+            //TODO: Implement proper pushing of timeouts to a timeout array and clear that array
+            clearTimeout(i);
+        }
+
+        //Wipe everything
+        this.display.clear();
+        this.scheduler = null;
+        this.RogueJSData = null;
+        this.Entities = null;
+
+        var endPlayer = {
+            name: this.player.getName(),
+            maxHP: this.player.getMaxHP()
+        };
+
+        this.player = null;
+
+        document.getElementById("RogueHUD").style.display = "none";
+
+        this.display.drawText(5,  2, "You have %c{red}perished on level " + this.level);
+        this.display.drawText(5,  5, "Your name was " + endPlayer.name + " and you had a Max HP of " + endPlayer.maxHP + ".");
+
+        document.getElementById("Restart").style.visibility = "visible";
+
+        this.engine = null;
     }
     
+};
+
+var restart = function(){
+    RogueJS = null;
+    RogueJS.init();
 }
 
 /**
@@ -142,8 +167,8 @@ var recalculateMap = function(){
         RogueJS.discovered[x+","+y] = 1;   //now been discovered
     });
     
-    for(var i = 1; i < RogueJSEntities.length; i++){
-        RogueJSEntities[i]._draw();
+    for(var i = 1; i < Entities.length; i++){
+        Entities[i]._draw();
     }
 }
 
@@ -203,8 +228,8 @@ var IsOccupied = function(tileX, tileY){
     if(RogueJS.player.getX() == tileX && RogueJS.player.getY() == tileY){
         return true;
     }
-    for(var i = 1; i < RogueJSEntities.length; i++){
-        if(RogueJSEntities[i]._x == tileX && RogueJSEntities[i]._y == tileY){
+    for(var i = 1; i < Entities.length; i++){
+        if(Entities[i]._x == tileX && Entities[i]._y == tileY){
             return true;
         }
     }
@@ -226,9 +251,9 @@ function GetObjectAtTile(tileX, tileY){
     if(RogueJS.player.getX() == tileX && RogueJS.player.getY() == tileY){
         return RogueJS.player;
     }
-    for(var i = 1; i < RogueJSEntities.length; i++){
-        if(RogueJSEntities[i]._x == tileX && RogueJSEntities[i]._y == tileY){
-            return RogueJSEntities[i];
+    for(var i = 1; i < Entities.length; i++){
+        if(Entities[i]._x == tileX && Entities[i]._y == tileY){
+            return Entities[i];
         }
     }
     return;
@@ -257,14 +282,12 @@ function attackTile(attacker, tileX, tileY){
         //Check for death
         if(defender.isDead()){
             if(defender instanceof Actor){   //is not the player
-                var x = RogueJSEntities.indexOf(defender);
+                var x = Entities.indexOf(defender);
                 RogueJS.scheduler.remove(defender);
-                RogueJSEntities.splice(x, 1);   //Remove from the array
+                Entities.splice(x, 1);   //Remove from the array
                 recalculateMap();
                 var msg = "The " + defender.getName() + " %c{red}is dead!";
                 HUDMessage(msg);
-            }else if(defender instanceof Player){
-                //GameOver();
             }
         }       
     }else{
@@ -277,7 +300,7 @@ function attackTile(attacker, tileX, tileY){
 * Update the HUD Message.
 */
 function HUDMessage(str){
-    RogueJSMessages.push(str);
+    Messages.push(str);
     UpdateHUD();
 }
 
@@ -290,11 +313,24 @@ function UpdateHUD(){
     RogueJS.hud.clear();
     
     //Show player's health
-    drawBar(1, 0, 10, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), "#0a0", "#060", "HEALTH");
-    
+    if(RogueJS.player){
+        drawBar(1, 0, 10, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), "#0a0", "#060", "HEALTH");
+    }
+
     //Pop the most recent message
-    RogueJS.hud.drawText(16, 0, RogueJSMessages.pop());
-    
+    if(Messages.length > 0){
+        RogueJS.hud.drawText(16, 0, Messages.pop());
+    }
+
     //Refresh.
     setTimeout(UpdateHUD, 1500);
+}
+
+/**
+ * Callback for FOV checking.
+ */
+function lightPasses(x, y) {
+    var key = x+","+y;
+    if (key in RogueJSData) { return (RogueJSData[key] == 0); }
+    return false;
 }

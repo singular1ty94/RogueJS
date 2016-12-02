@@ -9,7 +9,7 @@
 ** of the object isn't used ever. Follow the examples
 ** if you're lost.
 */
-monsters = [
+var monsters = [
     
     level_1 = [
         //Basic creature that deals minimal damage.

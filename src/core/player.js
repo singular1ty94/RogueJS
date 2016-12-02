@@ -7,7 +7,7 @@
 var Player = function(x, y){
     this._x = x;
     this._y = y;
-    this._MaxHP = 100;
+    this._MaxHP = 30;
     this._HP = this._MaxHP;
     this._draw();
     this._name = "Player";
@@ -52,14 +52,22 @@ Player.prototype._draw = function(){
 
 //The function that the engine will be calling by default
 Player.prototype.act = function(){
-    //Lockup the engine to await user input
-    RogueJS.engine.lock();
-    //Await user input on the player object - must have handleEvent function.
-    window.addEventListener("keydown", this); 
+    console.log(this._HP);
+    //Identify if we're dead
+    if(this._HP <= 0){
+        RogueJS.postmortem();
+    }else{
+        //Lockup the engine to await user input
+        RogueJS.engine.lock();
+        //Await user input on the player object - must have handleEvent function.
+        window.addEventListener("keydown", this); 
+    }
 }
 
 //Handle user input
 Player.prototype.handleEvent = function(e){
+    if(this._HP <= 0) { return; }  
+
     var keyMap = {};    //Standard key mappings
     keyMap[38] = 0;
     keyMap[33] = 1;
@@ -99,8 +107,8 @@ Player.prototype.handleEvent = function(e){
         attackTile(this, newX, newY);
         //Clear the event listener and unlock the engine
         window.removeEventListener("keydown", this);
-        RogueJS.engine.unlock();
         recalculateMap();
+        RogueJS.engine.unlock();
     }else {
         //Regular move
         RogueJS.display.draw(this._x, this._y, RogueJS.map[this._x + "," + this._y]);
@@ -110,7 +118,7 @@ Player.prototype.handleEvent = function(e){
 
         //Clear the event listener and unlock the engine
         window.removeEventListener("keydown", this);
-        RogueJS.engine.unlock();
         recalculateMap();
+        RogueJS.engine.unlock();
     }
 }

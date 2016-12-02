@@ -10,7 +10,7 @@
 ** a weapon. It's inefficent but might payoff 
 ** later on.
 */
-weapons = {
+var weapons = {
     //The special first weapon the player uses.
     playerWeapon : {
         name: 'Broken Sword',

@@ -75,3 +75,13 @@ p{
     margin: 0 auto;
     text-align: center;
 }
+
+#Restart{
+    visibility: hidden;
+    width: 1185px;
+    height: 40px; 
+    margin: 0 auto;
+    margin-top:0px;
+    text-align: center;
+    border: 1px solid lightgray;
+}
