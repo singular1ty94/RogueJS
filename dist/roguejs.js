@@ -415,22 +415,15 @@ var RogueJS = {
 
         document.getElementById("RogueHUD").style.display = "none";
 
-        this.display.drawText(5,  2, "You have %c{red}perished on level " + this.level);
+        this.display.drawText(5,  2, "You have %c{red}perished%c{} on level " + this.level);
         this.display.drawText(5,  5, "Your name was " + endPlayer.name + " and you had a Max HP of " + endPlayer.maxHP + ".");
 
-        document.getElementById("Restart").style.visibility = "visible";
+        this.display.drawText(5,  20, "Refresh your browser to play again.");
 
         this.engine = null;
     }
     
 };
-
-var restart = function(){
-    RogueJS = null;
-    RogueJS.init();
-}
-
-
 
 /**
 * Drawing the FOV from the player.
