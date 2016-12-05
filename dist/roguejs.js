@@ -1,4 +1,22 @@
-/* DATA FILE: weapons.js
+/* Colour palette: Solarized: http://ethanschoonover.com/solarized */
+var Colors = {
+    base03:    '#002b36',
+    base02:    '#073642',
+    base01:    '#586e75',
+    base00:    '#657b83',
+    base0:     '#839496',
+    base1:     '#93a1a1',
+    base2:     '#eee8d5',
+    base3:     '#fdf6e3',
+    yellow:    '#b58900',
+    orange:    '#cb4b16',
+    red:       '#dc322f',
+    magenta:   '#d33682',
+    violet:    '#6c71c4',
+    blue:      '#268bd2',
+    cyan:      '#2aa198',
+    green:     '#859900'
+};/* DATA FILE: weapons.js
 ** author: singular1ty94
 ** STORES WEAPON INFORMATION
 ** PLEASE READ
@@ -297,10 +315,14 @@ var RogueJSData = {};
 var Entities = [];
 var Messages = ["Welcome to the Dungeons of %c{red}DOOM%c{}!"];
 
-var COLOR_FOV_WALL = "#777";
-var COLOR_FOV_FLOOR = "#444";
-var COLOR_DISCOVERED_WALL = "#333";
-var COLOR_DISCOVERED_FLOOR = "#111";
+var COLOR_FOV_WALL = Colors.base02;
+var COLOR_FOV_FLOOR = Colors.base03;
+var COLOR_DISCOVERED_WALL = '#222';
+var COLOR_DISCOVERED_FLOOR = '#111';
+
+var COLOR_HEALTH_DARK = '#2e4200';
+var COLOR_HEALTH_LIGHT = Colors.green;
+
 var MIN_MOBS = 3;
 var MAX_MOBS = 10;
 
@@ -418,7 +440,7 @@ var RogueJS = {
         this.display.drawText(5,  2, "You have %c{red}perished%c{} on level " + this.level);
         this.display.drawText(5,  5, "Your name was " + endPlayer.name + " and you had a Max HP of " + endPlayer.maxHP + ".");
 
-        this.display.drawText(5,  20, "Refresh your browser to play again.");
+        this.display.drawText(5,  25, "Refresh your browser to play again.");
 
         this.engine = null;
     }
@@ -603,7 +625,8 @@ function UpdateHUD(){
     
     //Show player's health
     if(RogueJS.player){
-        drawBar(1, 0, 10, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), "#0a0", "#060", "HEALTH");
+        curHealth = "HP (" + RogueJS.player.getHP() + "/" + RogueJS.player.getMaxHP() + ")";
+        drawBar(1, 0, 10, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), COLOR_HEALTH_LIGHT, COLOR_HEALTH_DARK, curHealth);
     }
 
     //Pop the most recent message

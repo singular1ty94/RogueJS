@@ -3,10 +3,14 @@ var RogueJSData = {};
 var Entities = [];
 var Messages = ["Welcome to the Dungeons of %c{red}DOOM%c{}!"];
 
-var COLOR_FOV_WALL = "#777";
-var COLOR_FOV_FLOOR = "#444";
-var COLOR_DISCOVERED_WALL = "#333";
-var COLOR_DISCOVERED_FLOOR = "#111";
+var COLOR_FOV_WALL = Colors.base02;
+var COLOR_FOV_FLOOR = Colors.base03;
+var COLOR_DISCOVERED_WALL = '#222';
+var COLOR_DISCOVERED_FLOOR = '#111';
+
+var COLOR_HEALTH_DARK = '#2e4200';
+var COLOR_HEALTH_LIGHT = Colors.green;
+
 var MIN_MOBS = 3;
 var MAX_MOBS = 10;
 
@@ -309,7 +313,8 @@ function UpdateHUD(){
     
     //Show player's health
     if(RogueJS.player){
-        drawBar(1, 0, 10, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), "#0a0", "#060", "HEALTH");
+        curHealth = "HP (" + RogueJS.player.getHP() + "/" + RogueJS.player.getMaxHP() + ")";
+        drawBar(1, 0, 10, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), COLOR_HEALTH_LIGHT, COLOR_HEALTH_DARK, curHealth);
     }
 
     //Pop the most recent message

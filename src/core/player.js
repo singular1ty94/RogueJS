@@ -7,7 +7,7 @@
 var Player = function(x, y){
     this._x = x;
     this._y = y;
-    this._MaxHP = 30;
+    this._MaxHP = 40;
     this._HP = this._MaxHP;
     this._draw();
     this._name = "Player";
