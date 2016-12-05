@@ -11,8 +11,8 @@ var COLOR_DISCOVERED_FLOOR = '#111';
 var COLOR_HEALTH_DARK = '#2e4200';
 var COLOR_HEALTH_LIGHT = Colors.green;
 
-var MIN_MOBS = 3;
-var MAX_MOBS = 10;
+var MIN_MOBS = 7;
+var MAX_MOBS = 16;
 
 var RogueJS = {    
     w : 95,
@@ -186,10 +186,9 @@ var recalculateMap = function(){
 */
 var drawBar = function(posX, posY, width, maxValue, value, colorFore, colorBack, title){
     var startString = Math.ceil((width - title.length) / 2);
-    var displayIncre = Math.floor(maxValue / width); //Get the increment amount
-    var displayAmt = Math.floor((value / maxValue) * displayIncre);
+    var displayAmt = Math.floor((value / maxValue) * width);
     var titleFormatted = "";
-    
+   
     //Render the bar
     for(var i = 0; i < displayAmt; i++){
         RogueJS.hud.draw((posX + i), posY, null, colorBack, colorFore); //Deliberately switching colors to be clever.
@@ -314,7 +313,7 @@ function UpdateHUD(){
     //Show player's health
     if(RogueJS.player){
         curHealth = "HP (" + RogueJS.player.getHP() + "/" + RogueJS.player.getMaxHP() + ")";
-        drawBar(1, 0, 10, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), COLOR_HEALTH_LIGHT, COLOR_HEALTH_DARK, curHealth);
+        drawBar(1, 0, 12, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), COLOR_HEALTH_LIGHT, COLOR_HEALTH_DARK, curHealth);
     }
 
     //Pop the most recent message

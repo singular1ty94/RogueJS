@@ -52,7 +52,7 @@ var weapons = {
         name: 'Dagger',
         color: '#777',
         char: '/',
-        dmg: 2,
+        dmg: 3,
         price: 60
     },
 
@@ -187,6 +187,47 @@ var Actor = function(x, y, char, color, name, maxHP, weapon){
     
     RogueJS.scheduler.add(this, true); 
 }
+;
+var Item = function(name, char, color, price, x, y, AbilityCallback){
+    this._x = x;
+    this._y = y;
+    this._char = char;
+    this._color = color;
+    this._name = name;
+    this._price = price;
+    this._AbilityCallback = AbilityCallback;
+    
+
+    /**
+    * Handles drawing back to the Display, only if the Actor is
+    * in the Player's FOV.
+    * @param bckColor the background color to use, defaults to COLOR_FOV_FLOOR
+    */
+    this._draw = function(bckColor){
+        var bckColor = bckColor || COLOR_FOV_FLOOR; //Set default value
+
+        //Only draw if we're in the player's fov
+        if(IsInFOV(this._x, this._y)){
+            RogueJS.display.draw(this._x, this._y, this._char, this._color, bckColor);
+        }else{
+            RogueJS.display.draw(this._x, this._y, RogueJS.map[this._x + "," + this._y]);
+        }
+    }
+
+    this.act = function(){
+        //Do nothing.
+    }
+
+    this.getX = function(){return this._x;}
+    this.getY = function(){return this._y;}
+    this.getName = function(){return this._name;}
+    this.getChar = function(){return this._char;}
+    this.getPrice = function(){return this._price;}
+    this.useAbility = function(params){ this._AbilityCallback(params); }
+    
+    RogueJS.scheduler.add(this, true);
+
+}
 ;/* file: player.js
 ** author: singular1ty94
 ** Stores information about player, how to draw it,
@@ -196,7 +237,7 @@ var Actor = function(x, y, char, color, name, maxHP, weapon){
 var Player = function(x, y){
     this._x = x;
     this._y = y;
-    this._MaxHP = 30;
+    this._MaxHP = 40;
     this._HP = this._MaxHP;
     this._draw();
     this._name = "Player";
@@ -323,8 +364,8 @@ var COLOR_DISCOVERED_FLOOR = '#111';
 var COLOR_HEALTH_DARK = '#2e4200';
 var COLOR_HEALTH_LIGHT = Colors.green;
 
-var MIN_MOBS = 3;
-var MAX_MOBS = 10;
+var MIN_MOBS = 7;
+var MAX_MOBS = 16;
 
 var RogueJS = {    
     w : 95,
@@ -498,10 +539,9 @@ var recalculateMap = function(){
 */
 var drawBar = function(posX, posY, width, maxValue, value, colorFore, colorBack, title){
     var startString = Math.ceil((width - title.length) / 2);
-    var displayIncre = Math.floor(maxValue / width); //Get the increment amount
-    var displayAmt = Math.floor((value / maxValue) * displayIncre);
+    var displayAmt = Math.floor((value / maxValue) * width);
     var titleFormatted = "";
-    
+   
     //Render the bar
     for(var i = 0; i < displayAmt; i++){
         RogueJS.hud.draw((posX + i), posY, null, colorBack, colorFore); //Deliberately switching colors to be clever.
@@ -626,7 +666,7 @@ function UpdateHUD(){
     //Show player's health
     if(RogueJS.player){
         curHealth = "HP (" + RogueJS.player.getHP() + "/" + RogueJS.player.getMaxHP() + ")";
-        drawBar(1, 0, 10, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), COLOR_HEALTH_LIGHT, COLOR_HEALTH_DARK, curHealth);
+        drawBar(1, 0, 12, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), COLOR_HEALTH_LIGHT, COLOR_HEALTH_DARK, curHealth);
     }
 
     //Pop the most recent message
