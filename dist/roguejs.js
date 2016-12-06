@@ -112,8 +112,8 @@ var monsters = [
 ];/**
  * Takes an actor and heals them.
  */
-function ABILITY_HEAL(actor, heal_amt){
-    actor.restoreHP(heal_amt);
+function ABILITY_HEAL(actor){
+    actor.restoreHP(20);
 };/* file: actor.js
 ** author: singular1ty94
 ** Stores information about actors, how to draw them,
@@ -251,7 +251,7 @@ var Item = function(x, y, name, char, color, AbilityCallback){
     this.getName = function(){return this._name;}
     this.getChar = function(){return this._char;}
     this.getPrice = function(){return this._price;}
-    this.useAbility = function(params){ this._AbilityCallback(params); }
+    this.useAbility = function(actor){ this._AbilityCallback(actor); }
     
     RogueJS.scheduler.add(this, true);
 
@@ -317,8 +317,9 @@ var Player = function(x, y){
     }
     this.restoreHP = function(amt){
         this._HP += amt;
-        if(this._HP > this._maxHP){
-            this._HP = this._maxHP;
+        console.log(this._HP + " " + this._MaxHP);
+        if(this._HP > this._MaxHP){
+            this._HP = this._MaxHP;
         }
     }
     /**
@@ -363,6 +364,8 @@ Player.prototype.handleEvent = function(e){
     keyMap[36] = 7;
     keyMap[190] = 99;   //period, stay in spot
     keyMap[46] = 99;    //delete on numpad, stay in spot
+    keyMap[71] = 100;   // [g]rab an item from the floor
+    keyMap[85] = 100;  // alias for [u]se
     
     var code = e.keyCode;
     
@@ -370,12 +373,19 @@ Player.prototype.handleEvent = function(e){
     
     var newX, newY;
     
-    if(keyMap[code] == 99){ //stay in spot
+    if(keyMap[code] >= 99){ //stay in spot
         newX = this._x;
         newY = this._y;
         
         //Clear the event listener and unlock the engine
         window.removeEventListener("keydown", this);
+
+        //Optionally, if this was a use/grab request, use the item beneath us.
+        if(keyMap[code] == 100){
+            RogueJS.useItem(newX, newY, this);
+        }
+
+        //Unlock and move on.
         RogueJS.engine.unlock();
         recalculateMap();
         return;
@@ -568,6 +578,20 @@ var RogueJS = {
         this.createItems(level);
         this.createActors(level);
         this.createPlayer();
+    },
+
+    useItem: function(tileX, tileY, actor){
+        var item = checkUnderFoot(tileX, tileY);
+        if(item){
+            item.useAbility(actor);
+            HUDMessage(actor.getName() + " uses the %c{#b37700}" + item.getName() + "%c{}!");
+
+            var x = Entities.indexOf(item);
+            RogueJS.scheduler.remove(item);
+            Entities.splice(x, 1);   //Remove from the array
+        }else{
+            HUDMessage("There's nothing here.");
+        }
     },
 
     postmortem: function(){

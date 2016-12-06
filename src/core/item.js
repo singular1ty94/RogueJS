@@ -37,7 +37,7 @@ var Item = function(x, y, name, char, color, AbilityCallback){
     this.getName = function(){return this._name;}
     this.getChar = function(){return this._char;}
     this.getPrice = function(){return this._price;}
-    this.useAbility = function(params){ this._AbilityCallback(params); }
+    this.useAbility = function(actor){ this._AbilityCallback(actor); }
     
     RogueJS.scheduler.add(this, true);
 

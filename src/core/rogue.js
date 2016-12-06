@@ -157,6 +157,20 @@ var RogueJS = {
         this.createPlayer();
     },
 
+    useItem: function(tileX, tileY, actor){
+        var item = checkUnderFoot(tileX, tileY);
+        if(item){
+            item.useAbility(actor);
+            HUDMessage(actor.getName() + " uses the %c{#b37700}" + item.getName() + "%c{}!");
+
+            var x = Entities.indexOf(item);
+            RogueJS.scheduler.remove(item);
+            Entities.splice(x, 1);   //Remove from the array
+        }else{
+            HUDMessage("There's nothing here.");
+        }
+    },
+
     postmortem: function(){
         RogueJS.engine.lock();
 
