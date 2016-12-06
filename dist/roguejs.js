@@ -220,6 +220,7 @@ var Item = function(x, y, name, char, color, AbilityCallback){
     this._color = color;
     this._name = name;
     this._AbilityCallback = AbilityCallback;
+    this._isStairs = false;
     
 
     /**
@@ -444,7 +445,7 @@ var RogueJS = {
     engine : null,
     fov : null,
     scheduler: null,
-    FOV_RADIUS : 5,
+    FOV_RADIUS : 500,
     fovmap : [],
     discovered : [],
     level: 1,
@@ -478,8 +479,13 @@ var RogueJS = {
     //Drop the player in the top-left room.
     createPlayer: function(){
         var pos = RoomAndPosition();
-        this.player = new Player(pos[0], pos[1]);
-        Entities.push(this.player);
+        if(!this.player){
+            this.player = new Player(pos[0], pos[1]);
+            Entities.push(this.player);
+        }else{
+            this.player._x = pos[0];
+            this.player._y = pos[1];
+        }
     }, 
     
     //Create entities in the map
@@ -533,6 +539,17 @@ var RogueJS = {
 
     },
 
+    placeStairs: function(){
+        var Stairs = new Item("Stairs", '>', '#fff', RogueJS.nextLevel);
+        Entities.push(Stairs);
+    },
+
+    nextLevel: function(){
+        this.level += 1;
+        HUDMessage("You advance to the next level...");
+        this.makeLevel();
+    },
+
     makeLevel : function(level){
         //Generate the map and make the player.
         this.map = new ROT.Map.Digger(this.w, this.h, {
@@ -547,6 +564,7 @@ var RogueJS = {
             RogueJS.discovered[x+","+y] = 0;   //undiscovered
         });        
     
+        this.placeStairs();
         this.createItems(level);
         this.createActors(level);
         this.createPlayer();

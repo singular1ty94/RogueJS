@@ -6,6 +6,7 @@ var Item = function(x, y, name, char, color, AbilityCallback){
     this._color = color;
     this._name = name;
     this._AbilityCallback = AbilityCallback;
+    this._isStairs = false;
     
 
     /**
