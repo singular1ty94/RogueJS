@@ -445,7 +445,7 @@ var RogueJS = {
     engine : null,
     fov : null,
     scheduler: null,
-    FOV_RADIUS : 500,
+    FOV_RADIUS : 5,
     fovmap : [],
     discovered : [],
     level: 1,
