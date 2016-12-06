@@ -7,6 +7,4 @@
 * Item usage
 * Ranged enemies
 * More enemy variety
-* XP gains
-* Levelups
 * Inventory management
