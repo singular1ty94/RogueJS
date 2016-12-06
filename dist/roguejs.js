@@ -409,8 +409,10 @@ var RogueJSData = {};
 var Entities = [];
 var Messages = ["Welcome to the Dungeons of %c{red}DOOM%c{}!"];
 
-var COLOR_FOV_WALL = Colors.base02;
-var COLOR_FOV_FLOOR = Colors.base03;
+var COLOR_FOV_WALL = '#b37700';
+var COLOR_FOV_FLOOR = '#664400';
+// var COLOR_FOV_WALL = Colors.base02;
+// var COLOR_FOV_FLOOR = Colors.base03;
 var COLOR_DISCOVERED_WALL = '#222';
 var COLOR_DISCOVERED_FLOOR = '#111';
 
@@ -427,7 +429,7 @@ var MIN_ITEMS = 2;
 var MAX_ITEMS = 5;
 
 var RogueJS = {    
-    w : 95,
+    w : 115,
     h : 28,
     display : null,
     hud : null,
@@ -436,7 +438,7 @@ var RogueJS = {
     engine : null,
     fov : null,
     scheduler: null,
-    FOV_RADIUS : 10,
+    FOV_RADIUS : 5,
     fovmap : [],
     discovered : [],
     level: 1,
@@ -469,7 +471,7 @@ var RogueJS = {
     
     //Drop the player in the top-left room.
     createPlayer: function(){
-        var pos = FreeRoomAndPosition();
+        var pos = RoomAndPosition();
         this.player = new Player(pos[0], pos[1]);
         Entities.push(this.player);
     }, 
@@ -477,7 +479,7 @@ var RogueJS = {
     //Create entities in the map
     createActors: function(level){
         for(var num = 0; num < getRandom(MIN_MOBS, MAX_MOBS); num ++){
-            var arr = FreeRoomAndPosition();
+            var arr = RoomAndPosition();
             
             //Check the room isn't occupied.
             if(!IsOccupied(arr[0], arr[1])){
@@ -501,7 +503,7 @@ var RogueJS = {
     //Create items in the map
     createItems: function(level){
         for(var num = 0; num < getRandom(MIN_ITEMS, MAX_ITEMS); num ++){
-            var arr = FreeRoomAndPosition();
+            var arr = RoomAndPosition();
             
             //Check the room isn't occupied.
             if(!IsOccupied(arr[0], arr[1])){
@@ -527,7 +529,13 @@ var RogueJS = {
 
     makeLevel : function(level){
         //Generate the map and make the player.
-        this.map = new ROT.Map.Digger(this.w, this.h);
+        this.map = new ROT.Map.Digger(this.w, this.h, {
+            roomWidth: [5, 10], /* room minimum and maximum width */
+            roomHeight: [5, 10], /* room minimum and maximum height */
+            corridorLength: [3, 4], /* corridor minimum and maximum length */
+            dugPercentage: 0.40, /* we stop after this percentage of level area has been dug out */
+            timeLimit: 1000 /* we stop after this much time has passed (msec) */
+        });
         this.map.create(function(x, y, type){
             RogueJSData[x+","+y] = type;
             RogueJS.discovered[x+","+y] = 0;   //undiscovered
@@ -596,6 +604,8 @@ var recalculateMap = function(){
     //Recompute the fov from the player's perspective.
     if(RogueJS.player){
         RogueJS.fov.compute(RogueJS.player._x, RogueJS.player._y, RogueJS.FOV_RADIUS, function(x, y, r, visibility) {
+            console.log([x, y]);
+
             var ch = (r ? "" : "@");
             var color = (RogueJSData[x+","+y] ? COLOR_FOV_WALL: COLOR_FOV_FLOOR);
             RogueJS.display.draw(x, y, ch, "#fff", color);
@@ -673,9 +683,9 @@ var IsOccupied = function(tileX, tileY){
 }
 
 //Find a random room
-var FreeRoomAndPosition = function(){    
+var RoomAndPosition = function(){    
     var i = getRandom(0, RogueJS.map.getRooms().length);
-    return RogueJS.map.getRooms()[i].getCenter();
+    return RogueJS.map.getRooms()[i].getRandomPosition();
 }
 
 function getRandom(min, max){
@@ -775,8 +785,7 @@ function lightPasses(x, y) {
     var key = x+","+y;
     if (key in RogueJSData) { return (RogueJSData[key] == 0); }
     return false;
-}
-;/*
+};/*
 	This is rot.js, the ROguelike Toolkit in JavaScript.
 	Version 0.5~dev, generated on Sat Apr 26 10:24:50 PDT 2014.
 */
@@ -4455,6 +4464,10 @@ ROT.Map.Feature.Room.prototype.getTop = function() {
 
 ROT.Map.Feature.Room.prototype.getBottom = function() {
 	return this._y2;
+}
+
+ROT.Map.Feature.Room.prototype.getRandomPosition = function() {
+	return [getRandom(this._x1, this._x2), getRandom(this._y1, this._y2)];
 }
 
 /**
