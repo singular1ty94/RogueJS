@@ -16,7 +16,17 @@ var Colors = {
     blue:      '#268bd2',
     cyan:      '#2aa198',
     green:     '#859900'
-};/* DATA FILE: weapons.js
+};var items = [
+    
+    level_1 = [
+        MinorFlask = {
+            char: ':',
+            color: '#33cc33',
+            name: 'Minor Flask',
+            ability: ABILITY_HEAL
+        }
+    ]
+];/* DATA FILE: weapons.js
 ** author: singular1ty94
 ** STORES WEAPON INFORMATION
 ** PLEASE READ
@@ -34,7 +44,7 @@ var weapons = {
         name: 'Broken Sword',
         color: '#777',
         char: '/',
-        dmg: 17,
+        dmg: 3,
         price: 34
     },
     
@@ -84,7 +94,7 @@ var monsters = [
             char: 't',
             color: '#f00',
             name: 'Troll',
-            maxHP: 10,
+            maxHP: 8,
             XP: 3,
             weapon: weapons.Club
         },
@@ -94,12 +104,17 @@ var monsters = [
             char: 'g',
             color: '#282',
             name: 'Goblin',
-            maxHP: 8,
+            maxHP: 6,
             XP: 4,
             weapon: weapons.Dagger
         }
     ]
-];/* file: actor.js
+];/**
+ * Takes an actor and heals them.
+ */
+function ABILITY_HEAL(actor, heal_amt){
+    actor.restoreHP(heal_amt);
+};/* file: actor.js
 ** author: singular1ty94
 ** Stores information about actors, how to draw them,
 ** and their movement properties.
@@ -185,6 +200,12 @@ var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
     this.damageHP = function(amt){
         this._HP -= amt;
     }
+    this.restoreHP = function(amt){
+        this._HP += amt;
+        if(this._HP > this._maxHP){
+            this._HP = this._maxHP;
+        }
+    }
     this.isDead = function(){
         return (this._HP <= 0 ? true: false);
     }
@@ -192,13 +213,12 @@ var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
     RogueJS.scheduler.add(this, true); 
 }
 ;
-var Item = function(name, char, color, price, x, y, AbilityCallback){
+var Item = function(x, y, name, char, color, AbilityCallback){
     this._x = x;
     this._y = y;
     this._char = char;
     this._color = color;
     this._name = name;
-    this._price = price;
     this._AbilityCallback = AbilityCallback;
     
 
@@ -291,7 +311,12 @@ var Player = function(x, y){
     this.isDead = function(){
         return (this._HP <= 0 ? true: false);
     }
-    
+    this.restoreHP = function(amt){
+        this._HP += amt;
+        if(this._HP > this._maxHP){
+            this._HP = this._maxHP;
+        }
+    }
     /**
     * Takes an instantiated Weapon and replaces the
     * current weapon.
@@ -303,7 +328,7 @@ var Player = function(x, y){
 
 //The player's drawing function
 Player.prototype._draw = function(){
-    RogueJS.display.draw(this._x, this._y, "@", "#fff");
+    RogueJS.display.draw(this._x, this._y, "@", "#fff", COLOR_FOV_FLOOR);
 }
 
 //The function that the engine will be calling by default
@@ -392,8 +417,11 @@ var COLOR_HEALTH_LIGHT = Colors.green;
 var COLOR_XP_DARK = '#4d004d';
 var COLOR_XP_LIGHT = '#800080';
 
-var MIN_MOBS = 15;
-var MAX_MOBS = 20;
+var MIN_MOBS = 3;
+var MAX_MOBS = 5;
+
+var MIN_ITEMS = 2;
+var MAX_ITEMS = 5;
 
 var RogueJS = {    
     w : 95,
@@ -419,15 +447,15 @@ var RogueJS = {
         document.getElementById("RogueCanvas").appendChild(this.display.getContainer());
         document.getElementById("RogueHUD").appendChild(this.hud.getContainer());
         
+        //The fov
+        this.fov = new ROT.FOV.PreciseShadowcasting(lightPasses);
+        
         //Make the first level
         this.makeLevel(1);
         
         //Setup the scehduler and engine
         this.engine = new ROT.Engine(this.scheduler);
         this.engine.start();
-        
-        //The fov
-        this.fov = new ROT.FOV.PreciseShadowcasting(lightPasses);
         
         //Output callback
         recalculateMap();
@@ -466,6 +494,28 @@ var RogueJS = {
             }          
         }  
     },
+
+    //Create items in the map
+    createItems: function(level){
+        for(var num = 0; num < getRandom(MIN_ITEMS, MAX_ITEMS); num ++){
+            var arr = FreeRoomAndPosition();
+            
+            //Check the room isn't occupied.
+            if(!IsOccupied(arr[0], arr[1])){
+                var targetLevel = level - 1; //0-index array
+                var r = getRandom(0, items[targetLevel].length);
+                
+                //Create the entity according to the data file.
+                var entity = new Item(arr[0], arr[1], 
+                                       items[targetLevel][r].name, 
+                                       items[targetLevel][r].char, 
+                                       items[targetLevel][r].color, 
+                                       items[targetLevel][r].ability);
+                                
+                Entities.push(entity);
+            }          
+        }  
+    },
     
     //Create the weapons.
     createWeapons : function(){
@@ -479,9 +529,10 @@ var RogueJS = {
             RogueJSData[x+","+y] = type;
             RogueJS.discovered[x+","+y] = 0;   //undiscovered
         });        
-        
-        this.createPlayer();
+    
+        this.createItems(level);
         this.createActors(level);
+        this.createPlayer();
     },
 
     postmortem: function(){
@@ -540,13 +591,15 @@ var recalculateMap = function(){
     RogueJS.fovmap = [];
 
     //Recompute the fov from the player's perspective.
-    RogueJS.fov.compute(RogueJS.player._x, RogueJS.player._y, RogueJS.FOV_RADIUS, function(x, y, r, visibility) {
-        var ch = (r ? "" : "@");
-        var color = (RogueJSData[x+","+y] ? COLOR_FOV_WALL: COLOR_FOV_FLOOR);
-        RogueJS.display.draw(x, y, ch, "#fff", color);
-        RogueJS.fovmap[x+","+y] = 1;
-        RogueJS.discovered[x+","+y] = 1;   //now been discovered
-    });
+    if(RogueJS.player){
+        RogueJS.fov.compute(RogueJS.player._x, RogueJS.player._y, RogueJS.FOV_RADIUS, function(x, y, r, visibility) {
+            var ch = (r ? "" : "@");
+            var color = (RogueJSData[x+","+y] ? COLOR_FOV_WALL: COLOR_FOV_FLOOR);
+            RogueJS.display.draw(x, y, ch, "#fff", color);
+            RogueJS.fovmap[x+","+y] = 1;
+            RogueJS.discovered[x+","+y] = 1;   //now been discovered
+        });
+    }
     
     for(var i = 1; i < Entities.length; i++){
         Entities[i]._draw();
@@ -605,11 +658,11 @@ var IsInFOV = function(tileX, tileY){
 
 //Check to see if actor or player is occupying spot
 var IsOccupied = function(tileX, tileY){
-    if(RogueJS.player.getX() == tileX && RogueJS.player.getY() == tileY){
+    if(RogueJS.player && RogueJS.player.getX() == tileX && RogueJS.player.getY() == tileY){
         return true;
     }
     for(var i = 1; i < Entities.length; i++){
-        if(Entities[i]._x == tileX && Entities[i]._y == tileY){
+        if(Entities[i]._x == tileX && Entities[i]._y == tileY && Entities[i] instanceof Actor){
             return true;
         }
     }

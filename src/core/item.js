@@ -1,11 +1,10 @@
 
-var Item = function(name, char, color, price, x, y, AbilityCallback){
+var Item = function(x, y, name, char, color, AbilityCallback){
     this._x = x;
     this._y = y;
     this._char = char;
     this._color = color;
     this._name = name;
-    this._price = price;
     this._AbilityCallback = AbilityCallback;
     
 

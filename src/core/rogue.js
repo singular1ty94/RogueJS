@@ -14,8 +14,11 @@ var COLOR_HEALTH_LIGHT = Colors.green;
 var COLOR_XP_DARK = '#4d004d';
 var COLOR_XP_LIGHT = '#800080';
 
-var MIN_MOBS = 15;
-var MAX_MOBS = 20;
+var MIN_MOBS = 3;
+var MAX_MOBS = 5;
+
+var MIN_ITEMS = 2;
+var MAX_ITEMS = 5;
 
 var RogueJS = {    
     w : 95,
@@ -41,15 +44,15 @@ var RogueJS = {
         document.getElementById("RogueCanvas").appendChild(this.display.getContainer());
         document.getElementById("RogueHUD").appendChild(this.hud.getContainer());
         
+        //The fov
+        this.fov = new ROT.FOV.PreciseShadowcasting(lightPasses);
+        
         //Make the first level
         this.makeLevel(1);
         
         //Setup the scehduler and engine
         this.engine = new ROT.Engine(this.scheduler);
         this.engine.start();
-        
-        //The fov
-        this.fov = new ROT.FOV.PreciseShadowcasting(lightPasses);
         
         //Output callback
         recalculateMap();
@@ -88,6 +91,28 @@ var RogueJS = {
             }          
         }  
     },
+
+    //Create items in the map
+    createItems: function(level){
+        for(var num = 0; num < getRandom(MIN_ITEMS, MAX_ITEMS); num ++){
+            var arr = FreeRoomAndPosition();
+            
+            //Check the room isn't occupied.
+            if(!IsOccupied(arr[0], arr[1])){
+                var targetLevel = level - 1; //0-index array
+                var r = getRandom(0, items[targetLevel].length);
+                
+                //Create the entity according to the data file.
+                var entity = new Item(arr[0], arr[1], 
+                                       items[targetLevel][r].name, 
+                                       items[targetLevel][r].char, 
+                                       items[targetLevel][r].color, 
+                                       items[targetLevel][r].ability);
+                                
+                Entities.push(entity);
+            }          
+        }  
+    },
     
     //Create the weapons.
     createWeapons : function(){
@@ -101,9 +126,10 @@ var RogueJS = {
             RogueJSData[x+","+y] = type;
             RogueJS.discovered[x+","+y] = 0;   //undiscovered
         });        
-        
-        this.createPlayer();
+    
+        this.createItems(level);
         this.createActors(level);
+        this.createPlayer();
     },
 
     postmortem: function(){
@@ -162,13 +188,15 @@ var recalculateMap = function(){
     RogueJS.fovmap = [];
 
     //Recompute the fov from the player's perspective.
-    RogueJS.fov.compute(RogueJS.player._x, RogueJS.player._y, RogueJS.FOV_RADIUS, function(x, y, r, visibility) {
-        var ch = (r ? "" : "@");
-        var color = (RogueJSData[x+","+y] ? COLOR_FOV_WALL: COLOR_FOV_FLOOR);
-        RogueJS.display.draw(x, y, ch, "#fff", color);
-        RogueJS.fovmap[x+","+y] = 1;
-        RogueJS.discovered[x+","+y] = 1;   //now been discovered
-    });
+    if(RogueJS.player){
+        RogueJS.fov.compute(RogueJS.player._x, RogueJS.player._y, RogueJS.FOV_RADIUS, function(x, y, r, visibility) {
+            var ch = (r ? "" : "@");
+            var color = (RogueJSData[x+","+y] ? COLOR_FOV_WALL: COLOR_FOV_FLOOR);
+            RogueJS.display.draw(x, y, ch, "#fff", color);
+            RogueJS.fovmap[x+","+y] = 1;
+            RogueJS.discovered[x+","+y] = 1;   //now been discovered
+        });
+    }
     
     for(var i = 1; i < Entities.length; i++){
         Entities[i]._draw();
@@ -227,11 +255,11 @@ var IsInFOV = function(tileX, tileY){
 
 //Check to see if actor or player is occupying spot
 var IsOccupied = function(tileX, tileY){
-    if(RogueJS.player.getX() == tileX && RogueJS.player.getY() == tileY){
+    if(RogueJS.player && RogueJS.player.getX() == tileX && RogueJS.player.getY() == tileY){
         return true;
     }
     for(var i = 1; i < Entities.length; i++){
-        if(Entities[i]._x == tileX && Entities[i]._y == tileY){
+        if(Entities[i]._x == tileX && Entities[i]._y == tileY && Entities[i] instanceof Actor){
             return true;
         }
     }

@@ -57,7 +57,12 @@ var Player = function(x, y){
     this.isDead = function(){
         return (this._HP <= 0 ? true: false);
     }
-    
+    this.restoreHP = function(amt){
+        this._HP += amt;
+        if(this._HP > this._maxHP){
+            this._HP = this._maxHP;
+        }
+    }
     /**
     * Takes an instantiated Weapon and replaces the
     * current weapon.
@@ -69,7 +74,7 @@ var Player = function(x, y){
 
 //The player's drawing function
 Player.prototype._draw = function(){
-    RogueJS.display.draw(this._x, this._y, "@", "#fff");
+    RogueJS.display.draw(this._x, this._y, "@", "#fff", COLOR_FOV_FLOOR);
 }
 
 //The function that the engine will be calling by default

@@ -8,3 +8,5 @@
 * Ranged enemies
 * More enemy variety
 * Inventory management
+* Refactor colours
+* Fix bug in FreeRoomAndPosition so we can place things in more positions than just the centre
