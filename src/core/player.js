@@ -136,6 +136,12 @@ Player.prototype.handleEvent = function(e){
         recalculateMap();
         RogueJS.engine.unlock();
     }else {
+        //Get what's under foot there.
+        var object = checkUnderFoot(newX, newY);
+        if(object){
+            HUDMessage("You are standing on a %c{#b37700}" + object.getName() + "%c{}.");
+        }
+
         //Regular move
         RogueJS.display.draw(this._x, this._y, RogueJS.map[this._x + "," + this._y]);
         this._x = newX;

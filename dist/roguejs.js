@@ -393,6 +393,12 @@ Player.prototype.handleEvent = function(e){
         recalculateMap();
         RogueJS.engine.unlock();
     }else {
+        //Get what's under foot there.
+        var object = checkUnderFoot(newX, newY);
+        if(object){
+            HUDMessage("You are standing on a %c{#b37700}" + object.getName() + "%c{}.");
+        }
+
         //Regular move
         RogueJS.display.draw(this._x, this._y, RogueJS.map[this._x + "," + this._y]);
         this._x = newX;
@@ -604,8 +610,6 @@ var recalculateMap = function(){
     //Recompute the fov from the player's perspective.
     if(RogueJS.player){
         RogueJS.fov.compute(RogueJS.player._x, RogueJS.player._y, RogueJS.FOV_RADIUS, function(x, y, r, visibility) {
-            console.log([x, y]);
-
             var ch = (r ? "" : "@");
             var color = (RogueJSData[x+","+y] ? COLOR_FOV_WALL: COLOR_FOV_FLOOR);
             RogueJS.display.draw(x, y, ch, "#fff", color);
@@ -742,6 +746,18 @@ function attackTile(attacker, tileX, tileY){
         //Ain't nothing to attack there.
         return;
     }
+}
+
+//Check if anything's under foot
+function checkUnderFoot(tileX, tileY){
+    if(RogueJS.player){
+        for(var i = 1; i < Entities.length; i++){
+            if(Entities[i]._x == tileX && Entities[i]._y == tileY && Entities[i] instanceof Item){
+                return Entities[i];
+            }
+        }
+    }
+    return false;
 }
 
 /**

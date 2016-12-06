@@ -9,3 +9,4 @@
 * More enemy variety
 * Inventory management
 * Refactor colours
+* Separate message and HUD so messages can stay

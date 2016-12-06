@@ -336,6 +336,18 @@ function attackTile(attacker, tileX, tileY){
     }
 }
 
+//Check if anything's under foot
+function checkUnderFoot(tileX, tileY){
+    if(RogueJS.player){
+        for(var i = 1; i < Entities.length; i++){
+            if(Entities[i]._x == tileX && Entities[i]._y == tileY && Entities[i] instanceof Item){
+                return Entities[i];
+            }
+        }
+    }
+    return false;
+}
+
 /**
 * Update the HUD Message.
 */
