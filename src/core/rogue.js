@@ -3,12 +3,19 @@ var RogueJSData = {};
 var Entities = [];
 var Messages = ["Welcome to the Dungeons of %c{red}DOOM%c{}!"];
 
-var COLOR_FOV_WALL = "#777";
-var COLOR_FOV_FLOOR = "#444";
-var COLOR_DISCOVERED_WALL = "#333";
-var COLOR_DISCOVERED_FLOOR = "#111";
-var MIN_MOBS = 3;
-var MAX_MOBS = 10;
+var COLOR_FOV_WALL = Colors.base02;
+var COLOR_FOV_FLOOR = Colors.base03;
+var COLOR_DISCOVERED_WALL = '#222';
+var COLOR_DISCOVERED_FLOOR = '#111';
+
+var COLOR_HEALTH_DARK = '#2e4200';
+var COLOR_HEALTH_LIGHT = Colors.green;
+
+var COLOR_XP_DARK = '#4d004d';
+var COLOR_XP_LIGHT = '#800080';
+
+var MIN_MOBS = 15;
+var MAX_MOBS = 20;
 
 var RogueJS = {    
     w : 95,
@@ -74,6 +81,7 @@ var RogueJS = {
                                        monsters[targetLevel][r].color, 
                                        monsters[targetLevel][r].name, 
                                        monsters[targetLevel][r].maxHP,
+                                       monsters[targetLevel][r].XP,
                                        monsters[targetLevel][r].weapon);
                                 
                 Entities.push(entity);
@@ -121,20 +129,15 @@ var RogueJS = {
 
         document.getElementById("RogueHUD").style.display = "none";
 
-        this.display.drawText(5,  2, "You have %c{red}perished on level " + this.level);
+        this.display.drawText(5,  2, "You have %c{red}perished%c{} on level " + this.level);
         this.display.drawText(5,  5, "Your name was " + endPlayer.name + " and you had a Max HP of " + endPlayer.maxHP + ".");
 
-        document.getElementById("Restart").style.visibility = "visible";
+        this.display.drawText(5,  25, "Refresh your browser to play again.");
 
         this.engine = null;
     }
     
 };
-
-var restart = function(){
-    RogueJS = null;
-    RogueJS.init();
-}
 
 /**
 * Drawing the FOV from the player.
@@ -187,10 +190,9 @@ var recalculateMap = function(){
 */
 var drawBar = function(posX, posY, width, maxValue, value, colorFore, colorBack, title){
     var startString = Math.ceil((width - title.length) / 2);
-    var displayIncre = Math.floor(maxValue / width); //Get the increment amount
-    var displayAmt = Math.floor((value / maxValue) * displayIncre);
+    var displayAmt = Math.floor((value / maxValue) * width);
     var titleFormatted = "";
-    
+   
     //Render the bar
     for(var i = 0; i < displayAmt; i++){
         RogueJS.hud.draw((posX + i), posY, null, colorBack, colorFore); //Deliberately switching colors to be clever.
@@ -284,6 +286,8 @@ function attackTile(attacker, tileX, tileY){
             if(defender instanceof Actor){   //is not the player
                 var x = Entities.indexOf(defender);
                 RogueJS.scheduler.remove(defender);
+                //Gain experience
+                RogueJS.player.gainXP(defender.getXP());
                 Entities.splice(x, 1);   //Remove from the array
                 recalculateMap();
                 var msg = "The " + defender.getName() + " %c{red}is dead!";
@@ -312,14 +316,18 @@ function UpdateHUD(){
     //Wipe out the display
     RogueJS.hud.clear();
     
-    //Show player's health
+    //Show player's status
     if(RogueJS.player){
-        drawBar(1, 0, 10, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), "#0a0", "#060", "HEALTH");
+        curHealth = "HP (" + RogueJS.player.getHP() + "/" + RogueJS.player.getMaxHP() + ")";
+        drawBar(1, 0, 12, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), COLOR_HEALTH_LIGHT, COLOR_HEALTH_DARK, curHealth);
+
+        curXP = "XP (" + RogueJS.player.getXP() + "/" + RogueJS.player.getNextXP() + ")";
+        drawBar(15, 0, 12, RogueJS.player.getNextXP(), RogueJS.player.getXP(), COLOR_XP_LIGHT, COLOR_XP_DARK, curXP);
     }
 
     //Pop the most recent message
     if(Messages.length > 0){
-        RogueJS.hud.drawText(16, 0, Messages.pop());
+        RogueJS.hud.drawText(30, 0, Messages.pop());
     }
 
     //Refresh.

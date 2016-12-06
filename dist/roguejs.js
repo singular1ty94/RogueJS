@@ -1,4 +1,22 @@
-/* DATA FILE: weapons.js
+/* Colour palette: Solarized: http://ethanschoonover.com/solarized */
+var Colors = {
+    base03:    '#002b36',
+    base02:    '#073642',
+    base01:    '#586e75',
+    base00:    '#657b83',
+    base0:     '#839496',
+    base1:     '#93a1a1',
+    base2:     '#eee8d5',
+    base3:     '#fdf6e3',
+    yellow:    '#b58900',
+    orange:    '#cb4b16',
+    red:       '#dc322f',
+    magenta:   '#d33682',
+    violet:    '#6c71c4',
+    blue:      '#268bd2',
+    cyan:      '#2aa198',
+    green:     '#859900'
+};/* DATA FILE: weapons.js
 ** author: singular1ty94
 ** STORES WEAPON INFORMATION
 ** PLEASE READ
@@ -16,7 +34,7 @@ var weapons = {
         name: 'Broken Sword',
         color: '#777',
         char: '/',
-        dmg: 3,
+        dmg: 17,
         price: 34
     },
     
@@ -34,7 +52,7 @@ var weapons = {
         name: 'Dagger',
         color: '#777',
         char: '/',
-        dmg: 2,
+        dmg: 3,
         price: 60
     },
 
@@ -67,6 +85,7 @@ var monsters = [
             color: '#f00',
             name: 'Troll',
             maxHP: 10,
+            XP: 3,
             weapon: weapons.Club
         },
         
@@ -76,6 +95,7 @@ var monsters = [
             color: '#282',
             name: 'Goblin',
             maxHP: 8,
+            XP: 4,
             weapon: weapons.Dagger
         }
     ]
@@ -84,7 +104,7 @@ var monsters = [
 ** Stores information about actors, how to draw them,
 ** and their movement properties.
 */
-var Actor = function(x, y, char, color, name, maxHP, weapon){
+var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
     this._x = x;
     this._y = y;
     this._char = char;
@@ -92,6 +112,7 @@ var Actor = function(x, y, char, color, name, maxHP, weapon){
     this._name = name;
     this._maxHP = maxHP;
     this._HP = this._maxHP;     //Init with full health.
+    this._XP = XP;
     this._weapon = new Weapon(weapon.name, weapon.char, weapon.color, weapon.dmg, weapon.price);
     
     /**
@@ -155,6 +176,7 @@ var Actor = function(x, y, char, color, name, maxHP, weapon){
     
     this.getX = function(){return this._x;}
     this.getY = function(){return this._y;}
+    this.getXP = function(){return this._XP; }
     this.getName = function(){return this._name;}
     this.getDamage = function(){
         //Returns the damage from the equipped weapon.
@@ -169,6 +191,47 @@ var Actor = function(x, y, char, color, name, maxHP, weapon){
     
     RogueJS.scheduler.add(this, true); 
 }
+;
+var Item = function(name, char, color, price, x, y, AbilityCallback){
+    this._x = x;
+    this._y = y;
+    this._char = char;
+    this._color = color;
+    this._name = name;
+    this._price = price;
+    this._AbilityCallback = AbilityCallback;
+    
+
+    /**
+    * Handles drawing back to the Display, only if the Actor is
+    * in the Player's FOV.
+    * @param bckColor the background color to use, defaults to COLOR_FOV_FLOOR
+    */
+    this._draw = function(bckColor){
+        var bckColor = bckColor || COLOR_FOV_FLOOR; //Set default value
+
+        //Only draw if we're in the player's fov
+        if(IsInFOV(this._x, this._y)){
+            RogueJS.display.draw(this._x, this._y, this._char, this._color, bckColor);
+        }else{
+            RogueJS.display.draw(this._x, this._y, RogueJS.map[this._x + "," + this._y]);
+        }
+    }
+
+    this.act = function(){
+        //Do nothing.
+    }
+
+    this.getX = function(){return this._x;}
+    this.getY = function(){return this._y;}
+    this.getName = function(){return this._name;}
+    this.getChar = function(){return this._char;}
+    this.getPrice = function(){return this._price;}
+    this.useAbility = function(params){ this._AbilityCallback(params); }
+    
+    RogueJS.scheduler.add(this, true);
+
+}
 ;/* file: player.js
 ** author: singular1ty94
 ** Stores information about player, how to draw it,
@@ -178,8 +241,11 @@ var Actor = function(x, y, char, color, name, maxHP, weapon){
 var Player = function(x, y){
     this._x = x;
     this._y = y;
-    this._MaxHP = 30;
+    this._MaxHP = 40;
     this._HP = this._MaxHP;
+    this._level = 1;
+    this._XP = 0;
+    this._NextXP = 20;
     this._draw();
     this._name = "Player";
     this._weapon = new Weapon(weapons.playerWeapon.name, 
@@ -197,8 +263,27 @@ var Player = function(x, y){
     }
     this.getHP = function(){return this._HP;}
     this.getMaxHP = function(){return this._MaxHP;}
+
+    this.getXP = function(){return this._XP;}
+    this.getNextXP = function(){return this._NextXP;}
     
     RogueJS.scheduler.add(this, true);
+
+    this.levelUp = function(leftover){
+        //Increment levelUp
+        this._level += 1;
+        this._XP = leftover;
+        this._NextXP = Math.round(Math.pow(this._level, 1.3) * 20);
+        //Boost HP
+        this._MaxHP += Math.round(Math.pow(this._level, 1.3) * 10);
+    }
+
+    this.gainXP = function(xp){
+        this._XP += xp;
+        if(this._XP >= this._NextXP){
+            this.levelUp(this._XP - this._NextXP);
+        }
+    }
     
     this.damageHP = function(amt){
         this._HP -= amt;
@@ -223,7 +308,6 @@ Player.prototype._draw = function(){
 
 //The function that the engine will be calling by default
 Player.prototype.act = function(){
-    console.log(this._HP);
     //Identify if we're dead
     if(this._HP <= 0){
         RogueJS.postmortem();
@@ -297,12 +381,19 @@ var RogueJSData = {};
 var Entities = [];
 var Messages = ["Welcome to the Dungeons of %c{red}DOOM%c{}!"];
 
-var COLOR_FOV_WALL = "#777";
-var COLOR_FOV_FLOOR = "#444";
-var COLOR_DISCOVERED_WALL = "#333";
-var COLOR_DISCOVERED_FLOOR = "#111";
-var MIN_MOBS = 3;
-var MAX_MOBS = 10;
+var COLOR_FOV_WALL = Colors.base02;
+var COLOR_FOV_FLOOR = Colors.base03;
+var COLOR_DISCOVERED_WALL = '#222';
+var COLOR_DISCOVERED_FLOOR = '#111';
+
+var COLOR_HEALTH_DARK = '#2e4200';
+var COLOR_HEALTH_LIGHT = Colors.green;
+
+var COLOR_XP_DARK = '#4d004d';
+var COLOR_XP_LIGHT = '#800080';
+
+var MIN_MOBS = 15;
+var MAX_MOBS = 20;
 
 var RogueJS = {    
     w : 95,
@@ -368,6 +459,7 @@ var RogueJS = {
                                        monsters[targetLevel][r].color, 
                                        monsters[targetLevel][r].name, 
                                        monsters[targetLevel][r].maxHP,
+                                       monsters[targetLevel][r].XP,
                                        monsters[targetLevel][r].weapon);
                                 
                 Entities.push(entity);
@@ -415,22 +507,15 @@ var RogueJS = {
 
         document.getElementById("RogueHUD").style.display = "none";
 
-        this.display.drawText(5,  2, "You have %c{red}perished on level " + this.level);
+        this.display.drawText(5,  2, "You have %c{red}perished%c{} on level " + this.level);
         this.display.drawText(5,  5, "Your name was " + endPlayer.name + " and you had a Max HP of " + endPlayer.maxHP + ".");
 
-        document.getElementById("Restart").style.visibility = "visible";
+        this.display.drawText(5,  25, "Refresh your browser to play again.");
 
         this.engine = null;
     }
     
 };
-
-var restart = function(){
-    RogueJS = null;
-    RogueJS.init();
-}
-
-
 
 /**
 * Drawing the FOV from the player.
@@ -483,10 +568,9 @@ var recalculateMap = function(){
 */
 var drawBar = function(posX, posY, width, maxValue, value, colorFore, colorBack, title){
     var startString = Math.ceil((width - title.length) / 2);
-    var displayIncre = Math.floor(maxValue / width); //Get the increment amount
-    var displayAmt = Math.floor((value / maxValue) * displayIncre);
+    var displayAmt = Math.floor((value / maxValue) * width);
     var titleFormatted = "";
-    
+   
     //Render the bar
     for(var i = 0; i < displayAmt; i++){
         RogueJS.hud.draw((posX + i), posY, null, colorBack, colorFore); //Deliberately switching colors to be clever.
@@ -580,6 +664,8 @@ function attackTile(attacker, tileX, tileY){
             if(defender instanceof Actor){   //is not the player
                 var x = Entities.indexOf(defender);
                 RogueJS.scheduler.remove(defender);
+                //Gain experience
+                RogueJS.player.gainXP(defender.getXP());
                 Entities.splice(x, 1);   //Remove from the array
                 recalculateMap();
                 var msg = "The " + defender.getName() + " %c{red}is dead!";
@@ -608,14 +694,18 @@ function UpdateHUD(){
     //Wipe out the display
     RogueJS.hud.clear();
     
-    //Show player's health
+    //Show player's status
     if(RogueJS.player){
-        drawBar(1, 0, 10, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), "#0a0", "#060", "HEALTH");
+        curHealth = "HP (" + RogueJS.player.getHP() + "/" + RogueJS.player.getMaxHP() + ")";
+        drawBar(1, 0, 12, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), COLOR_HEALTH_LIGHT, COLOR_HEALTH_DARK, curHealth);
+
+        curXP = "XP (" + RogueJS.player.getXP() + "/" + RogueJS.player.getNextXP() + ")";
+        drawBar(15, 0, 12, RogueJS.player.getNextXP(), RogueJS.player.getXP(), COLOR_XP_LIGHT, COLOR_XP_DARK, curXP);
     }
 
     //Pop the most recent message
     if(Messages.length > 0){
-        RogueJS.hud.drawText(16, 0, Messages.pop());
+        RogueJS.hud.drawText(30, 0, Messages.pop());
     }
 
     //Refresh.

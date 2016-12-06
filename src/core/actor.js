@@ -3,7 +3,7 @@
 ** Stores information about actors, how to draw them,
 ** and their movement properties.
 */
-var Actor = function(x, y, char, color, name, maxHP, weapon){
+var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
     this._x = x;
     this._y = y;
     this._char = char;
@@ -11,6 +11,7 @@ var Actor = function(x, y, char, color, name, maxHP, weapon){
     this._name = name;
     this._maxHP = maxHP;
     this._HP = this._maxHP;     //Init with full health.
+    this._XP = XP;
     this._weapon = new Weapon(weapon.name, weapon.char, weapon.color, weapon.dmg, weapon.price);
     
     /**
@@ -74,6 +75,7 @@ var Actor = function(x, y, char, color, name, maxHP, weapon){
     
     this.getX = function(){return this._x;}
     this.getY = function(){return this._y;}
+    this.getXP = function(){return this._XP; }
     this.getName = function(){return this._name;}
     this.getDamage = function(){
         //Returns the damage from the equipped weapon.
