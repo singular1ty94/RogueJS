@@ -34,7 +34,7 @@ var weapons = {
         name: 'Broken Sword',
         color: '#777',
         char: '/',
-        dmg: 3,
+        dmg: 17,
         price: 34
     },
     
@@ -85,6 +85,7 @@ var monsters = [
             color: '#f00',
             name: 'Troll',
             maxHP: 10,
+            XP: 3,
             weapon: weapons.Club
         },
         
@@ -94,6 +95,7 @@ var monsters = [
             color: '#282',
             name: 'Goblin',
             maxHP: 8,
+            XP: 4,
             weapon: weapons.Dagger
         }
     ]
@@ -102,7 +104,7 @@ var monsters = [
 ** Stores information about actors, how to draw them,
 ** and their movement properties.
 */
-var Actor = function(x, y, char, color, name, maxHP, weapon){
+var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
     this._x = x;
     this._y = y;
     this._char = char;
@@ -110,6 +112,7 @@ var Actor = function(x, y, char, color, name, maxHP, weapon){
     this._name = name;
     this._maxHP = maxHP;
     this._HP = this._maxHP;     //Init with full health.
+    this._XP = XP;
     this._weapon = new Weapon(weapon.name, weapon.char, weapon.color, weapon.dmg, weapon.price);
     
     /**
@@ -173,6 +176,7 @@ var Actor = function(x, y, char, color, name, maxHP, weapon){
     
     this.getX = function(){return this._x;}
     this.getY = function(){return this._y;}
+    this.getXP = function(){return this._XP; }
     this.getName = function(){return this._name;}
     this.getDamage = function(){
         //Returns the damage from the equipped weapon.
@@ -239,6 +243,9 @@ var Player = function(x, y){
     this._y = y;
     this._MaxHP = 40;
     this._HP = this._MaxHP;
+    this._level = 1;
+    this._XP = 0;
+    this._NextXP = 20;
     this._draw();
     this._name = "Player";
     this._weapon = new Weapon(weapons.playerWeapon.name, 
@@ -256,8 +263,27 @@ var Player = function(x, y){
     }
     this.getHP = function(){return this._HP;}
     this.getMaxHP = function(){return this._MaxHP;}
+
+    this.getXP = function(){return this._XP;}
+    this.getNextXP = function(){return this._NextXP;}
     
     RogueJS.scheduler.add(this, true);
+
+    this.levelUp = function(leftover){
+        //Increment levelUp
+        this._level += 1;
+        this._XP = leftover;
+        this._NextXP = Math.round(Math.pow(this._level, 1.3) * 20);
+        //Boost HP
+        this._MaxHP += Math.round(Math.pow(this._level, 1.3) * 10);
+    }
+
+    this.gainXP = function(xp){
+        this._XP += xp;
+        if(this._XP >= this._NextXP){
+            this.levelUp(this._XP - this._NextXP);
+        }
+    }
     
     this.damageHP = function(amt){
         this._HP -= amt;
@@ -282,7 +308,6 @@ Player.prototype._draw = function(){
 
 //The function that the engine will be calling by default
 Player.prototype.act = function(){
-    console.log(this._HP);
     //Identify if we're dead
     if(this._HP <= 0){
         RogueJS.postmortem();
@@ -364,8 +389,11 @@ var COLOR_DISCOVERED_FLOOR = '#111';
 var COLOR_HEALTH_DARK = '#2e4200';
 var COLOR_HEALTH_LIGHT = Colors.green;
 
-var MIN_MOBS = 7;
-var MAX_MOBS = 16;
+var COLOR_XP_DARK = '#4d004d';
+var COLOR_XP_LIGHT = '#800080';
+
+var MIN_MOBS = 15;
+var MAX_MOBS = 20;
 
 var RogueJS = {    
     w : 95,
@@ -431,6 +459,7 @@ var RogueJS = {
                                        monsters[targetLevel][r].color, 
                                        monsters[targetLevel][r].name, 
                                        monsters[targetLevel][r].maxHP,
+                                       monsters[targetLevel][r].XP,
                                        monsters[targetLevel][r].weapon);
                                 
                 Entities.push(entity);
@@ -635,6 +664,8 @@ function attackTile(attacker, tileX, tileY){
             if(defender instanceof Actor){   //is not the player
                 var x = Entities.indexOf(defender);
                 RogueJS.scheduler.remove(defender);
+                //Gain experience
+                RogueJS.player.gainXP(defender.getXP());
                 Entities.splice(x, 1);   //Remove from the array
                 recalculateMap();
                 var msg = "The " + defender.getName() + " %c{red}is dead!";
@@ -663,15 +694,18 @@ function UpdateHUD(){
     //Wipe out the display
     RogueJS.hud.clear();
     
-    //Show player's health
+    //Show player's status
     if(RogueJS.player){
         curHealth = "HP (" + RogueJS.player.getHP() + "/" + RogueJS.player.getMaxHP() + ")";
         drawBar(1, 0, 12, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), COLOR_HEALTH_LIGHT, COLOR_HEALTH_DARK, curHealth);
+
+        curXP = "XP (" + RogueJS.player.getXP() + "/" + RogueJS.player.getNextXP() + ")";
+        drawBar(15, 0, 12, RogueJS.player.getNextXP(), RogueJS.player.getXP(), COLOR_XP_LIGHT, COLOR_XP_DARK, curXP);
     }
 
     //Pop the most recent message
     if(Messages.length > 0){
-        RogueJS.hud.drawText(16, 0, Messages.pop());
+        RogueJS.hud.drawText(30, 0, Messages.pop());
     }
 
     //Refresh.

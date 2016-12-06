@@ -11,8 +11,11 @@ var COLOR_DISCOVERED_FLOOR = '#111';
 var COLOR_HEALTH_DARK = '#2e4200';
 var COLOR_HEALTH_LIGHT = Colors.green;
 
-var MIN_MOBS = 7;
-var MAX_MOBS = 16;
+var COLOR_XP_DARK = '#4d004d';
+var COLOR_XP_LIGHT = '#800080';
+
+var MIN_MOBS = 15;
+var MAX_MOBS = 20;
 
 var RogueJS = {    
     w : 95,
@@ -78,6 +81,7 @@ var RogueJS = {
                                        monsters[targetLevel][r].color, 
                                        monsters[targetLevel][r].name, 
                                        monsters[targetLevel][r].maxHP,
+                                       monsters[targetLevel][r].XP,
                                        monsters[targetLevel][r].weapon);
                                 
                 Entities.push(entity);
@@ -282,6 +286,8 @@ function attackTile(attacker, tileX, tileY){
             if(defender instanceof Actor){   //is not the player
                 var x = Entities.indexOf(defender);
                 RogueJS.scheduler.remove(defender);
+                //Gain experience
+                RogueJS.player.gainXP(defender.getXP());
                 Entities.splice(x, 1);   //Remove from the array
                 recalculateMap();
                 var msg = "The " + defender.getName() + " %c{red}is dead!";
@@ -310,15 +316,18 @@ function UpdateHUD(){
     //Wipe out the display
     RogueJS.hud.clear();
     
-    //Show player's health
+    //Show player's status
     if(RogueJS.player){
         curHealth = "HP (" + RogueJS.player.getHP() + "/" + RogueJS.player.getMaxHP() + ")";
         drawBar(1, 0, 12, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), COLOR_HEALTH_LIGHT, COLOR_HEALTH_DARK, curHealth);
+
+        curXP = "XP (" + RogueJS.player.getXP() + "/" + RogueJS.player.getNextXP() + ")";
+        drawBar(15, 0, 12, RogueJS.player.getNextXP(), RogueJS.player.getXP(), COLOR_XP_LIGHT, COLOR_XP_DARK, curXP);
     }
 
     //Pop the most recent message
     if(Messages.length > 0){
-        RogueJS.hud.drawText(16, 0, Messages.pop());
+        RogueJS.hud.drawText(30, 0, Messages.pop());
     }
 
     //Refresh.

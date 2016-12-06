@@ -17,7 +17,8 @@ var monsters = [
             char: 't',
             color: '#f00',
             name: 'Troll',
-            maxHP: 10,
+            maxHP: 8,
+            XP: 3,
             weapon: weapons.Club
         },
         
@@ -26,7 +27,8 @@ var monsters = [
             char: 'g',
             color: '#282',
             name: 'Goblin',
-            maxHP: 8,
+            maxHP: 6,
+            XP: 4,
             weapon: weapons.Dagger
         }
     ]

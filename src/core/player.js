@@ -9,6 +9,9 @@ var Player = function(x, y){
     this._y = y;
     this._MaxHP = 40;
     this._HP = this._MaxHP;
+    this._level = 1;
+    this._XP = 0;
+    this._NextXP = 20;
     this._draw();
     this._name = "Player";
     this._weapon = new Weapon(weapons.playerWeapon.name, 
@@ -26,8 +29,27 @@ var Player = function(x, y){
     }
     this.getHP = function(){return this._HP;}
     this.getMaxHP = function(){return this._MaxHP;}
+
+    this.getXP = function(){return this._XP;}
+    this.getNextXP = function(){return this._NextXP;}
     
     RogueJS.scheduler.add(this, true);
+
+    this.levelUp = function(leftover){
+        //Increment levelUp
+        this._level += 1;
+        this._XP = leftover;
+        this._NextXP = Math.round(Math.pow(this._level, 1.3) * 20);
+        //Boost HP
+        this._MaxHP += Math.round(Math.pow(this._level, 1.3) * 10);
+    }
+
+    this.gainXP = function(xp){
+        this._XP += xp;
+        if(this._XP >= this._NextXP){
+            this.levelUp(this._XP - this._NextXP);
+        }
+    }
     
     this.damageHP = function(amt){
         this._HP -= amt;
@@ -52,7 +74,6 @@ Player.prototype._draw = function(){
 
 //The function that the engine will be calling by default
 Player.prototype.act = function(){
-    console.log(this._HP);
     //Identify if we're dead
     if(this._HP <= 0){
         RogueJS.postmortem();
