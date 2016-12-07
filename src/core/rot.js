@@ -3679,6 +3679,10 @@ ROT.Map.Feature.Room.prototype.getBottom = function() {
 	return this._y2;
 }
 
+ROT.Map.Feature.Room.prototype.getRandomPosition = function() {
+	return [getRandom(this._x1, this._x2), getRandom(this._y1, this._y2)];
+}
+
 /**
  * @class Corridor
  * @augments ROT.Map.Feature

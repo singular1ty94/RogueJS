@@ -84,6 +84,12 @@ var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
     this.damageHP = function(amt){
         this._HP -= amt;
     }
+    this.restoreHP = function(amt){
+        this._HP += amt;
+        if(this._HP > this._MaxHP){
+            this._HP = this._MaxHP;
+        }
+    }
     this.isDead = function(){
         return (this._HP <= 0 ? true: false);
     }

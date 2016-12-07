@@ -57,7 +57,12 @@ var Player = function(x, y){
     this.isDead = function(){
         return (this._HP <= 0 ? true: false);
     }
-    
+    this.restoreHP = function(amt){
+        this._HP += amt;
+        if(this._HP > this._MaxHP){
+            this._HP = this._MaxHP;
+        }
+    }
     /**
     * Takes an instantiated Weapon and replaces the
     * current weapon.
@@ -69,7 +74,7 @@ var Player = function(x, y){
 
 //The player's drawing function
 Player.prototype._draw = function(){
-    RogueJS.display.draw(this._x, this._y, "@", "#fff");
+    RogueJS.display.draw(this._x, this._y, "@", "#fff", COLOR_FOV_FLOOR);
 }
 
 //The function that the engine will be calling by default
@@ -100,6 +105,8 @@ Player.prototype.handleEvent = function(e){
     keyMap[36] = 7;
     keyMap[190] = 99;   //period, stay in spot
     keyMap[46] = 99;    //delete on numpad, stay in spot
+    keyMap[71] = 100;   // [g]rab an item from the floor
+    keyMap[85] = 100;  // alias for [u]se
     
     var code = e.keyCode;
     
@@ -107,12 +114,19 @@ Player.prototype.handleEvent = function(e){
     
     var newX, newY;
     
-    if(keyMap[code] == 99){ //stay in spot
+    if(keyMap[code] >= 99){ //stay in spot
         newX = this._x;
         newY = this._y;
         
         //Clear the event listener and unlock the engine
         window.removeEventListener("keydown", this);
+
+        //Optionally, if this was a use/grab request, use the item beneath us.
+        if(keyMap[code] == 100){
+            RogueJS.useItem(newX, newY, this);
+        }
+
+        //Unlock and move on.
         RogueJS.engine.unlock();
         recalculateMap();
         return;
@@ -131,6 +145,12 @@ Player.prototype.handleEvent = function(e){
         recalculateMap();
         RogueJS.engine.unlock();
     }else {
+        //Get what's under foot there.
+        var object = checkUnderFoot(newX, newY);
+        if(object){
+            MessageLog("You are standing on a %c{#b37700}" + object.getName() + "%c{}.");
+        }
+
         //Regular move
         RogueJS.display.draw(this._x, this._y, RogueJS.map[this._x + "," + this._y]);
         this._x = newX;

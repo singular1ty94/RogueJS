@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>RogueJS</title>
-        <script type="text/javascript" src="dist/roguejs.min.js"></script>
+        <script type="text/javascript" src="dist/roguejs.js"></script>
         <link type="text/css" rel="stylesheet" href="style/main.css" />
     </head>
     <body>
@@ -10,11 +10,9 @@
         <div id="RogueCanvas"></div>
     </div>
     <div id='RogueHUD'></div>
-    <script type="text/javascript" src="ext/jquery-2.1.1.js"></script>
+    <div id='RogueMessages'></div>
     <script type="text/javascript">
-        $(document).ready(function(){
-            RogueJS.init();
-        });
+        RogueJS.init();
     </script>
     </body>
 </html>
