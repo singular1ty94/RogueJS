@@ -1,7 +1,7 @@
 //ROGUE.JS A JAVASCRIPT ROGUELIKE BY SINGULAR1TY94
 var RogueJSData = {};
 var Entities = [];
-var Messages = ["Welcome to the Dungeons of %c{red}DOOM%c{}!"];
+var Messages = [];
 
 var COLOR_FOV_WALL = '#b37700';
 var COLOR_FOV_FLOOR = '#664400';
@@ -27,6 +27,7 @@ var RogueJS = {
     h : 28,
     display : null,
     hud : null,
+    msgLog: null,
     map : null,
     player : null,
     engine : null,
@@ -40,17 +41,20 @@ var RogueJS = {
     init: function () {
         this.display = new ROT.Display({width: this.w, height: this.h, fontSize: 16});
         this.hud = new ROT.Display({width:this.w, height:1, fontSize:16});
+        this.msgLog = new ROT.Display({width: this.w, height: 5, fontSize: 16});
         this.scheduler = new ROT.Scheduler.Simple();
         
         //Bind the displays
         document.getElementById("RogueCanvas").appendChild(this.display.getContainer());
         document.getElementById("RogueHUD").appendChild(this.hud.getContainer());
+        document.getElementById("RogueMessages").appendChild(this.msgLog.getContainer());
         
         //The fov
         this.fov = new ROT.FOV.PreciseShadowcasting(lightPasses);
         
         //Make the first level
         this.makeLevel(1);
+        MessageLog("Welcome to the Dungeons of %c{red}DOOM%c{}!");
         
         //Setup the scehduler and engine
         this.engine = new ROT.Engine(this.scheduler);
@@ -133,7 +137,7 @@ var RogueJS = {
 
     nextLevel: function(){
         this.level += 1;
-        HUDMessage("You advance to the next level...");
+        MessageLog("You advance to the next level...");
         this.makeLevel();
     },
 
@@ -161,13 +165,13 @@ var RogueJS = {
         var item = checkUnderFoot(tileX, tileY);
         if(item){
             item.useAbility(actor);
-            HUDMessage(actor.getName() + " uses the %c{#b37700}" + item.getName() + "%c{}!");
+            MessageLog(actor.getName() + " uses the %c{#b37700}" + item.getName() + "%c{}!");
 
             var x = Entities.indexOf(item);
             RogueJS.scheduler.remove(item);
             Entities.splice(x, 1);   //Remove from the array
         }else{
-            HUDMessage("There's nothing here.");
+            MessageLog("There's nothing here.");
         }
     },
 
@@ -346,7 +350,7 @@ function attackTile(attacker, tileX, tileY){
         //Attacker deals damage to defender.
         defender.damageHP(attacker.getDamage());
         var msg = attacker.getName() + " attacks " + defender.getName() + " for " + attacker.getDamage() + " %c{red}damage!";
-        HUDMessage(msg);
+        MessageLog(msg);
         
         //Check for death
         if(defender.isDead()){
@@ -358,7 +362,7 @@ function attackTile(attacker, tileX, tileY){
                 Entities.splice(x, 1);   //Remove from the array
                 recalculateMap();
                 var msg = "The " + defender.getName() + " %c{red}is dead!";
-                HUDMessage(msg);
+                MessageLog(msg);
             }
         }       
     }else{
@@ -382,9 +386,21 @@ function checkUnderFoot(tileX, tileY){
 /**
 * Update the HUD Message.
 */
-function HUDMessage(str){
-    Messages.push(str);
-    UpdateHUD();
+function MessageLog(str){
+    Messages.unshift(str);
+
+    //Draw the log
+    RogueJS.msgLog.clear();
+    
+    if(Messages.length > 5){
+        Messages.splice(5, Messages.length - 5);
+    }
+
+    for (var i = 0; i < Messages.length; i++) {
+        RogueJS.msgLog.drawText(1, i, Messages[i]);
+    }
+
+    
 }
 
 /**
@@ -402,11 +418,6 @@ function UpdateHUD(){
 
         curXP = "XP (" + RogueJS.player.getXP() + "/" + RogueJS.player.getNextXP() + ")";
         drawBar(15, 0, 12, RogueJS.player.getNextXP(), RogueJS.player.getXP(), COLOR_XP_LIGHT, COLOR_XP_DARK, curXP);
-    }
-
-    //Pop the most recent message
-    if(Messages.length > 0){
-        RogueJS.hud.drawText(30, 0, Messages.pop());
     }
 
     //Refresh.

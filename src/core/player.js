@@ -148,7 +148,7 @@ Player.prototype.handleEvent = function(e){
         //Get what's under foot there.
         var object = checkUnderFoot(newX, newY);
         if(object){
-            HUDMessage("You are standing on a %c{#b37700}" + object.getName() + "%c{}.");
+            MessageLog("You are standing on a %c{#b37700}" + object.getName() + "%c{}.");
         }
 
         //Regular move
