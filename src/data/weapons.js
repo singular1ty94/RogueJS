@@ -43,7 +43,7 @@ var weapons = {
         name: 'Scimitar',
         color: '#6210ff',
         char: '/',
-        dmg: 3,
+        dmg: 5,
         price: 90
     }
 }

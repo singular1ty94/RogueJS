@@ -19,6 +19,8 @@ var Player = function(x, y){
                              weapons.playerWeapon.color,
                              weapons.playerWeapon.dmg,
                              weapons.playerWeapon.price);
+
+    this.seeItems = false; //Dev flag
     
     this.getName = function(){return this._name;}
     this.getX = function(){return this._x;}
@@ -74,7 +76,7 @@ var Player = function(x, y){
 
 //The player's drawing function
 Player.prototype._draw = function(){
-    RogueJS.display.draw(this._x, this._y, "@", "#fff", COLOR_FOV_FLOOR);
+    RogueJS.display.draw(this._x, this._y, "@", Colors.WHITE, Colors.FOV_FLOOR);
 }
 
 //The function that the engine will be calling by default
@@ -148,7 +150,7 @@ Player.prototype.handleEvent = function(e){
         //Get what's under foot there.
         var object = checkUnderFoot(newX, newY);
         if(object){
-            MessageLog("You are standing on a %c{#b37700}" + object.getName() + "%c{}.");
+            MessageLog("You are standing on a %c{"+Colors.ORANGE_GOLD+"}" + object.getName() + "%c{}.");
         }
 
         //Regular move

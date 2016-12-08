@@ -3,24 +3,16 @@ var RogueJSData = {};
 var Entities = [];
 var Messages = [];
 
-var COLOR_FOV_WALL = '#b37700';
-var COLOR_FOV_FLOOR = '#664400';
-// var COLOR_FOV_WALL = Colors.base02;
-// var COLOR_FOV_FLOOR = Colors.base03;
-var COLOR_DISCOVERED_WALL = '#222';
-var COLOR_DISCOVERED_FLOOR = '#111';
-
-var COLOR_HEALTH_DARK = '#2e4200';
-var COLOR_HEALTH_LIGHT = Colors.green;
-
-var COLOR_XP_DARK = '#4d004d';
-var COLOR_XP_LIGHT = '#800080';
-
 var MIN_MOBS = 3;
 var MAX_MOBS = 5;
 
 var MIN_ITEMS = 2;
 var MAX_ITEMS = 5;
+
+var CHANCE_RARE = 5;
+var CHANCE_UNCOMMON = 15;
+var CHANCE_COMMON = 25;
+var CHANCE_FREQUENT = 35;
 
 var RogueJS = {    
     w : 115,
@@ -54,7 +46,7 @@ var RogueJS = {
         
         //Make the first level
         this.makeLevel(1);
-        MessageLog("Welcome to the Dungeons of %c{red}DOOM%c{}!");
+        MessageLog("Welcome to the %c{red}Rogue's Dungeon%c{}!");
         
         //Setup the scehduler and engine
         this.engine = new ROT.Engine(this.scheduler);
@@ -76,72 +68,159 @@ var RogueJS = {
         }else{
             this.player._x = pos[0];
             this.player._y = pos[1];
+            Entities.push(this.player);
+            RogueJS.scheduler.add(this.player, true);
         }
     }, 
     
-    //Create entities in the map
-    createActors: function(level){
-        for(var num = 0; num < getRandom(MIN_MOBS, MAX_MOBS); num ++){
-            var arr = RoomAndPosition();
-            
-            //Check the room isn't occupied.
-            if(!IsOccupied(arr[0], arr[1])){
-                var targetLevel = level - 1; //0-index array
-                var r = getRandom(0, monsters[targetLevel].length);
+    /**
+     * Create Monsters in the map. 
+     *
+     * Using identical rarity logic to the item generation.
+     */
+    createMonsters: function(level){
+        var mobsToPlace = getRandom(MIN_MOBS, MAX_MOBS);
+        var mobsPlaced = 0;
+        while(mobsPlaced < mobsToPlace){
+            for (var i = 0, len = monsters.length; i < len; i++) {
+                var monster = monsters[i];
+                var place = false;
+
+                var chance = ROT.RNG.getPercentage();
+
+                if(!place && monster.weighting.rare && (RogueJS.level >= monster.weighting.rare[0] && RogueJS.level <= monster.weighting.rare[1])){ 
+                    if(chance <= CHANCE_RARE){ place = true; } 
+                }
+                if(!place && monster.weighting.uncommon && (RogueJS.level >=monster.weighting.uncommon[0] && RogueJS.level <= monster.weighting.uncommon[1])){ 
+                    if(chance <= CHANCE_UNCOMMON){ place = true; } 
+                }
+                if(!place && monster.weighting.common && (RogueJS.level >= monster.weighting.common[0] && RogueJS.level <= monster.weighting.common[1])){ 
+                    if(chance <= CHANCE_COMMON){ place = true; } 
+                }
+                if(!place && monster.weighting.frequent && (RogueJS.level >= monster.weighting.frequent[0] && RogueJS.level <= monster.weighting.frequent[1])){ 
+                    if(chance <= CHANCE_FREQUENT){ place = true; } 
+                }
+
+                if(place){
+                    var arr = RoomAndPosition();
                 
-                //Create the entity according to the data file.
-                var entity = new Actor(arr[0], arr[1], 
-                                       monsters[targetLevel][r].char, 
-                                       monsters[targetLevel][r].color, 
-                                       monsters[targetLevel][r].name, 
-                                       monsters[targetLevel][r].maxHP,
-                                       monsters[targetLevel][r].XP,
-                                       monsters[targetLevel][r].weapon);
-                                
-                Entities.push(entity);
-            }          
-        }  
+                    //Check the room isn't occupied.
+                    if(!IsOccupied(arr[0], arr[1])){                     
+                        //Create the entity according to the data file.
+                        var entity = new Actor(arr[0], arr[1], 
+                                            monster.char, 
+                                            monster.color, 
+                                            monster.name,
+                                            monster.maxHP,
+                                            monster.XP,
+                                            monster.weapon);
+                                        
+                        Entities.push(entity);
+                        mobsPlaced++;
+                    }          
+                }
+            }
+        }
+        
     },
 
-    //Create items in the map
+    /**
+     * Create Items in the map. 
+     *
+     * We're guaranteed a certain number of items per map via the MIN_ITEMS, MAX_ITEMS variable.
+     * Loop through until we've managed to place a random between MIN and MAX.
+     * 
+     * For each iteration, look at each item in the Items array.
+     * Check its weighting (if one exists) and identify that our current dungeon level applies.
+     * 
+     * From a random chance variable, see if we can place at this rarity. If we can't, keep checking
+     *      more frequent rarities if they exist.
+     * 
+     * Then find a room and place this item.
+     */
     createItems: function(level){
-        for(var num = 0; num < getRandom(MIN_ITEMS, MAX_ITEMS); num ++){
-            var arr = RoomAndPosition();
-            
-            //Check the room isn't occupied.
-            if(!IsOccupied(arr[0], arr[1])){
-                var targetLevel = level - 1; //0-index array
-                var r = getRandom(0, items[targetLevel].length);
+        var itemsToPlace = getRandom(MIN_ITEMS, MAX_ITEMS);
+        var itemsPlaced = 0;
+        while(itemsPlaced < itemsToPlace){
+            for (var i = 0, len = items.length; i < len; i++) {
+                var item = items[i];
+                var place = false;
+
+                var chance = ROT.RNG.getPercentage();
+
+                if(!place && item.weighting.rare && (RogueJS.level >= item.weighting.rare[0] && RogueJS.level <= item.weighting.rare[1])){ 
+                    if(chance <= CHANCE_RARE){ place = true; } 
+                }
+                if(!place && item.weighting.uncommon && (RogueJS.level >= item.weighting.uncommon[0] && RogueJS.level <= item.weighting.uncommon[1])){ 
+                    if(chance <= CHANCE_UNCOMMON){ place = true; } 
+                }
+                if(!place && item.weighting.common && (RogueJS.level >= item.weighting.common[0] && RogueJS.level <= item.weighting.common[1])){ 
+                    if(chance <= CHANCE_COMMON){ place = true; } 
+                }
+                if(!place && item.weighting.frequent && (RogueJS.level >= item.weighting.frequent[0] && RogueJS.level <= item.weighting.frequent[1])){ 
+                    if(chance <= CHANCE_FREQUENT){ place = true; } 
+                }
+
+                if(place){
+                    var arr = RoomAndPosition();
                 
-                //Create the entity according to the data file.
-                var entity = new Item(arr[0], arr[1], 
-                                       items[targetLevel][r].name, 
-                                       items[targetLevel][r].char, 
-                                       items[targetLevel][r].color, 
-                                       items[targetLevel][r].ability);
-                                
-                Entities.push(entity);
-            }          
-        }  
+                    //Check the room isn't occupied.
+                    if(!IsOccupied(arr[0], arr[1])){                     
+                        //Create the entity according to the data file.
+                        var entity = new Item(arr[0], arr[1], 
+                                            item.name, 
+                                            item.char, 
+                                            item.color, 
+                                            item.ability);
+                                        
+                        Entities.push(entity);
+                        itemsPlaced++;
+                    }          
+                }
+            }
+        }
+        
     },
-    
-    //Create the weapons.
-    createWeapons : function(){
 
-    },
-
+    /**
+     * Stairs are guaranteed to be placed somewhere in the level.
+     * 
+     * They are essentially a single-use item that triggers the next level.
+     */
     placeStairs: function(){
-        var Stairs = new Item("Stairs", '>', '#fff', RogueJS.nextLevel);
-        Entities.push(Stairs);
+        var arr = RoomAndPosition();
+        if(!IsOccupied(arr[0], arr[1])){
+            var Stairs = new Item(arr[0], arr[1], "Stairs", ">", Colors.WHITE, RogueJS.nextLevel);
+            Entities.push(Stairs);
+            return;
+        } else {
+            RogueJS.placeStairs();
+        }      
     },
 
+    /**
+     * Load the next level of the dungeon.
+     */
     nextLevel: function(){
-        this.level += 1;
+        //Using RogueJS scope due to weird issues with using this as callback to stairs ability
+        RogueJS.engine.lock();
+
+        Entities = [];
+        RogueJS.scheduler.clear();
+
+        RogueJS.level = RogueJS.level + 1;
         MessageLog("You advance to the next level...");
-        this.makeLevel();
+        RogueJS.makeLevel(RogueJS.level);
     },
 
+    /**
+     * Make a new dungeon level and populate it with items, monsters and player.
+     * @param level The level of the dungeon.
+     */
     makeLevel : function(level){
+        //Clear the display
+        this.display.clear();
+
         //Generate the map and make the player.
         this.map = new ROT.Map.Digger(this.w, this.h, {
             roomWidth: [5, 10], /* room minimum and maximum width */
@@ -155,21 +234,25 @@ var RogueJS = {
             RogueJS.discovered[x+","+y] = 0;   //undiscovered
         });        
     
-        this.placeStairs();
         this.createItems(level);
-        this.createActors(level);
-        this.createPlayer();
+        this.placeStairs();
+        this.createMonsters(level);
+        this.createPlayer(); 
+
+        recalculateMap();
+
+        if(this.engine) { this.engine.unlock(); }
     },
 
     useItem: function(tileX, tileY, actor){
         var item = checkUnderFoot(tileX, tileY);
         if(item){
-            item.useAbility(actor);
-            MessageLog(actor.getName() + " uses the %c{#b37700}" + item.getName() + "%c{}!");
-
             var x = Entities.indexOf(item);
             RogueJS.scheduler.remove(item);
             Entities.splice(x, 1);   //Remove from the array
+
+            item.useAbility(actor);
+            MessageLog(actor.getName() + " uses the %c{"+Colors.ORANGE_GOLD+"}" + item.getName() + "%c{}!");
         }else{
             MessageLog("There's nothing here.");
         }
@@ -199,7 +282,7 @@ var RogueJS = {
         document.getElementById("RogueHUD").style.display = "none";
 
         this.display.drawText(5,  2, "You have %c{red}perished%c{} on level " + this.level);
-        this.display.drawText(5,  5, "Your name was " + endPlayer.name + " and you had a Max HP of " + endPlayer.maxHP + ".");
+        this.display.drawText(5,  5, "You had a Max HP of " + endPlayer.maxHP + ".");
 
         this.display.drawText(5,  25, "Refresh your browser to play again.");
 
@@ -219,10 +302,10 @@ var recalculateMap = function(){
         for(var x = 0; x < RogueJS.w; x++){
             //Check if we have NOT discovered the tile, make it black
             if(RogueJS.discovered[x+","+y] == 0){
-                RogueJS.display.draw(x, y, "", "#000", "#000");
+                RogueJS.display.draw(x, y, "",  Colors.BLACK, Colors.BLACK);
             }else{
-                var color = (RogueJSData[x+","+y] ? COLOR_DISCOVERED_WALL: COLOR_DISCOVERED_FLOOR);
-                RogueJS.display.draw(x, y, "", "#fff", color);
+                var color = (RogueJSData[x+","+y] ? Colors.DISCOVERED_WALL: Colors.DISCOVERED_FLOOR);
+                RogueJS.display.draw(x, y, "",  Colors.WHITE, color);
             }
         }
     }
@@ -234,30 +317,24 @@ var recalculateMap = function(){
     if(RogueJS.player){
         RogueJS.fov.compute(RogueJS.player._x, RogueJS.player._y, RogueJS.FOV_RADIUS, function(x, y, r, visibility) {
             var ch = (r ? "" : "@");
-            var color = (RogueJSData[x+","+y] ? COLOR_FOV_WALL: COLOR_FOV_FLOOR);
-            RogueJS.display.draw(x, y, ch, "#fff", color);
+            var color = (RogueJSData[x+","+y] ? Colors.FOV_WALL: Colors.FOV_FLOOR);
+            RogueJS.display.draw(x, y, ch, Colors.WHITE, color);
             RogueJS.fovmap[x+","+y] = 1;
             RogueJS.discovered[x+","+y] = 1;   //now been discovered
         });
     }
     
-    for(var i = 1; i < Entities.length; i++){
+    for(var i = 0; i < Entities.length; i++){
         Entities[i]._draw();
     }
+
+    UpdateHUD();
 }
 
 
 /**
 * A method to draw a typical RPG bar, that colors partway
 * over a darker color to display percentages out of a whole.
-* @param posX The cell's x position
-* @param posY The cell's y position
-* @param width The width of the bar, in cells
-* @param maxValue The maximum value the bar can hold
-* @param value The current value the bar is holding
-* @param colorFore The lighter foreground color
-* @param colorBack The darker background (empty) color
-* @param title The words to print on the bar
 */
 var drawBar = function(posX, posY, width, maxValue, value, colorFore, colorBack, title){
     var startString = Math.ceil((width - title.length) / 2);
@@ -284,8 +361,6 @@ var drawBar = function(posX, posY, width, maxValue, value, colorFore, colorBack,
 
 /**
 * Is the specified tile within the player's fov?
-* @param tileX, tileY - the tile position to check
-* @return true or false, if the tile is in the fovmap
 */
 var IsInFOV = function(tileX, tileY){
     if(RogueJS.fovmap[tileX + "," + tileY] === 1){
@@ -301,7 +376,7 @@ var IsOccupied = function(tileX, tileY){
     if(RogueJS.player && RogueJS.player.getX() == tileX && RogueJS.player.getY() == tileY){
         return true;
     }
-    for(var i = 1; i < Entities.length; i++){
+    for(var i = 0; i < Entities.length; i++){
         if(Entities[i]._x == tileX && Entities[i]._y == tileY && Entities[i] instanceof Actor){
             return true;
         }
@@ -324,7 +399,7 @@ function GetObjectAtTile(tileX, tileY){
     if(RogueJS.player.getX() == tileX && RogueJS.player.getY() == tileY){
         return RogueJS.player;
     }
-    for(var i = 1; i < Entities.length; i++){
+    for(var i = 0; i < Entities.length; i++){
         if(Entities[i]._x == tileX && Entities[i]._y == tileY){
             return Entities[i];
         }
@@ -337,9 +412,6 @@ function GetObjectAtTile(tileX, tileY){
 * attacking another tile co-ordinates. These tile co-ords
 * resolve into an entity, and then damage is dealt according
 * to getDamage(), damageHP(), isDead() and instanceof Actor/Player
-* @param attacker The attacker, likely the player or an Actor
-* @param tileX The x coord to attack
-* @param tileY The y coord to attack
 */
 function attackTile(attacker, tileX, tileY){
     //First, determine if there is actually an enemy there.
@@ -374,7 +446,7 @@ function attackTile(attacker, tileX, tileY){
 //Check if anything's under foot
 function checkUnderFoot(tileX, tileY){
     if(RogueJS.player){
-        for(var i = 1; i < Entities.length; i++){
+        for(var i = 0; i < Entities.length; i++){
             if(Entities[i]._x == tileX && Entities[i]._y == tileY && Entities[i] instanceof Item){
                 return Entities[i];
             }
@@ -414,14 +486,11 @@ function UpdateHUD(){
     //Show player's status
     if(RogueJS.player){
         curHealth = "HP (" + RogueJS.player.getHP() + "/" + RogueJS.player.getMaxHP() + ")";
-        drawBar(1, 0, 12, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), COLOR_HEALTH_LIGHT, COLOR_HEALTH_DARK, curHealth);
+        drawBar(1, 0, 12, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), Colors.HEALTH_LIGHT, Colors.HEALTH_DARK, curHealth);
 
         curXP = "XP (" + RogueJS.player.getXP() + "/" + RogueJS.player.getNextXP() + ")";
-        drawBar(15, 0, 12, RogueJS.player.getNextXP(), RogueJS.player.getXP(), COLOR_XP_LIGHT, COLOR_XP_DARK, curXP);
+        drawBar(15, 0, 12, RogueJS.player.getNextXP(), RogueJS.player.getXP(), Colors.XP_LIGHT, Colors.XP_DARK, curXP);
     }
-
-    //Refresh.
-    setTimeout(UpdateHUD, 1500);
 }
 
 /**

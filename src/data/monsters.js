@@ -1,35 +1,48 @@
-/* DATA FILE: monsters.js
-** author: singular1ty94
-** STORES MONSTER INFORMATION
-** PLEASE READ BEFORE EDITING!
-** The monsters are grouped according to what
-** level they should be placed on. So watch your
-** syntax here.
-** In each level, we use object literals. The name
-** of the object isn't used ever. Follow the examples
-** if you're lost.
-*/
+/**
+ * Draft Monster Generation Specification.
+ * 
+ * Starting with LEVEL, each Monster is requested and compared against the LEVEL.
+ * Each Monster knows its rates per LEVEL group, ie: "common: [3, 5]" indicates that 
+ *      for levels 3-5 (inclusive), the item has a COMMON
+ *      chance of appearing.
+ * 
+ */
 var monsters = [
-    
-    level_1 = [
-        //Basic creature that deals minimal damage.
-        Troll = {
-            char: 't',
-            color: '#f00',
-            name: 'Troll',
-            maxHP: 8,
-            XP: 3,
-            weapon: weapons.Club
-        },
-        
-        //A powerful, but frail enemy.
-        Goblin = {
-            char: 'g',
-            color: '#282',
-            name: 'Goblin',
-            maxHP: 6,
-            XP: 4,
-            weapon: weapons.Dagger
+    Goblin = {
+        char: 'g',
+        color: Colors.GOBLIN_GREEN,
+        name: 'Goblin',
+        maxHP: 6,
+        XP: 4,
+        weapon: weapons.Dagger,
+        weighting:{
+            frequent: [1, 3],
+            common: [4, 5]
         }
-    ]
+    },
+    Goblin_Soldier = {
+        char: 'g',
+        color: Colors.GOBLIN_GREEN_DARK,
+        name: 'Goblin Soldier',
+        maxHP: 10,
+        XP: 10,
+        weapon: weapons.Scimitar,
+        weighting:{
+            common: [2, 4],
+            uncommon: [5, 7]
+        }
+    },
+    Goblin_Scout = {
+        char: 'g',
+        color: Colors.GOBLIN_SCOUT,
+        name: 'Goblin Scout',
+        maxHP: 4,
+        XP: 3,
+        weapon: weapons.Dagger,
+        weighting:{
+            frequent: [1, 3],
+            common: [4, 5]
+        }
+    }
+
 ]
