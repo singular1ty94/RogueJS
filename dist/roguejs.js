@@ -10,6 +10,9 @@ var Colors = {
     XP_LIGHT: '#800080',
     
     /* Generic Colours */
+    GOBLIN_SCOUT: '#0d1a26',
+    GOBLIN_GREEN: "#009933",
+    GOBLIN_GREEN_DARK: "#003311",
     BLACK: "#000000",
     ORANGE_GOLD: '#b37700',
     WHITE: '#ffffff'
@@ -105,60 +108,55 @@ var weapons = {
         price: 90
     }
 }
-;/* DATA FILE: monsters.js
-** author: singular1ty94
-** STORES MONSTER INFORMATION
-** PLEASE READ BEFORE EDITING!
-** The monsters are grouped according to what
-** level they should be placed on. So watch your
-** syntax here.
-** In each level, we use object literals. The name
-** of the object isn't used ever. Follow the examples
-** if you're lost.
-*/
+;/**
+ * Draft Monster Generation Specification.
+ * 
+ * Starting with LEVEL, each Monster is requested and compared against the LEVEL.
+ * Each Monster knows its rates per LEVEL group, ie: "common: [3, 5]" indicates that 
+ *      for levels 3-5 (inclusive), the item has a COMMON
+ *      chance of appearing.
+ * 
+ */
 var monsters = [
-    
-    level_1 = [
-        //Basic creature that deals minimal damage.
-        Troll = {
-            char: 't',
-            color: '#f00',
-            name: 'Troll',
-            maxHP: 8,
-            XP: 3,
-            weapon: weapons.Club
-        },
-        
-        //A powerful, but frail enemy.
-        Goblin = {
-            char: 'g',
-            color: '#282',
-            name: 'Goblin',
-            maxHP: 6,
-            XP: 4,
-            weapon: weapons.Dagger
+    Goblin = {
+        char: 'g',
+        color: Colors.GOBLIN_GREEN,
+        name: 'Goblin',
+        maxHP: 6,
+        XP: 4,
+        weapon: weapons.Dagger,
+        weighting:{
+            frequent: [1, 3],
+            common: [4, 5]
         }
-    ],
-    level_1 = [
-        //A powerful, but frail enemy.
-        Goblin = {
-            char: 'g',
-            color: '#282',
-            name: 'Goblin',
-            maxHP: 6,
-            XP: 4,
-            weapon: weapons.Dagger
-        },
-        GoblinSoldier = {
-            char: 'g',
-            color: '#0f3d0f',
-            name: 'Goblin Soldier',
-            maxHP: 10,
-            XP: 10,
-            weapon: weapons.Scimitar
+    },
+    Goblin_Soldier = {
+        char: 'g',
+        color: Colors.GOBLIN_GREEN_DARK,
+        name: 'Goblin Soldier',
+        maxHP: 10,
+        XP: 10,
+        weapon: weapons.Scimitar,
+        weighting:{
+            common: [2, 4],
+            uncommon: [5, 7]
         }
-    ]
-];/**
+    },
+    Goblin_Scout = {
+        char: 'g',
+        color: Colors.GOBLIN_SCOUT,
+        name: 'Goblin Scout',
+        maxHP: 4,
+        XP: 3,
+        weapon: weapons.Dagger,
+        weighting:{
+            frequent: [1, 3],
+            common: [4, 5]
+        }
+    }
+
+]
+;/**
  * Takes an actor and heals them.
  */
 function ABILITY_HEAL(actor){
@@ -336,7 +334,7 @@ var Player = function(x, y){
                              weapons.playerWeapon.dmg,
                              weapons.playerWeapon.price);
 
-    this.seeItems = true; //Dev flag
+    this.seeItems = false; //Dev flag
     
     this.getName = function(){return this._name;}
     this.getX = function(){return this._x;}
@@ -555,28 +553,55 @@ var RogueJS = {
         }
     }, 
     
-    //Create entities in the map
-    createActors: function(level){
-        for(var num = 0; num < getRandom(MIN_MOBS, MAX_MOBS); num ++){
-            var arr = RoomAndPosition();
-            
-            //Check the room isn't occupied.
-            if(!IsOccupied(arr[0], arr[1])){
-                var targetLevel = level - 1; //0-index array
-                var r = getRandom(0, monsters[targetLevel].length);
+    /**
+     * Create Monsters in the map. 
+     *
+     * Using identical rarity logic to the item generation.
+     */
+    createMonsters: function(level){
+        var mobsToPlace = getRandom(MIN_MOBS, MAX_MOBS);
+        var mobsPlaced = 0;
+        while(mobsPlaced < mobsToPlace){
+            for (var i = 0, len = monsters.length; i < len; i++) {
+                var monster = monsters[i];
+                var place = false;
+
+                var chance = ROT.RNG.getPercentage();
+
+                if(!place && monster.weighting.rare && (RogueJS.level >= monster.weighting.rare[0] && RogueJS.level <= monster.weighting.rare[1])){ 
+                    if(chance <= CHANCE_RARE){ place = true; } 
+                }
+                if(!place && monster.weighting.uncommon && (RogueJS.level >=monster.weighting.uncommon[0] && RogueJS.level <= monster.weighting.uncommon[1])){ 
+                    if(chance <= CHANCE_UNCOMMON){ place = true; } 
+                }
+                if(!place && monster.weighting.common && (RogueJS.level >= monster.weighting.common[0] && RogueJS.level <= monster.weighting.common[1])){ 
+                    if(chance <= CHANCE_COMMON){ place = true; } 
+                }
+                if(!place && monster.weighting.frequent && (RogueJS.level >= monster.weighting.frequent[0] && RogueJS.level <= monster.weighting.frequent[1])){ 
+                    if(chance <= CHANCE_FREQUENT){ place = true; } 
+                }
+
+                if(place){
+                    var arr = RoomAndPosition();
                 
-                //Create the entity according to the data file.
-                var entity = new Actor(arr[0], arr[1], 
-                                       monsters[targetLevel][r].char, 
-                                       monsters[targetLevel][r].color, 
-                                       monsters[targetLevel][r].name, 
-                                       monsters[targetLevel][r].maxHP,
-                                       monsters[targetLevel][r].XP,
-                                       monsters[targetLevel][r].weapon);
-                                
-                Entities.push(entity);
-            }          
-        }  
+                    //Check the room isn't occupied.
+                    if(!IsOccupied(arr[0], arr[1])){                     
+                        //Create the entity according to the data file.
+                        var entity = new Actor(arr[0], arr[1], 
+                                            monster.char, 
+                                            monster.color, 
+                                            monster.name,
+                                            monster.maxHP,
+                                            monster.XP,
+                                            monster.weapon);
+                                        
+                        Entities.push(entity);
+                        mobsPlaced++;
+                    }          
+                }
+            }
+        }
+        
     },
 
     /**
@@ -684,7 +709,7 @@ var RogueJS = {
     
         this.createItems(level);
         this.placeStairs();
-        this.createActors(level);
+        this.createMonsters(level);
         this.createPlayer(); 
 
         recalculateMap();

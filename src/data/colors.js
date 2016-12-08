@@ -10,6 +10,9 @@ var Colors = {
     XP_LIGHT: '#800080',
     
     /* Generic Colours */
+    GOBLIN_SCOUT: '#0d1a26',
+    GOBLIN_GREEN: "#009933",
+    GOBLIN_GREEN_DARK: "#003311",
     BLACK: "#000000",
     ORANGE_GOLD: '#b37700',
     WHITE: '#ffffff'

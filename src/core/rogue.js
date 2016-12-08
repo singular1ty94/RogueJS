@@ -73,28 +73,55 @@ var RogueJS = {
         }
     }, 
     
-    //Create entities in the map
-    createActors: function(level){
-        for(var num = 0; num < getRandom(MIN_MOBS, MAX_MOBS); num ++){
-            var arr = RoomAndPosition();
-            
-            //Check the room isn't occupied.
-            if(!IsOccupied(arr[0], arr[1])){
-                var targetLevel = level - 1; //0-index array
-                var r = getRandom(0, monsters[targetLevel].length);
+    /**
+     * Create Monsters in the map. 
+     *
+     * Using identical rarity logic to the item generation.
+     */
+    createMonsters: function(level){
+        var mobsToPlace = getRandom(MIN_MOBS, MAX_MOBS);
+        var mobsPlaced = 0;
+        while(mobsPlaced < mobsToPlace){
+            for (var i = 0, len = monsters.length; i < len; i++) {
+                var monster = monsters[i];
+                var place = false;
+
+                var chance = ROT.RNG.getPercentage();
+
+                if(!place && monster.weighting.rare && (RogueJS.level >= monster.weighting.rare[0] && RogueJS.level <= monster.weighting.rare[1])){ 
+                    if(chance <= CHANCE_RARE){ place = true; } 
+                }
+                if(!place && monster.weighting.uncommon && (RogueJS.level >=monster.weighting.uncommon[0] && RogueJS.level <= monster.weighting.uncommon[1])){ 
+                    if(chance <= CHANCE_UNCOMMON){ place = true; } 
+                }
+                if(!place && monster.weighting.common && (RogueJS.level >= monster.weighting.common[0] && RogueJS.level <= monster.weighting.common[1])){ 
+                    if(chance <= CHANCE_COMMON){ place = true; } 
+                }
+                if(!place && monster.weighting.frequent && (RogueJS.level >= monster.weighting.frequent[0] && RogueJS.level <= monster.weighting.frequent[1])){ 
+                    if(chance <= CHANCE_FREQUENT){ place = true; } 
+                }
+
+                if(place){
+                    var arr = RoomAndPosition();
                 
-                //Create the entity according to the data file.
-                var entity = new Actor(arr[0], arr[1], 
-                                       monsters[targetLevel][r].char, 
-                                       monsters[targetLevel][r].color, 
-                                       monsters[targetLevel][r].name, 
-                                       monsters[targetLevel][r].maxHP,
-                                       monsters[targetLevel][r].XP,
-                                       monsters[targetLevel][r].weapon);
-                                
-                Entities.push(entity);
-            }          
-        }  
+                    //Check the room isn't occupied.
+                    if(!IsOccupied(arr[0], arr[1])){                     
+                        //Create the entity according to the data file.
+                        var entity = new Actor(arr[0], arr[1], 
+                                            monster.char, 
+                                            monster.color, 
+                                            monster.name,
+                                            monster.maxHP,
+                                            monster.XP,
+                                            monster.weapon);
+                                        
+                        Entities.push(entity);
+                        mobsPlaced++;
+                    }          
+                }
+            }
+        }
+        
     },
 
     /**
@@ -202,7 +229,7 @@ var RogueJS = {
     
         this.createItems(level);
         this.placeStairs();
-        this.createActors(level);
+        this.createMonsters(level);
         this.createPlayer(); 
 
         recalculateMap();
