@@ -800,6 +800,8 @@ var recalculateMap = function(){
     for(var i = 0; i < Entities.length; i++){
         Entities[i]._draw();
     }
+
+    UpdateHUD();
 }
 
 
@@ -975,9 +977,6 @@ function UpdateHUD(){
         curXP = "XP (" + RogueJS.player.getXP() + "/" + RogueJS.player.getNextXP() + ")";
         drawBar(15, 0, 12, RogueJS.player.getNextXP(), RogueJS.player.getXP(), Colors.XP_LIGHT, Colors.XP_DARK, curXP);
     }
-
-    //Refresh.
-    setTimeout(UpdateHUD, 1500);
 }
 
 /**
