@@ -1,19 +1,16 @@
-/* Colour palette: Solarized: http://ethanschoonover.com/solarized */
 var Colors = {
-    base03:    '#002b36',
-    base02:    '#073642',
-    base01:    '#586e75',
-    base00:    '#657b83',
-    base0:     '#839496',
-    base1:     '#93a1a1',
-    base2:     '#eee8d5',
-    base3:     '#fdf6e3',
-    yellow:    '#b58900',
-    orange:    '#cb4b16',
-    red:       '#dc322f',
-    magenta:   '#d33682',
-    violet:    '#6c71c4',
-    blue:      '#268bd2',
-    cyan:      '#2aa198',
-    green:     '#859900'
+    /* Named Colours */    
+    FOV_WALL: '#595959',
+    FOV_FLOOR: '#404040',
+    DISCOVERED_WALL: '#222',
+    DISCOVERED_FLOOR: '#111',
+    HEALTH_DARK: '#2e4200',
+    HEALTH_LIGHT: '#859900',
+    XP_DARK: '#4d004d',
+    XP_LIGHT: '#800080',
+    
+    /* Generic Colours */
+    BLACK: "#000000",
+    ORANGE_GOLD: '#b37700',
+    WHITE: '#ffffff'
 }

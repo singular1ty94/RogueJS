@@ -1,21 +1,18 @@
-/* Colour palette: Solarized: http://ethanschoonover.com/solarized */
 var Colors = {
-    base03:    '#002b36',
-    base02:    '#073642',
-    base01:    '#586e75',
-    base00:    '#657b83',
-    base0:     '#839496',
-    base1:     '#93a1a1',
-    base2:     '#eee8d5',
-    base3:     '#fdf6e3',
-    yellow:    '#b58900',
-    orange:    '#cb4b16',
-    red:       '#dc322f',
-    magenta:   '#d33682',
-    violet:    '#6c71c4',
-    blue:      '#268bd2',
-    cyan:      '#2aa198',
-    green:     '#859900'
+    /* Named Colours */    
+    FOV_WALL: '#595959',
+    FOV_FLOOR: '#404040',
+    DISCOVERED_WALL: '#222',
+    DISCOVERED_FLOOR: '#111',
+    HEALTH_DARK: '#2e4200',
+    HEALTH_LIGHT: '#859900',
+    XP_DARK: '#4d004d',
+    XP_LIGHT: '#800080',
+    
+    /* Generic Colours */
+    BLACK: "#000000",
+    ORANGE_GOLD: '#b37700',
+    WHITE: '#ffffff'
 };var items = [
     
     level_1 = [
@@ -175,13 +172,13 @@ var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
     this._draw = function(){
         //Only draw if we're in the player's fov
         if(IsInFOV(this._x, this._y)){
-            RogueJS.display.draw(this._x, this._y, this._char, this._color, COLOR_FOV_FLOOR);
+            RogueJS.display.draw(this._x, this._y, this._char, this._color, Colors.FOV_FLOOR);
         }else{
             if(RogueJS.discovered[this._x+","+this._y] == 0){
-                RogueJS.display.draw(this._x, this._y, "", "#000", "#000");
+                RogueJS.display.draw(this._x, this._y, "", Colors.BLACK, Colors.BLACK);
             }else{
-                var color = (RogueJSData[this._x+","+this._y] ? COLOR_DISCOVERED_WALL: COLOR_DISCOVERED_FLOOR);
-                RogueJS.display.draw(this._x, this._y, "", "#fff", color);
+                var color = (RogueJSData[this._x+","+this._y] ? Colors.DISCOVERED_WALL: Colors.DISCOVERED_FLOOR);
+                RogueJS.display.draw(this._x, this._y, "", Colors.WHITE, color);
             }
         }   
     }
@@ -263,21 +260,20 @@ var Item = function(x, y, name, char, color, AbilityCallback){
     /**
     * Handles drawing back to the Display, only if the Actor is
     * in the Player's FOV.
-    * @param bckColor the background color to use, defaults to COLOR_FOV_FLOOR
+    * @param bckColor the background color to use, defaults to Colors.FOV_FLOOR
     */
     this._draw = function(bckColor){
         //Only draw if we're in the player's fov
-        // if(IsInFOV(this._x, this._y)){
-        //     RogueJS.display.draw(this._x, this._y, this._char, this._color, COLOR_FOV_FLOOR);
-        // }else{
-        //     if(RogueJS.discovered[this._x+","+this._y] == 0){
-        //         RogueJS.display.draw(this._x, this._y, "", "#000", "#000");
-        //     }else{
-        //         var color = (RogueJSData[this._x+","+this._y] ? COLOR_DISCOVERED_WALL: COLOR_DISCOVERED_FLOOR);
-        //         RogueJS.display.draw(this._x, this._y, "", "#fff", color);
-        //     }
-        // }  
-        RogueJS.display.draw(this._x, this._y, this._char, this._color, COLOR_FOV_FLOOR);
+        if(IsInFOV(this._x, this._y)){
+            RogueJS.display.draw(this._x, this._y, this._char, this._color, Colors.FOV_FLOOR);
+        }else{
+            if(RogueJS.discovered[this._x+","+this._y] == 0){
+                RogueJS.display.draw(this._x, this._y, "", Colors.BLACK, Colors.BLACK);
+            }else{
+                var color = (RogueJSData[this._x+","+this._y] ? Colors.DISCOVERED_WALL: Colors.DISCOVERED_FLOOR);
+                RogueJS.display.draw(this._x, this._y, "", Colors.WHITE, color);
+            }
+        }  
     }
 
     this.act = function(){
@@ -370,7 +366,7 @@ var Player = function(x, y){
 
 //The player's drawing function
 Player.prototype._draw = function(){
-    RogueJS.display.draw(this._x, this._y, "@", "#fff", COLOR_FOV_FLOOR);
+    RogueJS.display.draw(this._x, this._y, "@", Colors.WHITE, Colors.FOV_FLOOR);
 }
 
 //The function that the engine will be calling by default
@@ -444,7 +440,7 @@ Player.prototype.handleEvent = function(e){
         //Get what's under foot there.
         var object = checkUnderFoot(newX, newY);
         if(object){
-            MessageLog("You are standing on a %c{#b37700}" + object.getName() + "%c{}.");
+            MessageLog("You are standing on a %c{"+Colors.ORANGE_GOLD+"}" + object.getName() + "%c{}.");
         }
 
         //Regular move
@@ -462,19 +458,6 @@ Player.prototype.handleEvent = function(e){
 var RogueJSData = {};
 var Entities = [];
 var Messages = [];
-
-var COLOR_FOV_WALL = '#b37700';
-var COLOR_FOV_FLOOR = '#664400';
-// var COLOR_FOV_WALL = Colors.base02;
-// var COLOR_FOV_FLOOR = Colors.base03;
-var COLOR_DISCOVERED_WALL = '#222';
-var COLOR_DISCOVERED_FLOOR = '#111';
-
-var COLOR_HEALTH_DARK = '#2e4200';
-var COLOR_HEALTH_LIGHT = Colors.green;
-
-var COLOR_XP_DARK = '#4d004d';
-var COLOR_XP_LIGHT = '#800080';
 
 var MIN_MOBS = 3;
 var MAX_MOBS = 5;
@@ -595,7 +578,7 @@ var RogueJS = {
     placeStairs: function(){
         var arr = RoomAndPosition();
         if(!IsOccupied(arr[0], arr[1])){
-            var Stairs = new Item(arr[0], arr[1], "Stairs", ">", '#ffffff', RogueJS.nextLevel);
+            var Stairs = new Item(arr[0], arr[1], "Stairs", ">", Colors.WHITE, RogueJS.nextLevel);
             Entities.push(Stairs);
             return;
         } else {
@@ -650,7 +633,7 @@ var RogueJS = {
             Entities.splice(x, 1);   //Remove from the array
 
             item.useAbility(actor);
-            MessageLog(actor.getName() + " uses the %c{#b37700}" + item.getName() + "%c{}!");
+            MessageLog(actor.getName() + " uses the %c{"+Colors.ORANGE_GOLD+"}" + item.getName() + "%c{}!");
         }else{
             MessageLog("There's nothing here.");
         }
@@ -700,10 +683,10 @@ var recalculateMap = function(){
         for(var x = 0; x < RogueJS.w; x++){
             //Check if we have NOT discovered the tile, make it black
             if(RogueJS.discovered[x+","+y] == 0){
-                RogueJS.display.draw(x, y, "", "#000", "#000");
+                RogueJS.display.draw(x, y, "",  Colors.BLACK, Colors.BLACK);
             }else{
-                var color = (RogueJSData[x+","+y] ? COLOR_DISCOVERED_WALL: COLOR_DISCOVERED_FLOOR);
-                RogueJS.display.draw(x, y, "", "#fff", color);
+                var color = (RogueJSData[x+","+y] ? Colors.DISCOVERED_WALL: Colors.DISCOVERED_FLOOR);
+                RogueJS.display.draw(x, y, "",  Colors.WHITE, color);
             }
         }
     }
@@ -714,9 +697,9 @@ var recalculateMap = function(){
     //Recompute the fov from the player's perspective.
     if(RogueJS.player){
         RogueJS.fov.compute(RogueJS.player._x, RogueJS.player._y, RogueJS.FOV_RADIUS, function(x, y, r, visibility) {
-            var ch = (r ? "" : "@");
-            var color = (RogueJSData[x+","+y] ? COLOR_FOV_WALL: COLOR_FOV_FLOOR);
-            RogueJS.display.draw(x, y, ch, "#fff", color);
+            var ch = (r ? "#" : "@");
+            var color = (RogueJSData[x+","+y] ? Colors.FOV_WALL: Colors.FOV_FLOOR);
+            RogueJS.display.draw(x, y, ch, Colors.WHITE, color);
             RogueJS.fovmap[x+","+y] = 1;
             RogueJS.discovered[x+","+y] = 1;   //now been discovered
         });
@@ -895,10 +878,10 @@ function UpdateHUD(){
     //Show player's status
     if(RogueJS.player){
         curHealth = "HP (" + RogueJS.player.getHP() + "/" + RogueJS.player.getMaxHP() + ")";
-        drawBar(1, 0, 12, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), COLOR_HEALTH_LIGHT, COLOR_HEALTH_DARK, curHealth);
+        drawBar(1, 0, 12, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), Colors.HEALTH_LIGHT, Colors.HEALTH_DARK, curHealth);
 
         curXP = "XP (" + RogueJS.player.getXP() + "/" + RogueJS.player.getNextXP() + ")";
-        drawBar(15, 0, 12, RogueJS.player.getNextXP(), RogueJS.player.getXP(), COLOR_XP_LIGHT, COLOR_XP_DARK, curXP);
+        drawBar(15, 0, 12, RogueJS.player.getNextXP(), RogueJS.player.getXP(), Colors.XP_LIGHT, Colors.XP_DARK, curXP);
     }
 
     //Refresh.
@@ -6240,10 +6223,10 @@ var Weapon = function(name, char, color, dmg, price, x, y){
     /**
     * Handles drawing back to the Display, only if the Actor is
     * in the Player's FOV.
-    * @param bckColor the background color to use, defaults to COLOR_FOV_FLOOR
+    * @param bckColor the background color to use, defaults to Colors.FOV_FLOOR
     */
     this._draw = function(bckColor){
-        var bckColor = bckColor || COLOR_FOV_FLOOR; //Set default value
+        var bckColor = bckColor || Colors.FOV_FLOOR; //Set default value
 
         //Only draw if we're in the player's fov
         if(IsInFOV(this._x, this._y)){

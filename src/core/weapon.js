@@ -16,10 +16,10 @@ var Weapon = function(name, char, color, dmg, price, x, y){
     /**
     * Handles drawing back to the Display, only if the Actor is
     * in the Player's FOV.
-    * @param bckColor the background color to use, defaults to COLOR_FOV_FLOOR
+    * @param bckColor the background color to use, defaults to Colors.FOV_FLOOR
     */
     this._draw = function(bckColor){
-        var bckColor = bckColor || COLOR_FOV_FLOOR; //Set default value
+        var bckColor = bckColor || Colors.FOV_FLOOR; //Set default value
 
         //Only draw if we're in the player's fov
         if(IsInFOV(this._x, this._y)){

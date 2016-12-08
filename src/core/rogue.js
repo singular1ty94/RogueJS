@@ -3,19 +3,6 @@ var RogueJSData = {};
 var Entities = [];
 var Messages = [];
 
-var COLOR_FOV_WALL = '#b37700';
-var COLOR_FOV_FLOOR = '#664400';
-// var COLOR_FOV_WALL = Colors.base02;
-// var COLOR_FOV_FLOOR = Colors.base03;
-var COLOR_DISCOVERED_WALL = '#222';
-var COLOR_DISCOVERED_FLOOR = '#111';
-
-var COLOR_HEALTH_DARK = '#2e4200';
-var COLOR_HEALTH_LIGHT = Colors.green;
-
-var COLOR_XP_DARK = '#4d004d';
-var COLOR_XP_LIGHT = '#800080';
-
 var MIN_MOBS = 3;
 var MAX_MOBS = 5;
 
@@ -135,7 +122,7 @@ var RogueJS = {
     placeStairs: function(){
         var arr = RoomAndPosition();
         if(!IsOccupied(arr[0], arr[1])){
-            var Stairs = new Item(arr[0], arr[1], "Stairs", ">", '#ffffff', RogueJS.nextLevel);
+            var Stairs = new Item(arr[0], arr[1], "Stairs", ">", Colors.WHITE, RogueJS.nextLevel);
             Entities.push(Stairs);
             return;
         } else {
@@ -190,7 +177,7 @@ var RogueJS = {
             Entities.splice(x, 1);   //Remove from the array
 
             item.useAbility(actor);
-            MessageLog(actor.getName() + " uses the %c{#b37700}" + item.getName() + "%c{}!");
+            MessageLog(actor.getName() + " uses the %c{"+Colors.ORANGE_GOLD+"}" + item.getName() + "%c{}!");
         }else{
             MessageLog("There's nothing here.");
         }
@@ -240,10 +227,10 @@ var recalculateMap = function(){
         for(var x = 0; x < RogueJS.w; x++){
             //Check if we have NOT discovered the tile, make it black
             if(RogueJS.discovered[x+","+y] == 0){
-                RogueJS.display.draw(x, y, "", "#000", "#000");
+                RogueJS.display.draw(x, y, "",  Colors.BLACK, Colors.BLACK);
             }else{
-                var color = (RogueJSData[x+","+y] ? COLOR_DISCOVERED_WALL: COLOR_DISCOVERED_FLOOR);
-                RogueJS.display.draw(x, y, "", "#fff", color);
+                var color = (RogueJSData[x+","+y] ? Colors.DISCOVERED_WALL: Colors.DISCOVERED_FLOOR);
+                RogueJS.display.draw(x, y, "",  Colors.WHITE, color);
             }
         }
     }
@@ -255,8 +242,8 @@ var recalculateMap = function(){
     if(RogueJS.player){
         RogueJS.fov.compute(RogueJS.player._x, RogueJS.player._y, RogueJS.FOV_RADIUS, function(x, y, r, visibility) {
             var ch = (r ? "" : "@");
-            var color = (RogueJSData[x+","+y] ? COLOR_FOV_WALL: COLOR_FOV_FLOOR);
-            RogueJS.display.draw(x, y, ch, "#fff", color);
+            var color = (RogueJSData[x+","+y] ? Colors.FOV_WALL: Colors.FOV_FLOOR);
+            RogueJS.display.draw(x, y, ch, Colors.WHITE, color);
             RogueJS.fovmap[x+","+y] = 1;
             RogueJS.discovered[x+","+y] = 1;   //now been discovered
         });
@@ -435,10 +422,10 @@ function UpdateHUD(){
     //Show player's status
     if(RogueJS.player){
         curHealth = "HP (" + RogueJS.player.getHP() + "/" + RogueJS.player.getMaxHP() + ")";
-        drawBar(1, 0, 12, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), COLOR_HEALTH_LIGHT, COLOR_HEALTH_DARK, curHealth);
+        drawBar(1, 0, 12, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), Colors.HEALTH_LIGHT, Colors.HEALTH_DARK, curHealth);
 
         curXP = "XP (" + RogueJS.player.getXP() + "/" + RogueJS.player.getNextXP() + ")";
-        drawBar(15, 0, 12, RogueJS.player.getNextXP(), RogueJS.player.getXP(), COLOR_XP_LIGHT, COLOR_XP_DARK, curXP);
+        drawBar(15, 0, 12, RogueJS.player.getNextXP(), RogueJS.player.getXP(), Colors.XP_LIGHT, Colors.XP_DARK, curXP);
     }
 
     //Refresh.
