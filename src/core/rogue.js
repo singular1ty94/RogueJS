@@ -9,6 +9,11 @@ var MAX_MOBS = 5;
 var MIN_ITEMS = 2;
 var MAX_ITEMS = 5;
 
+var CHANCE_RARE = 5;
+var CHANCE_UNCOMMON = 15;
+var CHANCE_COMMON = 25;
+var CHANCE_FREQUENT = 35;
+
 var RogueJS = {    
     w : 115,
     h : 28,
@@ -92,26 +97,62 @@ var RogueJS = {
         }  
     },
 
-    //Create items in the map
+    /**
+     * Create Items in the map. 
+     *
+     * We're guaranteed a certain number of items per map via the MIN_ITEMS, MAX_ITEMS variable.
+     * Loop through until we've managed to place a random between MIN and MAX.
+     * 
+     * For each iteration, look at each item in the Items array.
+     * Check its weighting (if one exists) and identify that our current dungeon level applies.
+     * 
+     * From a random chance variable, see if we can place at this rarity. If we can't, keep checking
+     *      more frequent rarities if they exist.
+     * 
+     * Then find a room and place this item.
+     */
     createItems: function(level){
-        for(var num = 0; num < getRandom(MIN_ITEMS, MAX_ITEMS); num ++){
-            var arr = RoomAndPosition();
-            
-            //Check the room isn't occupied.
-            if(!IsOccupied(arr[0], arr[1])){
-                var targetLevel = level - 1; //0-index array
-                var r = getRandom(0, items[targetLevel].length);
+        var itemsToPlace = getRandom(MIN_ITEMS, MAX_ITEMS);
+        var itemsPlaced = 0;
+        while(itemsPlaced < itemsToPlace){
+            for (var i = 0, len = items.length; i < len; i++) {
+                var item = items[i];
+                var place = false;
+
+                var chance = ROT.RNG.getPercentage();
+
+                if(!place && item.weighting.rare && (RogueJS.level >= item.weighting.rare[0] && RogueJS.level <= item.weighting.rare[1])){ 
+                    if(chance <= CHANCE_RARE){ place = true; } 
+                }
+                if(!place && item.weighting.uncommon && (RogueJS.level >= item.weighting.uncommon[0] && RogueJS.level <= item.weighting.uncommon[1])){ 
+                    if(chance <= CHANCE_UNCOMMON){ place = true; } 
+                }
+                if(!place && item.weighting.common && (RogueJS.level >= item.weighting.common[0] && RogueJS.level <= item.weighting.common[1])){ 
+                    if(chance <= CHANCE_COMMON){ place = true; } 
+                }
+                if(!place && item.weighting.frequent && (RogueJS.level >= item.weighting.frequent[0] && RogueJS.level <= item.weighting.frequent[1])){ 
+                    if(chance <= CHANCE_FREQUENT){ place = true; } 
+                }
+
+                if(place){
+                    var arr = RoomAndPosition();
                 
-                //Create the entity according to the data file.
-                var entity = new Item(arr[0], arr[1], 
-                                       items[targetLevel][r].name, 
-                                       items[targetLevel][r].char, 
-                                       items[targetLevel][r].color, 
-                                       items[targetLevel][r].ability);
-                                
-                Entities.push(entity);
-            }          
-        }  
+                    //Check the room isn't occupied.
+                    if(!IsOccupied(arr[0], arr[1])){                     
+                        //Create the entity according to the data file.
+                        var entity = new Item(arr[0], arr[1], 
+                                            item.name, 
+                                            item.char, 
+                                            item.color, 
+                                            item.ability);
+                                        
+                        Entities.push(entity);
+                        itemsPlaced++;
+                    }          
+                }
+            }
+        }
+        
     },
     
     //Create the weapons.
