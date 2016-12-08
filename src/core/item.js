@@ -6,8 +6,7 @@ var Item = function(x, y, name, char, color, AbilityCallback){
     this._color = color;
     this._name = name;
     this._AbilityCallback = AbilityCallback;
-    this._isStairs = false;
-    
+   
 
     /**
     * Handles drawing back to the Display, only if the Actor is
@@ -16,16 +15,17 @@ var Item = function(x, y, name, char, color, AbilityCallback){
     */
     this._draw = function(bckColor){
         //Only draw if we're in the player's fov
-        if(IsInFOV(this._x, this._y)){
-            RogueJS.display.draw(this._x, this._y, this._char, this._color, COLOR_FOV_FLOOR);
-        }else{
-            if(RogueJS.discovered[this._x+","+this._y] == 0){
-                RogueJS.display.draw(this._x, this._y, "", "#000", "#000");
-            }else{
-                var color = (RogueJSData[this._x+","+this._y] ? COLOR_DISCOVERED_WALL: COLOR_DISCOVERED_FLOOR);
-                RogueJS.display.draw(this._x, this._y, "", "#fff", color);
-            }
-        }  
+        // if(IsInFOV(this._x, this._y)){
+        //     RogueJS.display.draw(this._x, this._y, this._char, this._color, COLOR_FOV_FLOOR);
+        // }else{
+        //     if(RogueJS.discovered[this._x+","+this._y] == 0){
+        //         RogueJS.display.draw(this._x, this._y, "", "#000", "#000");
+        //     }else{
+        //         var color = (RogueJSData[this._x+","+this._y] ? COLOR_DISCOVERED_WALL: COLOR_DISCOVERED_FLOOR);
+        //         RogueJS.display.draw(this._x, this._y, "", "#fff", color);
+        //     }
+        // }  
+        RogueJS.display.draw(this._x, this._y, this._char, this._color, COLOR_FOV_FLOOR);
     }
 
     this.act = function(){

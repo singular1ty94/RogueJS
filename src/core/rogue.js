@@ -76,6 +76,8 @@ var RogueJS = {
         }else{
             this.player._x = pos[0];
             this.player._y = pos[1];
+            Entities.push(this.player);
+            RogueJS.scheduler.add(this.player, true);
         }
     }, 
     
@@ -131,17 +133,32 @@ var RogueJS = {
     },
 
     placeStairs: function(){
-        var Stairs = new Item("Stairs", '>', '#fff', RogueJS.nextLevel);
-        Entities.push(Stairs);
+        var arr = RoomAndPosition();
+        if(!IsOccupied(arr[0], arr[1])){
+            var Stairs = new Item(arr[0], arr[1], "Stairs", ">", '#ffffff', RogueJS.nextLevel);
+            Entities.push(Stairs);
+            return;
+        } else {
+            RogueJS.placeStairs();
+        }      
     },
 
     nextLevel: function(){
-        this.level += 1;
+        //Using RogueJS scope due to weird issues with using this as callback to stairs ability
+        RogueJS.engine.lock();
+
+        Entities = [];
+        RogueJS.scheduler.clear();
+
+        RogueJS.level = RogueJS.level + 1;
         MessageLog("You advance to the next level...");
-        this.makeLevel();
+        RogueJS.makeLevel(RogueJS.level);
     },
 
     makeLevel : function(level){
+        //Clear the display
+        this.display.clear();
+
         //Generate the map and make the player.
         this.map = new ROT.Map.Digger(this.w, this.h, {
             roomWidth: [5, 10], /* room minimum and maximum width */
@@ -155,21 +172,25 @@ var RogueJS = {
             RogueJS.discovered[x+","+y] = 0;   //undiscovered
         });        
     
-        this.placeStairs();
         this.createItems(level);
+        this.placeStairs();
         this.createActors(level);
-        this.createPlayer();
+        this.createPlayer(); 
+
+        recalculateMap();
+
+        if(this.engine) { this.engine.unlock(); }
     },
 
     useItem: function(tileX, tileY, actor){
         var item = checkUnderFoot(tileX, tileY);
         if(item){
-            item.useAbility(actor);
-            MessageLog(actor.getName() + " uses the %c{#b37700}" + item.getName() + "%c{}!");
-
             var x = Entities.indexOf(item);
             RogueJS.scheduler.remove(item);
             Entities.splice(x, 1);   //Remove from the array
+
+            item.useAbility(actor);
+            MessageLog(actor.getName() + " uses the %c{#b37700}" + item.getName() + "%c{}!");
         }else{
             MessageLog("There's nothing here.");
         }
@@ -241,7 +262,7 @@ var recalculateMap = function(){
         });
     }
     
-    for(var i = 1; i < Entities.length; i++){
+    for(var i = 0; i < Entities.length; i++){
         Entities[i]._draw();
     }
 }
@@ -301,7 +322,7 @@ var IsOccupied = function(tileX, tileY){
     if(RogueJS.player && RogueJS.player.getX() == tileX && RogueJS.player.getY() == tileY){
         return true;
     }
-    for(var i = 1; i < Entities.length; i++){
+    for(var i = 0; i < Entities.length; i++){
         if(Entities[i]._x == tileX && Entities[i]._y == tileY && Entities[i] instanceof Actor){
             return true;
         }
@@ -324,7 +345,7 @@ function GetObjectAtTile(tileX, tileY){
     if(RogueJS.player.getX() == tileX && RogueJS.player.getY() == tileY){
         return RogueJS.player;
     }
-    for(var i = 1; i < Entities.length; i++){
+    for(var i = 0; i < Entities.length; i++){
         if(Entities[i]._x == tileX && Entities[i]._y == tileY){
             return Entities[i];
         }
@@ -374,7 +395,7 @@ function attackTile(attacker, tileX, tileY){
 //Check if anything's under foot
 function checkUnderFoot(tileX, tileY){
     if(RogueJS.player){
-        for(var i = 1; i < Entities.length; i++){
+        for(var i = 0; i < Entities.length; i++){
             if(Entities[i]._x == tileX && Entities[i]._y == tileY && Entities[i] instanceof Item){
                 return Entities[i];
             }

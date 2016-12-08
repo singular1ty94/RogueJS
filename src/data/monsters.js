@@ -31,5 +31,24 @@ var monsters = [
             XP: 4,
             weapon: weapons.Dagger
         }
+    ],
+    level_1 = [
+        //A powerful, but frail enemy.
+        Goblin = {
+            char: 'g',
+            color: '#282',
+            name: 'Goblin',
+            maxHP: 6,
+            XP: 4,
+            weapon: weapons.Dagger
+        },
+        GoblinSoldier = {
+            char: 'g',
+            color: '#0f3d0f',
+            name: 'Goblin Soldier',
+            maxHP: 10,
+            XP: 10,
+            weapon: weapons.Scimitar
+        }
     ]
 ]

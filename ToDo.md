@@ -1,6 +1,5 @@
 #RogueJs Development ToDo's
 
-* Multiple Levels
 * Weapon pickups
 * Weapon switching
 * Item pickups
@@ -9,4 +8,4 @@
 * Inventory management
 * Refactor colours
 * Refactor functions into RogueJS
-* Separate message and HUD so messages can stay
+* Refactor how items and enemies are chosen - make it less of a static array, more of a dynamic "pool" filterable by level ranges
