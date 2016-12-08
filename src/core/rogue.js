@@ -287,6 +287,33 @@ var RogueJS = {
         this.display.drawText(5,  25, "Refresh your browser to play again.");
 
         this.engine = null;
+    },
+
+    adjustViewport: function(size){
+        this.engine.lock();
+        this.display = null;
+        this.hud = null;
+        this.msgLog = null;
+        if(size == 'xs'){
+            this.display = new ROT.Display({width: this.w, height: this.h, fontSize: 8});
+            this.hud = new ROT.Display({width:this.w, height:1, fontSize:8});
+            this.msgLog = new ROT.Display({width: this.w, height: 5, fontSize: 8});
+        }else if(size == 'md'){
+            this.display = new ROT.Display({width: this.w, height: this.h, fontSize: 16});
+            this.hud = new ROT.Display({width:this.w, height:1, fontSize:16});
+            this.msgLog = new ROT.Display({width: this.w, height: 5, fontSize: 16});
+        }
+        document.getElementById("RogueCanvas").removeChild(document.getElementById("RogueCanvas").firstChild);
+        document.getElementById("RogueCanvas").appendChild(this.display.getContainer());
+
+        document.getElementById("RogueHUD").removeChild(document.getElementById("RogueHUD").firstChild);
+        document.getElementById("RogueHUD").appendChild(this.hud.getContainer());
+
+        document.getElementById("RogueMessages").removeChild(document.getElementById("RogueMessages").firstChild);
+        document.getElementById("RogueMessages").appendChild(this.msgLog.getContainer());
+        recalculateMap();
+        UpdateHUD();
+        this.engine.unlock();
     }
     
 };

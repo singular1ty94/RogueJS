@@ -526,7 +526,7 @@ var RogueJS = {
         
         //Make the first level
         this.makeLevel(1);
-        MessageLog("Welcome to the Dungeons of %c{red}DOOM%c{}!");
+        MessageLog("Welcome to the %c{red}Rogue's Dungeon%c{}!");
         
         //Setup the scehduler and engine
         this.engine = new ROT.Engine(this.scheduler);
@@ -661,12 +661,12 @@ var RogueJS = {
         }
         
     },
-    
-    //Create the weapons.
-    createWeapons : function(){
 
-    },
-
+    /**
+     * Stairs are guaranteed to be placed somewhere in the level.
+     * 
+     * They are essentially a single-use item that triggers the next level.
+     */
     placeStairs: function(){
         var arr = RoomAndPosition();
         if(!IsOccupied(arr[0], arr[1])){
@@ -678,6 +678,9 @@ var RogueJS = {
         }      
     },
 
+    /**
+     * Load the next level of the dungeon.
+     */
     nextLevel: function(){
         //Using RogueJS scope due to weird issues with using this as callback to stairs ability
         RogueJS.engine.lock();
@@ -690,6 +693,10 @@ var RogueJS = {
         RogueJS.makeLevel(RogueJS.level);
     },
 
+    /**
+     * Make a new dungeon level and populate it with items, monsters and player.
+     * @param level The level of the dungeon.
+     */
     makeLevel : function(level){
         //Clear the display
         this.display.clear();
@@ -755,11 +762,38 @@ var RogueJS = {
         document.getElementById("RogueHUD").style.display = "none";
 
         this.display.drawText(5,  2, "You have %c{red}perished%c{} on level " + this.level);
-        this.display.drawText(5,  5, "Your name was " + endPlayer.name + " and you had a Max HP of " + endPlayer.maxHP + ".");
+        this.display.drawText(5,  5, "You had a Max HP of " + endPlayer.maxHP + ".");
 
         this.display.drawText(5,  25, "Refresh your browser to play again.");
 
         this.engine = null;
+    },
+
+    adjustViewport: function(size){
+        this.engine.lock();
+        this.display = null;
+        this.hud = null;
+        this.msgLog = null;
+        if(size == 'xs'){
+            this.display = new ROT.Display({width: this.w, height: this.h, fontSize: 8});
+            this.hud = new ROT.Display({width:this.w, height:1, fontSize:8});
+            this.msgLog = new ROT.Display({width: this.w, height: 5, fontSize: 8});
+        }else if(size == 'md'){
+            this.display = new ROT.Display({width: this.w, height: this.h, fontSize: 16});
+            this.hud = new ROT.Display({width:this.w, height:1, fontSize:16});
+            this.msgLog = new ROT.Display({width: this.w, height: 5, fontSize: 16});
+        }
+        document.getElementById("RogueCanvas").removeChild(document.getElementById("RogueCanvas").firstChild);
+        document.getElementById("RogueCanvas").appendChild(this.display.getContainer());
+
+        document.getElementById("RogueHUD").removeChild(document.getElementById("RogueHUD").firstChild);
+        document.getElementById("RogueHUD").appendChild(this.hud.getContainer());
+
+        document.getElementById("RogueMessages").removeChild(document.getElementById("RogueMessages").firstChild);
+        document.getElementById("RogueMessages").appendChild(this.msgLog.getContainer());
+        recalculateMap();
+        UpdateHUD();
+        this.engine.unlock();
     }
     
 };
@@ -808,14 +842,6 @@ var recalculateMap = function(){
 /**
 * A method to draw a typical RPG bar, that colors partway
 * over a darker color to display percentages out of a whole.
-* @param posX The cell's x position
-* @param posY The cell's y position
-* @param width The width of the bar, in cells
-* @param maxValue The maximum value the bar can hold
-* @param value The current value the bar is holding
-* @param colorFore The lighter foreground color
-* @param colorBack The darker background (empty) color
-* @param title The words to print on the bar
 */
 var drawBar = function(posX, posY, width, maxValue, value, colorFore, colorBack, title){
     var startString = Math.ceil((width - title.length) / 2);
@@ -842,8 +868,6 @@ var drawBar = function(posX, posY, width, maxValue, value, colorFore, colorBack,
 
 /**
 * Is the specified tile within the player's fov?
-* @param tileX, tileY - the tile position to check
-* @return true or false, if the tile is in the fovmap
 */
 var IsInFOV = function(tileX, tileY){
     if(RogueJS.fovmap[tileX + "," + tileY] === 1){
@@ -895,9 +919,6 @@ function GetObjectAtTile(tileX, tileY){
 * attacking another tile co-ordinates. These tile co-ords
 * resolve into an entity, and then damage is dealt according
 * to getDamage(), damageHP(), isDead() and instanceof Actor/Player
-* @param attacker The attacker, likely the player or an Actor
-* @param tileX The x coord to attack
-* @param tileY The y coord to attack
 */
 function attackTile(attacker, tileX, tileY){
     //First, determine if there is actually an enemy there.
