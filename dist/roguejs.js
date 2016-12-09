@@ -16,7 +16,10 @@ var Colors = {
     BLACK: "#000000",
     ORANGE_GOLD: '#b37700',
     WHITE: '#ffffff',
-    BLOOD: "#660000"
+    BLOOD: "#660000",
+    
+    GOLD: '#cca300',
+    BRONZE: '#bf8040'
 };/**
  * Draft Item Generation Specification.
  * 
@@ -27,6 +30,17 @@ var Colors = {
  * 
  */
 var items = [
+    /* Treasure */
+    Treasure = {
+        char: '#',
+        color: Colors.ORANGE_GOLD,
+        name: 'Plain Chest',
+        ability: ABILITY_WEAPON_BASIC,
+        weighting: {
+            rare: [1, 4],
+            uncommon: [5, 8]
+        }
+    },
     Bones = {
         char: '%',
         color: Colors.WHITE,
@@ -172,6 +186,23 @@ function ABILITY_LEARN_MINOR(player){
  */
 function ABILITY_NOTHING(actor){
     MessageLog("This does nothing.");
+};/**
+ * Grants a random basic weapon.
+ */
+function ABILITY_WEAPON_BASIC(player){
+    // Basic weapon criteria.
+    var adjective = ['Wooden', 'Chipped', 'Rusted', 'Bent', 'Damaged', 'Broken', 'Makeshift'];
+    var weapon = ['Sword', 'Club', 'Spear', 'Mace', 'Axe', 'Dagger', 'Knife'];
+    var color = "#d77";
+    var char = "/";
+    
+    var dmg = getRandom(2, 6);
+    var price = getRandom(25, 60);
+    var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
+
+    MessageLog("You wield the %c{"+Colors.BRONZE+"}" + name + "%c{}!");
+    var weapon = new Weapon(name, char, color, dmg, price, null, null);
+    player.changeWeapon(weapon);
 };/* file: actor.js
 ** author: singular1ty94
 ** Stores information about actors, how to draw them,
@@ -918,7 +949,7 @@ function GetObjectAtTile(tileX, tileY){
 //Returns the Enemy at the tile
 function GetEnemyAtTile(tileX, tileY){
     for(var i = 0; i < Entities.length; i++){
-        if(Entities[i]._x == tileX && Entities[i]._y == tileY && (Entities[i] instanceof Actor)){
+        if(Entities[i]._x == tileX && Entities[i]._y == tileY && (Entities[i] instanceof Actor || Entities[i] instanceof Player)){
             return Entities[i];
         }
     }

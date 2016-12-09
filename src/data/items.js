@@ -8,6 +8,17 @@
  * 
  */
 var items = [
+    /* Treasure */
+    Treasure = {
+        char: '#',
+        color: Colors.ORANGE_GOLD,
+        name: 'Plain Chest',
+        ability: ABILITY_WEAPON_BASIC,
+        weighting: {
+            rare: [1, 4],
+            uncommon: [5, 8]
+        }
+    },
     Bones = {
         char: '%',
         color: Colors.WHITE,

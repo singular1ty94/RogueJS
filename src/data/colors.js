@@ -16,5 +16,8 @@ var Colors = {
     BLACK: "#000000",
     ORANGE_GOLD: '#b37700',
     WHITE: '#ffffff',
-    BLOOD: "#660000"
+    BLOOD: "#660000",
+    
+    GOLD: '#cca300',
+    BRONZE: '#bf8040'
 }

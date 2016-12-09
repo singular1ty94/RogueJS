@@ -436,7 +436,7 @@ function GetObjectAtTile(tileX, tileY){
 //Returns the Enemy at the tile
 function GetEnemyAtTile(tileX, tileY){
     for(var i = 0; i < Entities.length; i++){
-        if(Entities[i]._x == tileX && Entities[i]._y == tileY && (Entities[i] instanceof Actor)){
+        if(Entities[i]._x == tileX && Entities[i]._y == tileY && (Entities[i] instanceof Actor || Entities[i] instanceof Player)){
             return Entities[i];
         }
     }
@@ -454,7 +454,6 @@ function attackTile(attacker, tileX, tileY){
     if(IsOccupied(tileX, tileY)){
         //There's something occupying that cell (assume it's attackable).
         var defender = GetEnemyAtTile(tileX, tileY);
-        console.log(defender);
         
         //Attacker deals damage to defender.
         defender.damageHP(attacker.getDamage());
