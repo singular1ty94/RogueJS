@@ -19,7 +19,8 @@ var Colors = {
     BLOOD: "#660000",
     
     GOLD: '#cca300',
-    BRONZE: '#bf8040'
+    BRONZE: '#bf8040',
+    PURPLE: '#8000ff'
 };/**
  * Draft Item Generation Specification.
  * 
@@ -41,7 +42,7 @@ var items = [
             common: [5, 8]
         }
     },
-    Treasure = {
+    TreasureGold = {
         char: '#',
         color: Colors.GOLD,
         name: 'Metal Chest',
@@ -49,6 +50,25 @@ var items = [
         weighting: {
             rare: [5, 8],
             uncommon: [9, 11]
+        }
+    },
+    /* Shards */
+    Shard = {
+        char: 'o',
+        color: Colors.PURPLE,
+        name: 'Strange Shard of Glass',
+        ability: PASSIVE_GAIN_MINOR_HEAL,
+        weighting: {
+            uncommon: [1, 4]
+        }
+    },
+    Shard = {
+        char: 'o',
+        color: Colors.PURPLE,
+        name: 'Strange Shard of Glass',
+        ability: PASSIVE_GAIN_MINOR_POISON,
+        weighting: {
+            uncommon: [1, 4]
         }
     },
     Bones = {
@@ -196,6 +216,36 @@ function ABILITY_LEARN_MINOR(player){
  */
 function ABILITY_NOTHING(actor){
     MessageLog("This does nothing.");
+};/**
+ * POSITIVE: Minor Heal
+ */
+function PASSIVE_MINOR_HEAL(player){
+    player._HP += 1;
+    if(player._HP >= player._MaxHP){
+        player._HP = player._MaxHP;
+    }
+}
+
+function PASSIVE_GAIN_MINOR_HEAL(player){
+    RogueJS.player.addPassive(PASSIVE_MINOR_HEAL);
+    MessageLog("The %c{"+Colors.PURPLE+"}shard%c{} cuts your hand. Ancient %c{"+Colors.PURPLE+"}magic%c{} rushes through your veins!");
+    MessageLog("You now %c{"+Colors.HEALTH_LIGHT+"}regenerate health%c{}.");
+}
+
+/**
+ * NEGATIVE: Minor Poison
+ */
+function PASSIVE_MINOR_POISON(player){
+    player._HP -= 1;
+    if(player._HP <= 0){
+        RogueJS.postmortem();
+    }
+}
+
+function PASSIVE_GAIN_MINOR_POISON(player){
+    RogueJS.player.addPassive(PASSIVE_MINOR_POISON);
+    MessageLog("The %c{"+Colors.PURPLE+"}shard%c{} cuts your hand. Ancient %c{"+Colors.PURPLE+"}magic%c{} rushes through your veins!");
+    MessageLog("You are %c{"+Colors.BLOOD+"}poisoned%c{}!");
 };/**
  * Grants a random basic weapon.
  */
@@ -397,6 +447,27 @@ var Player = function(x, y){
 
     this.seeItems = false; //Dev flag
     this.seeEnemies = false; //Dev flag
+
+    this._passives = [];    //Array of passive abilities.
+
+    this.addPassive = function(ability){
+        this._passives.unshift(ability);
+    }
+    this.removePassive = function(ability){
+        for(var i = 0; i < this._passives.length; i++){
+            if(ability == this._passives[i]){
+                this._passives.splice(i, 1);
+                return true;
+            }
+        }
+        return false;
+    }
+    this.firePassives = function(){
+        //Trigger all our passives first.
+        for(var i = 0; i < this._passives.length; i++){
+            this._passives[i](this);
+        }
+    }
     
     this.getName = function(){return this._name;}
     this.getX = function(){return this._x;}
@@ -449,6 +520,7 @@ var Player = function(x, y){
         this._weapon = newWeapon;
     }
 }
+
 
 //The player's drawing function
 Player.prototype._draw = function(){
@@ -505,6 +577,7 @@ Player.prototype.handleEvent = function(e){
         }
 
         //Unlock and move on.
+        this.firePassives();
         RogueJS.engine.unlock();
         recalculateMap();
         return;
@@ -515,11 +588,13 @@ Player.prototype.handleEvent = function(e){
     }
     
     if (RogueJSData[newX+","+newY] == 1){ 
+        this.firePassives();
         return; //Cannot move there
     } else if (IsOccupied(newX, newY)){
         attackTile(this, newX, newY);
         //Clear the event listener and unlock the engine
         window.removeEventListener("keydown", this);
+        this.firePassives();
         recalculateMap();
         RogueJS.engine.unlock();
     }else {
@@ -537,6 +612,7 @@ Player.prototype.handleEvent = function(e){
 
         //Clear the event listener and unlock the engine
         window.removeEventListener("keydown", this);
+        this.firePassives();
         recalculateMap();
         RogueJS.engine.unlock();
     }
