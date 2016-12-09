@@ -4,8 +4,8 @@ var Colors = {
     FOV_FLOOR: '#404040',
     DISCOVERED_WALL: '#222',
     DISCOVERED_FLOOR: '#111',
-    HEALTH_DARK: '#2e4200',
-    HEALTH_LIGHT: '#859900',
+    HEALTH_DARK: '#145214',
+    HEALTH_LIGHT: '#2eb82e',
     XP_DARK: '#4d004d',
     XP_LIGHT: '#800080',
     
@@ -15,5 +15,6 @@ var Colors = {
     GOBLIN_GREEN_DARK: "#003311",
     BLACK: "#000000",
     ORANGE_GOLD: '#b37700',
-    WHITE: '#ffffff'
+    WHITE: '#ffffff',
+    BLOOD: "#660000"
 }

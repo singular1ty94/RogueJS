@@ -3,11 +3,11 @@ var RogueJSData = {};
 var Entities = [];
 var Messages = [];
 
-var MIN_MOBS = 3;
-var MAX_MOBS = 5;
+var MIN_MOBS = 10;
+var MAX_MOBS = 20;
 
-var MIN_ITEMS = 2;
-var MAX_ITEMS = 5;
+var MIN_ITEMS = 4;
+var MAX_ITEMS = 8;
 
 var CHANCE_RARE = 5;
 var CHANCE_UNCOMMON = 15;
@@ -222,16 +222,15 @@ var RogueJS = {
         this.display.clear();
 
         //Generate the map and make the player.
-        this.map = new ROT.Map.Digger(this.w, this.h, {
+        this.map = new ROT.Map.Uniform(this.w, this.h, {
             roomWidth: [5, 10], /* room minimum and maximum width */
             roomHeight: [5, 10], /* room minimum and maximum height */
-            corridorLength: [3, 4], /* corridor minimum and maximum length */
-            dugPercentage: 0.40, /* we stop after this percentage of level area has been dug out */
-            timeLimit: 1000 /* we stop after this much time has passed (msec) */
+            roomDugPercentage: 0.90, /* we stop after this percentage of level area has been dug out */
+            timeLimit: 5000 /* we stop after this much time has passed (msec) */
         });
         this.map.create(function(x, y, type){
             RogueJSData[x+","+y] = type;
-            RogueJS.discovered[x+","+y] = 0;   //undiscovered
+            RogueJS.discovered[x+","+y] = 1;   //undiscovered
         });        
     
         this.createItems(level);
@@ -434,6 +433,16 @@ function GetObjectAtTile(tileX, tileY){
     return;
 }
 
+//Returns the Enemy at the tile
+function GetEnemyAtTile(tileX, tileY){
+    for(var i = 0; i < Entities.length; i++){
+        if(Entities[i]._x == tileX && Entities[i]._y == tileY && (Entities[i] instanceof Actor)){
+            return Entities[i];
+        }
+    }
+    return;
+}
+
 /**
 * Handles one object (like an actor or player) 
 * attacking another tile co-ordinates. These tile co-ords
@@ -444,7 +453,8 @@ function attackTile(attacker, tileX, tileY){
     //First, determine if there is actually an enemy there.
     if(IsOccupied(tileX, tileY)){
         //There's something occupying that cell (assume it's attackable).
-        var defender = GetObjectAtTile(tileX, tileY);
+        var defender = GetEnemyAtTile(tileX, tileY);
+        console.log(defender);
         
         //Attacker deals damage to defender.
         defender.damageHP(attacker.getDamage());
@@ -453,12 +463,20 @@ function attackTile(attacker, tileX, tileY){
         
         //Check for death
         if(defender.isDead()){
-            if(defender instanceof Actor){   //is not the player
+            if(defender instanceof Actor){ 
+                //Destroy the actor
                 var x = Entities.indexOf(defender);
                 RogueJS.scheduler.remove(defender);
-                //Gain experience
-                RogueJS.player.gainXP(defender.getXP());
                 Entities.splice(x, 1);   //Remove from the array
+
+                //Gain experience for the player
+                RogueJS.player.gainXP(defender.getXP());
+
+                //Leave a corpse.
+                var corpse = new Item(defender.getX(), defender.getY(), "Bloody Corpse", "%", Colors.BLOOD, ABILITY_NOTHING);
+                Entities.unshift(corpse);
+                
+                //Finish up
                 recalculateMap();
                 var msg = "The " + defender.getName() + " %c{red}is dead!";
                 MessageLog(msg);
@@ -517,6 +535,9 @@ function UpdateHUD(){
 
         curXP = "XP (" + RogueJS.player.getXP() + "/" + RogueJS.player.getNextXP() + ")";
         drawBar(15, 0, 12, RogueJS.player.getNextXP(), RogueJS.player.getXP(), Colors.XP_LIGHT, Colors.XP_DARK, curXP);
+
+        curWeapon = RogueJS.player._weapon.getName() + " " + RogueJS.player._weapon.getChar() + " " + "(" + RogueJS.player._weapon.getDamage() + " dmg)";
+        drawBar(29, 0, curWeapon.length + 2, 1, 1, Colors.ORANGE_GOLD, Colors.ORANGE_GOLD, curWeapon);
     }
 }
 

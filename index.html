@@ -7,7 +7,6 @@
         <script type="text/javascript" src="dist/roguejs.js"></script>
         <script type="text/javascript" src="bootstrap/js/jquery-2.2.4.min.js"></script>
         <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="bootstrap/js/bootstrap-toolkit.min.js"></script>
     </head>
     <body>
     <div class="container" id="container">
@@ -29,22 +28,6 @@
     </div>
     <script type="text/javascript">
         RogueJS.init();
-        // Wrap IIFE around your code
-        (function($, viewport){
-            $(document).ready(function() {
-                // Execute code each time window size changes
-                $(window).resize(
-                    viewport.changed(function() {
-                        if(viewport.is('<=sm')) {
-                            RogueJS.adjustViewport('xs');
-                        }
-                        if(viewport.is('>=md')) {
-                            RogueJS.adjustViewport('md');
-                        }
-                    })
-                );
-            });
-        })(jQuery, ResponsiveBootstrapToolkit);
     </script>
     </body>
 </html>
