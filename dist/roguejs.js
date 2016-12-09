@@ -37,8 +37,18 @@ var items = [
         name: 'Plain Chest',
         ability: ABILITY_WEAPON_BASIC,
         weighting: {
-            rare: [1, 4],
-            uncommon: [5, 8]
+            uncommon: [1, 4],
+            common: [5, 8]
+        }
+    },
+    Treasure = {
+        char: '#',
+        color: Colors.GOLD,
+        name: 'Metal Chest',
+        ability: ABILITY_WEAPON_DECENT,
+        weighting: {
+            rare: [5, 8],
+            uncommon: [9, 11]
         }
     },
     Bones = {
@@ -201,6 +211,25 @@ function ABILITY_WEAPON_BASIC(player){
     var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
 
     MessageLog("You wield the %c{"+Colors.BRONZE+"}" + name + "%c{}!");
+    var weapon = new Weapon(name, char, color, dmg, price, null, null);
+    player.changeWeapon(weapon);
+}
+
+/**
+ * Grants a random decent weapon.
+ */
+function ABILITY_WEAPON_DECENT(player){
+    // Decent weapon criteria.
+    var adjective = ['Solid', 'Reliable', 'Decent', 'Adequate', 'Common', 'Standard'];
+    var weapon = ['Sword', 'Katana', 'Spear', 'Mace', 'Battle-Axe', 'Dagger'];
+    var color = "#d77";
+    var char = "/";
+    
+    var dmg = getRandom(12, 26);
+    var price = getRandom(80, 150);
+    var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
+
+    MessageLog("You wield the %c{"+Colors.GOLD+"}" + name + "%c{}!");
     var weapon = new Weapon(name, char, color, dmg, price, null, null);
     player.changeWeapon(weapon);
 };/* file: actor.js
@@ -967,7 +996,6 @@ function attackTile(attacker, tileX, tileY){
     if(IsOccupied(tileX, tileY)){
         //There's something occupying that cell (assume it's attackable).
         var defender = GetEnemyAtTile(tileX, tileY);
-        console.log(defender);
         
         //Attacker deals damage to defender.
         defender.damageHP(attacker.getDamage());
