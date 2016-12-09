@@ -4,8 +4,8 @@ var Colors = {
     FOV_FLOOR: '#404040',
     DISCOVERED_WALL: '#222',
     DISCOVERED_FLOOR: '#111',
-    HEALTH_DARK: '#2e4200',
-    HEALTH_LIGHT: '#859900',
+    HEALTH_DARK: '#145214',
+    HEALTH_LIGHT: '#2eb82e',
     XP_DARK: '#4d004d',
     XP_LIGHT: '#800080',
     
@@ -15,7 +15,11 @@ var Colors = {
     GOBLIN_GREEN_DARK: "#003311",
     BLACK: "#000000",
     ORANGE_GOLD: '#b37700',
-    WHITE: '#ffffff'
+    WHITE: '#ffffff',
+    BLOOD: "#660000",
+    
+    GOLD: '#cca300',
+    BRONZE: '#bf8040'
 };/**
  * Draft Item Generation Specification.
  * 
@@ -26,6 +30,27 @@ var Colors = {
  * 
  */
 var items = [
+    /* Treasure */
+    Treasure = {
+        char: '#',
+        color: Colors.ORANGE_GOLD,
+        name: 'Plain Chest',
+        ability: ABILITY_WEAPON_BASIC,
+        weighting: {
+            uncommon: [1, 4],
+            common: [5, 8]
+        }
+    },
+    Treasure = {
+        char: '#',
+        color: Colors.GOLD,
+        name: 'Metal Chest',
+        ability: ABILITY_WEAPON_DECENT,
+        weighting: {
+            rare: [5, 8],
+            uncommon: [9, 11]
+        }
+    },
     Bones = {
         char: '%',
         color: Colors.WHITE,
@@ -171,6 +196,42 @@ function ABILITY_LEARN_MINOR(player){
  */
 function ABILITY_NOTHING(actor){
     MessageLog("This does nothing.");
+};/**
+ * Grants a random basic weapon.
+ */
+function ABILITY_WEAPON_BASIC(player){
+    // Basic weapon criteria.
+    var adjective = ['Wooden', 'Chipped', 'Rusted', 'Bent', 'Damaged', 'Broken', 'Makeshift'];
+    var weapon = ['Sword', 'Club', 'Spear', 'Mace', 'Axe', 'Dagger', 'Knife'];
+    var color = "#d77";
+    var char = "/";
+    
+    var dmg = getRandom(2, 6);
+    var price = getRandom(25, 60);
+    var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
+
+    MessageLog("You wield the %c{"+Colors.BRONZE+"}" + name + "%c{}!");
+    var weapon = new Weapon(name, char, color, dmg, price, null, null);
+    player.changeWeapon(weapon);
+}
+
+/**
+ * Grants a random decent weapon.
+ */
+function ABILITY_WEAPON_DECENT(player){
+    // Decent weapon criteria.
+    var adjective = ['Solid', 'Reliable', 'Decent', 'Adequate', 'Common', 'Standard'];
+    var weapon = ['Sword', 'Katana', 'Spear', 'Mace', 'Battle-Axe', 'Dagger'];
+    var color = "#d77";
+    var char = "/";
+    
+    var dmg = getRandom(12, 26);
+    var price = getRandom(80, 150);
+    var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
+
+    MessageLog("You wield the %c{"+Colors.GOLD+"}" + name + "%c{}!");
+    var weapon = new Weapon(name, char, color, dmg, price, null, null);
+    player.changeWeapon(weapon);
 };/* file: actor.js
 ** author: singular1ty94
 ** Stores information about actors, how to draw them,
@@ -193,7 +254,7 @@ var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
     */
     this._draw = function(){
         //Only draw if we're in the player's fov
-        if(IsInFOV(this._x, this._y)){
+        if(IsInFOV(this._x, this._y) || RogueJS.player.seeEnemies){
             RogueJS.display.draw(this._x, this._y, this._char, this._color, Colors.FOV_FLOOR);
         }else{
             if(RogueJS.discovered[this._x+","+this._y] == 0){
@@ -309,7 +370,7 @@ var Item = function(x, y, name, char, color, AbilityCallback){
     this.getPrice = function(){return this._price;}
     this.useAbility = function(actor){ this._AbilityCallback(actor); }
     
-    RogueJS.scheduler.add(this, true);
+    RogueJS.scheduler.add(this);
 
 }
 ;/* file: player.js
@@ -335,6 +396,7 @@ var Player = function(x, y){
                              weapons.playerWeapon.price);
 
     this.seeItems = false; //Dev flag
+    this.seeEnemies = false; //Dev flag
     
     this.getName = function(){return this._name;}
     this.getX = function(){return this._x;}
@@ -483,11 +545,11 @@ var RogueJSData = {};
 var Entities = [];
 var Messages = [];
 
-var MIN_MOBS = 3;
-var MAX_MOBS = 5;
+var MIN_MOBS = 10;
+var MAX_MOBS = 20;
 
-var MIN_ITEMS = 2;
-var MAX_ITEMS = 5;
+var MIN_ITEMS = 4;
+var MAX_ITEMS = 8;
 
 var CHANCE_RARE = 5;
 var CHANCE_UNCOMMON = 15;
@@ -526,7 +588,7 @@ var RogueJS = {
         
         //Make the first level
         this.makeLevel(1);
-        MessageLog("Welcome to the Dungeons of %c{red}DOOM%c{}!");
+        MessageLog("Welcome to the %c{red}Rogue's Dungeon%c{}!");
         
         //Setup the scehduler and engine
         this.engine = new ROT.Engine(this.scheduler);
@@ -661,12 +723,12 @@ var RogueJS = {
         }
         
     },
-    
-    //Create the weapons.
-    createWeapons : function(){
 
-    },
-
+    /**
+     * Stairs are guaranteed to be placed somewhere in the level.
+     * 
+     * They are essentially a single-use item that triggers the next level.
+     */
     placeStairs: function(){
         var arr = RoomAndPosition();
         if(!IsOccupied(arr[0], arr[1])){
@@ -678,6 +740,9 @@ var RogueJS = {
         }      
     },
 
+    /**
+     * Load the next level of the dungeon.
+     */
     nextLevel: function(){
         //Using RogueJS scope due to weird issues with using this as callback to stairs ability
         RogueJS.engine.lock();
@@ -690,17 +755,20 @@ var RogueJS = {
         RogueJS.makeLevel(RogueJS.level);
     },
 
+    /**
+     * Make a new dungeon level and populate it with items, monsters and player.
+     * @param level The level of the dungeon.
+     */
     makeLevel : function(level){
         //Clear the display
         this.display.clear();
 
         //Generate the map and make the player.
-        this.map = new ROT.Map.Digger(this.w, this.h, {
+        this.map = new ROT.Map.Uniform(this.w, this.h, {
             roomWidth: [5, 10], /* room minimum and maximum width */
             roomHeight: [5, 10], /* room minimum and maximum height */
-            corridorLength: [3, 4], /* corridor minimum and maximum length */
-            dugPercentage: 0.40, /* we stop after this percentage of level area has been dug out */
-            timeLimit: 1000 /* we stop after this much time has passed (msec) */
+            roomDugPercentage: 0.90, /* we stop after this percentage of level area has been dug out */
+            timeLimit: 5000 /* we stop after this much time has passed (msec) */
         });
         this.map.create(function(x, y, type){
             RogueJSData[x+","+y] = type;
@@ -755,11 +823,38 @@ var RogueJS = {
         document.getElementById("RogueHUD").style.display = "none";
 
         this.display.drawText(5,  2, "You have %c{red}perished%c{} on level " + this.level);
-        this.display.drawText(5,  5, "Your name was " + endPlayer.name + " and you had a Max HP of " + endPlayer.maxHP + ".");
+        this.display.drawText(5,  5, "You had a Max HP of " + endPlayer.maxHP + ".");
 
         this.display.drawText(5,  25, "Refresh your browser to play again.");
 
         this.engine = null;
+    },
+
+    adjustViewport: function(size){
+        this.engine.lock();
+        this.display = null;
+        this.hud = null;
+        this.msgLog = null;
+        if(size == 'xs'){
+            this.display = new ROT.Display({width: this.w, height: this.h, fontSize: 8});
+            this.hud = new ROT.Display({width:this.w, height:1, fontSize:8});
+            this.msgLog = new ROT.Display({width: this.w, height: 5, fontSize: 8});
+        }else if(size == 'md'){
+            this.display = new ROT.Display({width: this.w, height: this.h, fontSize: 16});
+            this.hud = new ROT.Display({width:this.w, height:1, fontSize:16});
+            this.msgLog = new ROT.Display({width: this.w, height: 5, fontSize: 16});
+        }
+        document.getElementById("RogueCanvas").removeChild(document.getElementById("RogueCanvas").firstChild);
+        document.getElementById("RogueCanvas").appendChild(this.display.getContainer());
+
+        document.getElementById("RogueHUD").removeChild(document.getElementById("RogueHUD").firstChild);
+        document.getElementById("RogueHUD").appendChild(this.hud.getContainer());
+
+        document.getElementById("RogueMessages").removeChild(document.getElementById("RogueMessages").firstChild);
+        document.getElementById("RogueMessages").appendChild(this.msgLog.getContainer());
+        recalculateMap();
+        UpdateHUD();
+        this.engine.unlock();
     }
     
 };
@@ -808,14 +903,6 @@ var recalculateMap = function(){
 /**
 * A method to draw a typical RPG bar, that colors partway
 * over a darker color to display percentages out of a whole.
-* @param posX The cell's x position
-* @param posY The cell's y position
-* @param width The width of the bar, in cells
-* @param maxValue The maximum value the bar can hold
-* @param value The current value the bar is holding
-* @param colorFore The lighter foreground color
-* @param colorBack The darker background (empty) color
-* @param title The words to print on the bar
 */
 var drawBar = function(posX, posY, width, maxValue, value, colorFore, colorBack, title){
     var startString = Math.ceil((width - title.length) / 2);
@@ -842,8 +929,6 @@ var drawBar = function(posX, posY, width, maxValue, value, colorFore, colorBack,
 
 /**
 * Is the specified tile within the player's fov?
-* @param tileX, tileY - the tile position to check
-* @return true or false, if the tile is in the fovmap
 */
 var IsInFOV = function(tileX, tileY){
     if(RogueJS.fovmap[tileX + "," + tileY] === 1){
@@ -890,20 +975,27 @@ function GetObjectAtTile(tileX, tileY){
     return;
 }
 
+//Returns the Enemy at the tile
+function GetEnemyAtTile(tileX, tileY){
+    for(var i = 0; i < Entities.length; i++){
+        if(Entities[i]._x == tileX && Entities[i]._y == tileY && (Entities[i] instanceof Actor || Entities[i] instanceof Player)){
+            return Entities[i];
+        }
+    }
+    return;
+}
+
 /**
 * Handles one object (like an actor or player) 
 * attacking another tile co-ordinates. These tile co-ords
 * resolve into an entity, and then damage is dealt according
 * to getDamage(), damageHP(), isDead() and instanceof Actor/Player
-* @param attacker The attacker, likely the player or an Actor
-* @param tileX The x coord to attack
-* @param tileY The y coord to attack
 */
 function attackTile(attacker, tileX, tileY){
     //First, determine if there is actually an enemy there.
     if(IsOccupied(tileX, tileY)){
         //There's something occupying that cell (assume it's attackable).
-        var defender = GetObjectAtTile(tileX, tileY);
+        var defender = GetEnemyAtTile(tileX, tileY);
         
         //Attacker deals damage to defender.
         defender.damageHP(attacker.getDamage());
@@ -912,12 +1004,20 @@ function attackTile(attacker, tileX, tileY){
         
         //Check for death
         if(defender.isDead()){
-            if(defender instanceof Actor){   //is not the player
+            if(defender instanceof Actor){ 
+                //Destroy the actor
                 var x = Entities.indexOf(defender);
                 RogueJS.scheduler.remove(defender);
-                //Gain experience
-                RogueJS.player.gainXP(defender.getXP());
                 Entities.splice(x, 1);   //Remove from the array
+
+                //Gain experience for the player
+                RogueJS.player.gainXP(defender.getXP());
+
+                //Leave a corpse.
+                var corpse = new Item(defender.getX(), defender.getY(), "Bloody Corpse", "%", Colors.BLOOD, ABILITY_NOTHING);
+                Entities.unshift(corpse);
+                
+                //Finish up
                 recalculateMap();
                 var msg = "The " + defender.getName() + " %c{red}is dead!";
                 MessageLog(msg);
@@ -976,6 +1076,9 @@ function UpdateHUD(){
 
         curXP = "XP (" + RogueJS.player.getXP() + "/" + RogueJS.player.getNextXP() + ")";
         drawBar(15, 0, 12, RogueJS.player.getNextXP(), RogueJS.player.getXP(), Colors.XP_LIGHT, Colors.XP_DARK, curXP);
+
+        curWeapon = RogueJS.player._weapon.getName() + " " + RogueJS.player._weapon.getChar() + " " + "(" + RogueJS.player._weapon.getDamage() + " dmg)";
+        drawBar(29, 0, curWeapon.length + 2, 1, 1, Colors.ORANGE_GOLD, Colors.ORANGE_GOLD, curWeapon);
     }
 }
 
@@ -6338,6 +6441,6 @@ var Weapon = function(name, char, color, dmg, price, x, y){
     this.getDamage = function(){return this._dmg;}
     this.getPrice = function(){return this._price;}
     
-    RogueJS.scheduler.add(this, true);
+    RogueJS.scheduler.add(this);
 
 }

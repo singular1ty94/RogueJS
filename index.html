@@ -2,15 +2,30 @@
 <html>
     <head>
         <title>RogueJS</title>
+        <link type="text/css" rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
+        <link type="text/css" rel="stylesheet" href="bootstrap/css/main.css" />
         <script type="text/javascript" src="dist/roguejs.js"></script>
-        <link type="text/css" rel="stylesheet" href="style/main.css" />
+        <script type="text/javascript" src="bootstrap/js/jquery-2.2.4.min.js"></script>
+        <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
     </head>
     <body>
-    <div id="container">
-        <div id="RogueCanvas"></div>
+    <div class="container" id="container">
+        <div class="row">
+            <div class="container-md-12">
+                <div id="RogueCanvas"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="container-md-12">
+                <div id='RogueHUD'></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="container-md-12">
+                <div id='RogueMessages'></div>
+            </div>
+        </div>
     </div>
-    <div id='RogueHUD'></div>
-    <div id='RogueMessages'></div>
     <script type="text/javascript">
         RogueJS.init();
     </script>

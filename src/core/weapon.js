@@ -40,6 +40,6 @@ var Weapon = function(name, char, color, dmg, price, x, y){
     this.getDamage = function(){return this._dmg;}
     this.getPrice = function(){return this._price;}
     
-    RogueJS.scheduler.add(this, true);
+    RogueJS.scheduler.add(this);
 
 }

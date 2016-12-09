@@ -38,6 +38,6 @@ var Item = function(x, y, name, char, color, AbilityCallback){
     this.getPrice = function(){return this._price;}
     this.useAbility = function(actor){ this._AbilityCallback(actor); }
     
-    RogueJS.scheduler.add(this, true);
+    RogueJS.scheduler.add(this);
 
 }
