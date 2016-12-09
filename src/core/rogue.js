@@ -230,7 +230,7 @@ var RogueJS = {
         });
         this.map.create(function(x, y, type){
             RogueJSData[x+","+y] = type;
-            RogueJS.discovered[x+","+y] = 1;   //undiscovered
+            RogueJS.discovered[x+","+y] = 0;   //undiscovered
         });        
     
         this.createItems(level);

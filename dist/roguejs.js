@@ -395,8 +395,8 @@ var Player = function(x, y){
                              weapons.playerWeapon.dmg,
                              weapons.playerWeapon.price);
 
-    this.seeItems = true; //Dev flag
-    this.seeEnemies = true; //Dev flag
+    this.seeItems = false; //Dev flag
+    this.seeEnemies = false; //Dev flag
     
     this.getName = function(){return this._name;}
     this.getX = function(){return this._x;}
@@ -772,7 +772,7 @@ var RogueJS = {
         });
         this.map.create(function(x, y, type){
             RogueJSData[x+","+y] = type;
-            RogueJS.discovered[x+","+y] = 1;   //undiscovered
+            RogueJS.discovered[x+","+y] = 0;   //undiscovered
         });        
     
         this.createItems(level);

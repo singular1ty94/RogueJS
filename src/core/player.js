@@ -20,8 +20,8 @@ var Player = function(x, y){
                              weapons.playerWeapon.dmg,
                              weapons.playerWeapon.price);
 
-    this.seeItems = true; //Dev flag
-    this.seeEnemies = true; //Dev flag
+    this.seeItems = false; //Dev flag
+    this.seeEnemies = false; //Dev flag
     
     this.getName = function(){return this._name;}
     this.getX = function(){return this._x;}
