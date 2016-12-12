@@ -396,7 +396,12 @@ var Item = function(x, y, name, char, color, AbilityCallback){
     this._draw = function(bckColor){
         //Only draw if we're in the player's fov
         if(IsInFOV(this._x, this._y) || RogueJS.player.seeItems){
-            RogueJS.display.draw(this._x, this._y, this._char, this._color, Colors.FOV_FLOOR);
+            if(this._name == "Blood"){
+                RogueJS.display.draw(this._x, this._y, this._char, this._color, this._color);
+            }else{
+                RogueJS.display.draw(this._x, this._y, this._char, this._color, Colors.FOV_FLOOR);
+            }
+            
         }else{
             if(RogueJS.discovered[this._x+","+this._y] == 0){
                 RogueJS.display.draw(this._x, this._y, "", Colors.BLACK, Colors.BLACK);
@@ -914,7 +919,7 @@ var recalculateMap = function(){
         for(var x = 0; x < RogueJS.w; x++){
             //Check if we have NOT discovered the tile, make it black
             if(RogueJS.discovered[x+","+y] == 0){
-                RogueJS.display.draw(x, y, "",  Colors.BLACK, Colors.GOBLIN_GREEN);
+                RogueJS.display.draw(x, y, "",  Colors.BLACK, Colors.BLACK);
             }else{
                 var color = (RogueJSData[x+","+y] ? Colors.DISCOVERED_WALL: Colors.DISCOVERED_FLOOR);
                 RogueJS.display.draw(x, y, "",  Colors.WHITE, color);
@@ -1045,6 +1050,11 @@ function attackTile(attacker, tileX, tileY){
         defender.damageHP(attacker.getDamage());
         var msg = attacker.getName() + " attacks " + defender.getName() + " for " + attacker.getDamage() + " %c{red}damage!";
         MessageLog(msg);
+
+        //Random blood splatter! 25% chance
+        if(getRandom(0, 100) <= 25){
+            bloodSplatter(tileX, tileY, getRandom(0, 7));
+        }
         
         //Check for death
         if(defender.isDead()){
@@ -1070,6 +1080,30 @@ function attackTile(attacker, tileX, tileY){
     }else{
         //Ain't nothing to attack there.
         return;
+    }
+}
+
+//Splatter some blood.
+/**
+ * 0 1 2
+ * 7 . 3
+ * 6 5 4
+ */
+function bloodSplatter(tileX, tileY, direction){
+    if(GetObjectAtTile(tileX, tileY).getName() != "Blood"){
+        dirs = [];
+        switch(direction){
+            case 0: dirs = [tileX - 1, tileY - 1]; break;
+            case 1: dirs = [tileX, tileY - 1]; break;
+            case 2: dirs = [tileX + 1, tileY - 1]; break;
+            case 3: dirs = [tileX + 1, tileY]; break;
+            case 4: dirs = [tileX + 1, tileY + 1]; break;
+            case 5: dirs = [tileX, tileY + 1]; break;
+            case 6: dirs = [tileX - 1, tileY + 1]; break;
+            case 7: dirs = [tileX - 1, tileY]; break;
+        }
+        var blood = new Item(dirs[0], dirs[1], "Blood", "", Colors.BLOOD, ABILITY_NOTHING);
+        Entities.unshift(blood);
     }
 }
 
