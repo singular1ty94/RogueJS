@@ -61,15 +61,13 @@ var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
                 this._y = y;
                 this._draw();
             }
+            recalculateMap();
             RogueJS.engine.unlock();
         }else{
             RogueJS.display.draw(this._x, this._y, RogueJS.map[this._x + "," + this._y]);
             this._x = this._x;
             this._y = this._y;
             this._draw();
-        }
-        if(RogueJS.player){
-            recalculateMap();
         }
     }
     

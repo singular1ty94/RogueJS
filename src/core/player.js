@@ -170,7 +170,7 @@ Player.prototype.handleEvent = function(e){
         //Clear the event listener and unlock the engine
         window.removeEventListener("keydown", this);
         this.firePassives();
-        recalculateMap();
+        //recalculateMap();
         RogueJS.engine.unlock();
     }else {
         //Get what's under foot there.

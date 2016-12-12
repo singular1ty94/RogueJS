@@ -345,15 +345,13 @@ var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
                 this._y = y;
                 this._draw();
             }
+            recalculateMap();
             RogueJS.engine.unlock();
         }else{
             RogueJS.display.draw(this._x, this._y, RogueJS.map[this._x + "," + this._y]);
             this._x = this._x;
             this._y = this._y;
             this._draw();
-        }
-        if(RogueJS.player){
-            recalculateMap();
         }
     }
     
@@ -595,7 +593,7 @@ Player.prototype.handleEvent = function(e){
         //Clear the event listener and unlock the engine
         window.removeEventListener("keydown", this);
         this.firePassives();
-        recalculateMap();
+        //recalculateMap();
         RogueJS.engine.unlock();
     }else {
         //Get what's under foot there.
@@ -669,9 +667,6 @@ var RogueJS = {
         //Setup the scehduler and engine
         this.engine = new ROT.Engine(this.scheduler);
         this.engine.start();
-        
-        //Output callback
-        recalculateMap();
         
         //Update the HUD
         UpdateHUD();
@@ -904,33 +899,6 @@ var RogueJS = {
         this.display.drawText(5,  25, "Refresh your browser to play again.");
 
         this.engine = null;
-    },
-
-    adjustViewport: function(size){
-        this.engine.lock();
-        this.display = null;
-        this.hud = null;
-        this.msgLog = null;
-        if(size == 'xs'){
-            this.display = new ROT.Display({width: this.w, height: this.h, fontSize: 8});
-            this.hud = new ROT.Display({width:this.w, height:1, fontSize:8});
-            this.msgLog = new ROT.Display({width: this.w, height: 5, fontSize: 8});
-        }else if(size == 'md'){
-            this.display = new ROT.Display({width: this.w, height: this.h, fontSize: 16});
-            this.hud = new ROT.Display({width:this.w, height:1, fontSize:16});
-            this.msgLog = new ROT.Display({width: this.w, height: 5, fontSize: 16});
-        }
-        document.getElementById("RogueCanvas").removeChild(document.getElementById("RogueCanvas").firstChild);
-        document.getElementById("RogueCanvas").appendChild(this.display.getContainer());
-
-        document.getElementById("RogueHUD").removeChild(document.getElementById("RogueHUD").firstChild);
-        document.getElementById("RogueHUD").appendChild(this.hud.getContainer());
-
-        document.getElementById("RogueMessages").removeChild(document.getElementById("RogueMessages").firstChild);
-        document.getElementById("RogueMessages").appendChild(this.msgLog.getContainer());
-        recalculateMap();
-        UpdateHUD();
-        this.engine.unlock();
     }
     
 };
