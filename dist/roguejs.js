@@ -631,7 +631,7 @@ var CHANCE_COMMON = 25;
 var CHANCE_FREQUENT = 35;
 
 var RogueJS = {    
-    w : 115,
+    w : 93,
     h : 28,
     display : null,
     hud : null,
@@ -914,7 +914,7 @@ var recalculateMap = function(){
         for(var x = 0; x < RogueJS.w; x++){
             //Check if we have NOT discovered the tile, make it black
             if(RogueJS.discovered[x+","+y] == 0){
-                RogueJS.display.draw(x, y, "",  Colors.BLACK, Colors.BLACK);
+                RogueJS.display.draw(x, y, "",  Colors.BLACK, Colors.GOBLIN_GREEN);
             }else{
                 var color = (RogueJSData[x+","+y] ? Colors.DISCOVERED_WALL: Colors.DISCOVERED_FLOOR);
                 RogueJS.display.draw(x, y, "",  Colors.WHITE, color);

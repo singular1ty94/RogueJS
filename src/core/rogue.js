@@ -15,7 +15,7 @@ var CHANCE_COMMON = 25;
 var CHANCE_FREQUENT = 35;
 
 var RogueJS = {    
-    w : 115,
+    w : 93,
     h : 28,
     display : null,
     hud : null,
