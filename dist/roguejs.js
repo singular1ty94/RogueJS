@@ -230,9 +230,13 @@ var PASSIVE_MINOR_HEAL = {
 }
 
 function PASSIVE_GAIN_MINOR_HEAL(player){
-    RogueJS.player.addPassive(PASSIVE_MINOR_HEAL);
-    MessageLog("The %c{"+Colors.PURPLE+"}shard%c{} cuts your hand. Ancient %c{"+Colors.PURPLE+"}magic%c{} rushes through your veins!");
-    MessageLog("You now %c{"+Colors.HEALTH_LIGHT+"}regenerate health%c{}.");
+    if(RogueJS.player.addPassive(PASSIVE_MINOR_HEAL)){
+        MessageLog("The %c{"+Colors.PURPLE+"}shard%c{} cuts your hand. Ancient %c{"+Colors.PURPLE+"}magic%c{} rushes through your veins!");
+        MessageLog("You now %c{"+Colors.HEALTH_LIGHT+"}regenerate health%c{}.");
+    }else{
+        MessageLog("You are already %c{"+Colors.HEALTH_LIGHTBLOOD+"}regenerating health%c{}.")
+    }
+
 }
 
 /**
@@ -252,9 +256,13 @@ var PASSIVE_MINOR_POISON = {
 }
 
 function PASSIVE_GAIN_MINOR_POISON(player){
-    RogueJS.player.addPassive(PASSIVE_MINOR_POISON);
-    MessageLog("The %c{"+Colors.PURPLE+"}shard%c{} cuts your hand. Ancient %c{"+Colors.PURPLE+"}magic%c{} rushes through your veins!");
-    MessageLog("You are %c{"+Colors.BLOOD+"}poisoned%c{}!");
+    if(RogueJS.player.addPassive(PASSIVE_MINOR_POISON)){
+        MessageLog("The %c{"+Colors.PURPLE+"}shard%c{} cuts your hand. Ancient %c{"+Colors.PURPLE+"}magic%c{} rushes through your veins!");
+        MessageLog("You are %c{"+Colors.BLOOD+"}poisoned%c{}!");
+    }else{
+        MessageLog("You are already %c{"+Colors.BLOOD+"}poisoned%c{}.")
+    }
+
 };/**
  * Grants a random basic weapon.
  */
@@ -463,7 +471,13 @@ var Player = function(x, y){
     this._passives = [];    //Array of passive abilities.
 
     this.addPassive = function(ability){
+        for(var i = 0; i < this._passives.length; i++){
+            if(ability == this._passives[i]){
+                return false;   //already have passive
+            }
+        }
         this._passives.unshift(ability);
+        return false;
     }
     this.removePassive = function(ability){
         for(var i = 0; i < this._passives.length; i++){

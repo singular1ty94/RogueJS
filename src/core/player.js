@@ -26,7 +26,13 @@ var Player = function(x, y){
     this._passives = [];    //Array of passive abilities.
 
     this.addPassive = function(ability){
+        for(var i = 0; i < this._passives.length; i++){
+            if(ability == this._passives[i]){
+                return false;   //already have passive
+            }
+        }
         this._passives.unshift(ability);
+        return false;
     }
     this.removePassive = function(ability){
         for(var i = 0; i < this._passives.length; i++){

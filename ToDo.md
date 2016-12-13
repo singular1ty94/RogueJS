@@ -3,8 +3,6 @@ Vision taking shape: a fun roguelike where weapons and abilities are picked up/u
 making players take educated risks.
 
 ## Balance Notes
-* Only have one of a passive activated at a time
-* Make passive healing random/staggered
 * More frequent chests
 * Less HP gain with XP boosts
 

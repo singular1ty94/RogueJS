@@ -4,7 +4,9 @@
 var PASSIVE_MINOR_HEAL = {
     symbol: "%c{"+Colors.HEALTH_LIGHT+"}HP+%c{}",
     fire: function(player){
-        player._HP += 1;
+        if(getRandom(0, 100) <= 20){
+            player._HP += 1;
+        }
         if(player._HP >= player._MaxHP){
             player._HP = player._MaxHP;
         }
@@ -12,9 +14,13 @@ var PASSIVE_MINOR_HEAL = {
 }
 
 function PASSIVE_GAIN_MINOR_HEAL(player){
-    RogueJS.player.addPassive(PASSIVE_MINOR_HEAL);
-    MessageLog("The %c{"+Colors.PURPLE+"}shard%c{} cuts your hand. Ancient %c{"+Colors.PURPLE+"}magic%c{} rushes through your veins!");
-    MessageLog("You now %c{"+Colors.HEALTH_LIGHT+"}regenerate health%c{}.");
+    if(RogueJS.player.addPassive(PASSIVE_MINOR_HEAL)){
+        MessageLog("The %c{"+Colors.PURPLE+"}shard%c{} cuts your hand. Ancient %c{"+Colors.PURPLE+"}magic%c{} rushes through your veins!");
+        MessageLog("You now %c{"+Colors.HEALTH_LIGHT+"}regenerate health%c{}.");
+    }else{
+        MessageLog("You are already %c{"+Colors.HEALTH_LIGHTBLOOD+"}regenerating health%c{}.")
+    }
+
 }
 
 /**
@@ -34,7 +40,11 @@ var PASSIVE_MINOR_POISON = {
 }
 
 function PASSIVE_GAIN_MINOR_POISON(player){
-    RogueJS.player.addPassive(PASSIVE_MINOR_POISON);
-    MessageLog("The %c{"+Colors.PURPLE+"}shard%c{} cuts your hand. Ancient %c{"+Colors.PURPLE+"}magic%c{} rushes through your veins!");
-    MessageLog("You are %c{"+Colors.BLOOD+"}poisoned%c{}!");
+    if(RogueJS.player.addPassive(PASSIVE_MINOR_POISON)){
+        MessageLog("The %c{"+Colors.PURPLE+"}shard%c{} cuts your hand. Ancient %c{"+Colors.PURPLE+"}magic%c{} rushes through your veins!");
+        MessageLog("You are %c{"+Colors.BLOOD+"}poisoned%c{}!");
+    }else{
+        MessageLog("You are already %c{"+Colors.BLOOD+"}poisoned%c{}.")
+    }
+
 }
