@@ -110,6 +110,7 @@ var RogueJS = {
                                             monster.name,
                                             monster.maxHP,
                                             monster.XP,
+                                            monster.range,
                                             monster.weapon);
                                         
                         Entities.push(entity);
@@ -148,10 +149,12 @@ var RogueJS = {
                 if(!place && item.weighting.rare && (RogueJS.level >= item.weighting.rare[0] && RogueJS.level <= item.weighting.rare[1])){ 
                     if(chance <= CHANCE_RARE){ place = true; } 
                 }
-                if(!place && item.weighting.uncommon && (RogueJS.level >= item.weighting.uncommon[0] && RogueJS.level <= item.weighting.uncommon[1])){ 
+                if(!place && item.weighting.uncommon && (RogueJS.level >= item.weighting.uncommon[0] && RogueJS.level <= item.weighting.uncommon[1])){
+                    console.log(item.name + " / uncommon / " + chance); 
                     if(chance <= CHANCE_UNCOMMON){ place = true; } 
                 }
-                if(!place && item.weighting.common && (RogueJS.level >= item.weighting.common[0] && RogueJS.level <= item.weighting.common[1])){ 
+                if(!place && item.weighting.common && (RogueJS.level >= item.weighting.common[0] && RogueJS.level <= item.weighting.common[1])){
+                    console.log(item.name + " / common / " + chance); 
                     if(chance <= CHANCE_COMMON){ place = true; } 
                 }
                 if(!place && item.weighting.frequent && (RogueJS.level >= item.weighting.frequent[0] && RogueJS.level <= item.weighting.frequent[1])){ 
@@ -481,7 +484,7 @@ function bloodSplatter(tileX, tileY, direction){
             case 6: dirs = [tileX - 1, tileY + 1]; break;
             case 7: dirs = [tileX - 1, tileY]; break;
         }
-        var blood = new Item(dirs[0], dirs[1], "Blood", "", Colors.BLOOD, ABILITY_NOTHING);
+        var blood = new Item(dirs[0], dirs[1], "Blood", "▧", Colors.BLOOD, ABILITY_NOTHING);
         Entities.unshift(blood);
     }
 }

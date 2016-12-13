@@ -3,7 +3,7 @@
 ** Stores information about actors, how to draw them,
 ** and their movement properties.
 */
-var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
+var Actor = function(x, y, char, color, name, maxHP, XP, range, weapon){
     this._x = x;
     this._y = y;
     this._char = char;
@@ -12,6 +12,7 @@ var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
     this._maxHP = maxHP;
     this._HP = this._maxHP;     //Init with full health.
     this._XP = XP;
+    this._range = range;
     this._weapon = new Weapon(weapon.name, weapon.char, weapon.color, weapon.dmg, weapon.price);
     
     /**
@@ -33,7 +34,7 @@ var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
     }
     
     this.act = function(){
-        if(RogueJS.player && IsInFOV(this._x, this._y)){
+        if(RogueJS.player){
             RogueJS.engine.lock();
             var x = RogueJS.player.getX();
             var y = RogueJS.player.getY();
@@ -53,7 +54,7 @@ var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
                 attackTile(this, RogueJS.player.getX(), RogueJS.player.getY());
             } else if(IsOccupied(path[0][0], path[0][1])){
                 //Another entity (NOT the player) occupies the spot
-            }else {
+            }else if(path.length <= this._range) {
                 x = path[0][0];
                 y = path[0][1];
                 RogueJS.display.draw(this._x, this._y, RogueJS.map[this._x + "," + this._y]);

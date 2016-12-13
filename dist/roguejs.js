@@ -59,7 +59,7 @@ var items = [
         name: 'Strange Shard of Glass',
         ability: PASSIVE_GAIN_MINOR_HEAL,
         weighting: {
-            uncommon: [1, 4]
+            rare: [1, 4]
         }
     },
     Shard = {
@@ -68,7 +68,7 @@ var items = [
         name: 'Strange Shard of Glass',
         ability: PASSIVE_GAIN_MINOR_POISON,
         weighting: {
-            uncommon: [1, 4]
+            rare: [1, 4]
         }
     },
     Bones = {
@@ -169,6 +169,7 @@ var monsters = [
         name: 'Goblin',
         maxHP: 6,
         XP: 4,
+        range: 4,
         weapon: weapons.Dagger,
         weighting:{
             frequent: [1, 3],
@@ -181,6 +182,7 @@ var monsters = [
         name: 'Goblin Soldier',
         maxHP: 10,
         XP: 10,
+        range: 5,
         weapon: weapons.Scimitar,
         weighting:{
             common: [2, 4],
@@ -193,6 +195,7 @@ var monsters = [
         name: 'Goblin Scout',
         maxHP: 4,
         XP: 3,
+        range: 7,
         weapon: weapons.Dagger,
         weighting:{
             frequent: [1, 3],
@@ -222,7 +225,9 @@ function ABILITY_NOTHING(actor){
 var PASSIVE_MINOR_HEAL = {
     symbol: "%c{"+Colors.HEALTH_LIGHT+"}HP+%c{}",
     fire: function(player){
-        player._HP += 1;
+        if(getRandom(0, 100) <= 20){
+            player._HP += 1;
+        }
         if(player._HP >= player._MaxHP){
             player._HP = player._MaxHP;
         }
@@ -273,7 +278,7 @@ function ABILITY_WEAPON_BASIC(player){
     var color = "#d77";
     var char = "/";
     
-    var dmg = getRandom(2, 6);
+    var dmg = getRandom(1, 7);
     var price = getRandom(25, 60);
     var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
 
@@ -304,7 +309,7 @@ function ABILITY_WEAPON_DECENT(player){
 ** Stores information about actors, how to draw them,
 ** and their movement properties.
 */
-var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
+var Actor = function(x, y, char, color, name, maxHP, XP, range, weapon){
     this._x = x;
     this._y = y;
     this._char = char;
@@ -313,6 +318,7 @@ var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
     this._maxHP = maxHP;
     this._HP = this._maxHP;     //Init with full health.
     this._XP = XP;
+    this._range = range;
     this._weapon = new Weapon(weapon.name, weapon.char, weapon.color, weapon.dmg, weapon.price);
     
     /**
@@ -334,7 +340,7 @@ var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
     }
     
     this.act = function(){
-        if(RogueJS.player && IsInFOV(this._x, this._y)){
+        if(RogueJS.player){
             RogueJS.engine.lock();
             var x = RogueJS.player.getX();
             var y = RogueJS.player.getY();
@@ -354,7 +360,7 @@ var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
                 attackTile(this, RogueJS.player.getX(), RogueJS.player.getY());
             } else if(IsOccupied(path[0][0], path[0][1])){
                 //Another entity (NOT the player) occupies the spot
-            }else {
+            }else if(path.length <= this._range) {
                 x = path[0][0];
                 y = path[0][1];
                 RogueJS.display.draw(this._x, this._y, RogueJS.map[this._x + "," + this._y]);
@@ -413,8 +419,8 @@ var Item = function(x, y, name, char, color, AbilityCallback){
     this._draw = function(bckColor){
         //Only draw if we're in the player's fov
         if(IsInFOV(this._x, this._y) || (RogueJS.player && RogueJS.player.seeItems)){
-            if(this._name == "Blood"){
-                RogueJS.display.draw(this._x, this._y, this._char, this._color, this._color);
+            if(this._name == "Blood" || this._name == "Bloody Corpse"){
+                RogueJS.display.draw(this._x, this._y, this._char, Colors.WHITE, this._color);
             }else{
                 RogueJS.display.draw(this._x, this._y, this._char, this._color, Colors.FOV_FLOOR);
             }
@@ -755,6 +761,7 @@ var RogueJS = {
                                             monster.name,
                                             monster.maxHP,
                                             monster.XP,
+                                            monster.range,
                                             monster.weapon);
                                         
                         Entities.push(entity);
@@ -793,10 +800,12 @@ var RogueJS = {
                 if(!place && item.weighting.rare && (RogueJS.level >= item.weighting.rare[0] && RogueJS.level <= item.weighting.rare[1])){ 
                     if(chance <= CHANCE_RARE){ place = true; } 
                 }
-                if(!place && item.weighting.uncommon && (RogueJS.level >= item.weighting.uncommon[0] && RogueJS.level <= item.weighting.uncommon[1])){ 
+                if(!place && item.weighting.uncommon && (RogueJS.level >= item.weighting.uncommon[0] && RogueJS.level <= item.weighting.uncommon[1])){
+                    console.log(item.name + " / uncommon / " + chance); 
                     if(chance <= CHANCE_UNCOMMON){ place = true; } 
                 }
-                if(!place && item.weighting.common && (RogueJS.level >= item.weighting.common[0] && RogueJS.level <= item.weighting.common[1])){ 
+                if(!place && item.weighting.common && (RogueJS.level >= item.weighting.common[0] && RogueJS.level <= item.weighting.common[1])){
+                    console.log(item.name + " / common / " + chance); 
                     if(chance <= CHANCE_COMMON){ place = true; } 
                 }
                 if(!place && item.weighting.frequent && (RogueJS.level >= item.weighting.frequent[0] && RogueJS.level <= item.weighting.frequent[1])){ 

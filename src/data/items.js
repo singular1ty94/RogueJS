@@ -36,7 +36,7 @@ var items = [
         name: 'Strange Shard of Glass',
         ability: PASSIVE_GAIN_MINOR_HEAL,
         weighting: {
-            uncommon: [1, 4]
+            rare: [1, 4]
         }
     },
     Shard = {
@@ -45,7 +45,7 @@ var items = [
         name: 'Strange Shard of Glass',
         ability: PASSIVE_GAIN_MINOR_POISON,
         weighting: {
-            uncommon: [1, 4]
+            rare: [1, 4]
         }
     },
     Bones = {

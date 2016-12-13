@@ -8,7 +8,7 @@ function ABILITY_WEAPON_BASIC(player){
     var color = "#d77";
     var char = "/";
     
-    var dmg = getRandom(2, 6);
+    var dmg = getRandom(1, 7);
     var price = getRandom(25, 60);
     var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
 
