@@ -484,7 +484,7 @@ function bloodSplatter(tileX, tileY, direction){
             case 6: dirs = [tileX - 1, tileY + 1]; break;
             case 7: dirs = [tileX - 1, tileY]; break;
         }
-        var blood = new Item(dirs[0], dirs[1], "Blood", "▧", Colors.BLOOD, ABILITY_NOTHING);
+        var blood = new Item(dirs[0], dirs[1], "Blood", "", Colors.BLOOD, ABILITY_NOTHING);
         Entities.unshift(blood);
     }
 }
