@@ -15,8 +15,8 @@ var items = [
         name: 'Plain Chest',
         ability: ABILITY_WEAPON_BASIC,
         weighting: {
-            uncommon: [1, 4],
-            common: [5, 8]
+            common: [1, 4],
+            uncommon: [5, 8]
         }
     },
     TreasureGold = {

@@ -2,21 +2,22 @@
 Vision taking shape: a fun roguelike where weapons and abilities are picked up/used without consent,
 making players take educated risks.
 
+## Balance Notes
+* Only have one of a passive activated at a time
+* Make passive healing random/staggered
+* More frequent chests
+* Less HP gain with XP boosts
+
 ## Fun Stuff
-* Blood splatters
 
 ## Serious Stuff
 * Ranged enemies
 * Stats tracking
 * Better levelling up
-* Ability pickups
-* Passive abilities 
 
 ## Experimental
-* Resizing the game window
 * Enemies with their own FOV/sight outside player's FOV
 * Change to speed-based schedule
-* Use NW.js or Electron to make standalone game (performance boost hopefully)
 
 #Roadmap
 * Endgame

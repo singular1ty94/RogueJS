@@ -1,10 +1,13 @@
 /**
  * POSITIVE: Minor Heal
  */
-function PASSIVE_MINOR_HEAL(player){
-    player._HP += 1;
-    if(player._HP >= player._MaxHP){
-        player._HP = player._MaxHP;
+var PASSIVE_MINOR_HEAL = {
+    symbol: "%c{"+Colors.HEALTH_LIGHT+"}HP+%c{}",
+    fire: function(player){
+        player._HP += 1;
+        if(player._HP >= player._MaxHP){
+            player._HP = player._MaxHP;
+        }
     }
 }
 
@@ -17,10 +20,16 @@ function PASSIVE_GAIN_MINOR_HEAL(player){
 /**
  * NEGATIVE: Minor Poison
  */
-function PASSIVE_MINOR_POISON(player){
-    player._HP -= 1;
-    if(player._HP <= 0){
-        RogueJS.postmortem();
+var PASSIVE_MINOR_POISON = {
+    symbol: this.symbol = "%c{"+Colors.PURPLE+"}HP-%c{}",
+    fire: function(player){
+        /* 20% chance of poison damange */
+        if(getRandom(0, 100) <= 20){
+            player._HP -= 1;
+        }
+        if(player._HP <= 0){
+            RogueJS.postmortem();
+        }
     }
 }
 

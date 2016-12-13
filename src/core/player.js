@@ -37,10 +37,11 @@ var Player = function(x, y){
         }
         return false;
     }
+    this.getPassives = function(){ return this._passives; }
     this.firePassives = function(){
         //Trigger all our passives first.
         for(var i = 0; i < this._passives.length; i++){
-            this._passives[i](this);
+            this._passives[i].fire(this);
         }
     }
     

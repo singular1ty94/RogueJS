@@ -38,8 +38,8 @@ var items = [
         name: 'Plain Chest',
         ability: ABILITY_WEAPON_BASIC,
         weighting: {
-            uncommon: [1, 4],
-            common: [5, 8]
+            common: [1, 4],
+            uncommon: [5, 8]
         }
     },
     TreasureGold = {
@@ -140,7 +140,7 @@ var weapons = {
         name: 'Dagger',
         color: '#777',
         char: '/',
-        dmg: 3,
+        dmg: 2,
         price: 60
     },
 
@@ -219,10 +219,13 @@ function ABILITY_NOTHING(actor){
 };/**
  * POSITIVE: Minor Heal
  */
-function PASSIVE_MINOR_HEAL(player){
-    player._HP += 1;
-    if(player._HP >= player._MaxHP){
-        player._HP = player._MaxHP;
+var PASSIVE_MINOR_HEAL = {
+    symbol: "%c{"+Colors.HEALTH_LIGHT+"}HP+%c{}",
+    fire: function(player){
+        player._HP += 1;
+        if(player._HP >= player._MaxHP){
+            player._HP = player._MaxHP;
+        }
     }
 }
 
@@ -235,10 +238,16 @@ function PASSIVE_GAIN_MINOR_HEAL(player){
 /**
  * NEGATIVE: Minor Poison
  */
-function PASSIVE_MINOR_POISON(player){
-    player._HP -= 1;
-    if(player._HP <= 0){
-        RogueJS.postmortem();
+var PASSIVE_MINOR_POISON = {
+    symbol: this.symbol = "%c{"+Colors.PURPLE+"}HP-%c{}",
+    fire: function(player){
+        /* 20% chance of poison damange */
+        if(getRandom(0, 100) <= 20){
+            player._HP -= 1;
+        }
+        if(player._HP <= 0){
+            RogueJS.postmortem();
+        }
     }
 }
 
@@ -304,7 +313,7 @@ var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
     */
     this._draw = function(){
         //Only draw if we're in the player's fov
-        if(IsInFOV(this._x, this._y) || RogueJS.player.seeEnemies){
+        if(IsInFOV(this._x, this._y) || (RogueJS.player && RogueJS.player.seeEnemies)){
             RogueJS.display.draw(this._x, this._y, this._char, this._color, Colors.FOV_FLOOR);
         }else{
             if(RogueJS.discovered[this._x+","+this._y] == 0){
@@ -395,7 +404,7 @@ var Item = function(x, y, name, char, color, AbilityCallback){
     */
     this._draw = function(bckColor){
         //Only draw if we're in the player's fov
-        if(IsInFOV(this._x, this._y) || RogueJS.player.seeItems){
+        if(IsInFOV(this._x, this._y) || (RogueJS.player && RogueJS.player.seeItems)){
             if(this._name == "Blood"){
                 RogueJS.display.draw(this._x, this._y, this._char, this._color, this._color);
             }else{
@@ -465,10 +474,11 @@ var Player = function(x, y){
         }
         return false;
     }
+    this.getPassives = function(){ return this._passives; }
     this.firePassives = function(){
         //Trigger all our passives first.
         for(var i = 0; i < this._passives.length; i++){
-            this._passives[i](this);
+            this._passives[i].fire(this);
         }
     }
     
@@ -624,8 +634,8 @@ var RogueJSData = {};
 var Entities = [];
 var Messages = [];
 
-var MIN_MOBS = 10;
-var MAX_MOBS = 20;
+var MIN_MOBS = 8;
+var MAX_MOBS = 16;
 
 var MIN_ITEMS = 4;
 var MAX_ITEMS = 8;
@@ -1051,8 +1061,8 @@ function attackTile(attacker, tileX, tileY){
         var msg = attacker.getName() + " attacks " + defender.getName() + " for " + attacker.getDamage() + " %c{red}damage!";
         MessageLog(msg);
 
-        //Random blood splatter! 25% chance
-        if(getRandom(0, 100) <= 25){
+        //Random blood splatter! 40% chance
+        if(getRandom(0, 100) <= 40){
             bloodSplatter(tileX, tileY, getRandom(0, 7));
         }
         
@@ -1157,6 +1167,12 @@ function UpdateHUD(){
 
         curWeapon = RogueJS.player._weapon.getName() + " " + RogueJS.player._weapon.getChar() + " " + "(" + RogueJS.player._weapon.getDamage() + " dmg)";
         drawBar(29, 0, curWeapon.length + 2, 1, 1, Colors.ORANGE_GOLD, Colors.ORANGE_GOLD, curWeapon);
+
+        passive = "";
+        for(var i = 0; i < RogueJS.player.getPassives().length; i++){
+            passive = passive + RogueJS.player.getPassives()[i].symbol + " ";
+        }
+        RogueJS.hud.drawText(29 + (curWeapon.length + 4), 0, passive);
     }
 }
 

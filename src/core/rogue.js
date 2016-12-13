@@ -3,8 +3,8 @@ var RogueJSData = {};
 var Entities = [];
 var Messages = [];
 
-var MIN_MOBS = 10;
-var MAX_MOBS = 20;
+var MIN_MOBS = 8;
+var MAX_MOBS = 16;
 
 var MIN_ITEMS = 4;
 var MAX_ITEMS = 8;
@@ -430,8 +430,8 @@ function attackTile(attacker, tileX, tileY){
         var msg = attacker.getName() + " attacks " + defender.getName() + " for " + attacker.getDamage() + " %c{red}damage!";
         MessageLog(msg);
 
-        //Random blood splatter! 25% chance
-        if(getRandom(0, 100) <= 25){
+        //Random blood splatter! 40% chance
+        if(getRandom(0, 100) <= 40){
             bloodSplatter(tileX, tileY, getRandom(0, 7));
         }
         
@@ -536,6 +536,12 @@ function UpdateHUD(){
 
         curWeapon = RogueJS.player._weapon.getName() + " " + RogueJS.player._weapon.getChar() + " " + "(" + RogueJS.player._weapon.getDamage() + " dmg)";
         drawBar(29, 0, curWeapon.length + 2, 1, 1, Colors.ORANGE_GOLD, Colors.ORANGE_GOLD, curWeapon);
+
+        passive = "";
+        for(var i = 0; i < RogueJS.player.getPassives().length; i++){
+            passive = passive + RogueJS.player.getPassives()[i].symbol + " ";
+        }
+        RogueJS.hud.drawText(29 + (curWeapon.length + 4), 0, passive);
     }
 }
 
