@@ -14,6 +14,7 @@ var monsters = [
         name: 'Goblin',
         maxHP: 6,
         XP: 4,
+        range: 4,
         weapon: weapons.Dagger,
         weighting:{
             frequent: [1, 3],
@@ -26,6 +27,7 @@ var monsters = [
         name: 'Goblin Soldier',
         maxHP: 10,
         XP: 10,
+        range: 5,
         weapon: weapons.Scimitar,
         weighting:{
             common: [2, 4],
@@ -38,6 +40,7 @@ var monsters = [
         name: 'Goblin Scout',
         maxHP: 4,
         XP: 3,
+        range: 7,
         weapon: weapons.Dagger,
         weighting:{
             frequent: [1, 3],

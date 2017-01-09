@@ -9,4 +9,4 @@ You can see a working version [here](http://singular1ty94.github.io/RogueJS/).
 #Building from Source
 The project requires `npm`, so download or clone the source and run `npm install`.
 
-Grunt builds are executed with `grunt build` and will open the game in your browser.
+To build and run, execute `npm start`.

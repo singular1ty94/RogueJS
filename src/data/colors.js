@@ -19,5 +19,6 @@ var Colors = {
     BLOOD: "#660000",
     
     GOLD: '#cca300',
-    BRONZE: '#bf8040'
+    BRONZE: '#bf8040',
+    PURPLE: '#8000ff'
 }
