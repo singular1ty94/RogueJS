@@ -9,12 +9,12 @@ making players take educated risks.
 ## Fun Stuff
 
 ## Serious Stuff
+* Fix player death
 * Ranged enemies
 * Stats tracking
 * Better levelling up
 
 ## Experimental
-* Enemies with their own FOV/sight outside player's FOV
 * Change to speed-based schedule
 
 #Roadmap

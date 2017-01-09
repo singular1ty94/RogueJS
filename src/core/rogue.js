@@ -433,8 +433,8 @@ function attackTile(attacker, tileX, tileY){
         var msg = attacker.getName() + " attacks " + defender.getName() + " for " + attacker.getDamage() + " %c{red}damage!";
         MessageLog(msg);
 
-        //Random blood splatter! 40% chance
-        if(getRandom(0, 100) <= 40){
+        //Random blood splatter! 60% chance
+        if(getRandom(0, 100) <= 60){
             bloodSplatter(tileX, tileY, getRandom(0, 7));
         }
         
@@ -487,6 +487,54 @@ function bloodSplatter(tileX, tileY, direction){
         var blood = new Item(dirs[0], dirs[1], "Blood", "", Colors.BLOOD, ABILITY_NOTHING);
         Entities.unshift(blood);
     }
+}
+
+/**
+ * Return all neighbors in a concentric ring
+ * @param {int} cx center-x
+ * @param {int} cy center-y
+ * @param {int} r range
+ */
+function getCircle(cx, cy, r) {
+	var result = [];
+	var dirs, countFactor, startOffset;
+    dirs = ROT.DIRS[4];
+    countFactor = 2;
+    startOffset = [-1, 1];
+	
+	/* starting neighbor */
+	var x = cx + startOffset[0]*r;
+	var y = cy + startOffset[1]*r;
+
+	/* circle */
+	for (var i=0;i<dirs.length;i++) {
+		for (var j=0;j<r*countFactor;j++) {
+			result.push([x, y]);
+			x += dirs[i][0];
+			y += dirs[i][1];
+
+		}
+	}
+
+	return result;
+}
+
+function bloomEffect(tileX, tileY, radius, colour){
+    //Leverage the FOV circular computation.
+    bloomTiles = getCircle(tileX, tileY, radius);
+    for(var i = 0; i < bloomTiles.length; i++){
+        RogueJS.display.draw(bloomTiles[i][0], bloomTiles[i][1], "", Colors.WHITE, colour);
+    }
+    try {
+        RogueJS.engine.lock();
+        setTimeout(tryUnlock, 100)
+    } catch (err) { }
+}
+
+function tryUnlock(){
+    try{
+        RogueJS.engine.unlock();
+    }catch(err){ }
 }
 
 //Check if anything's under foot
