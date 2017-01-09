@@ -15,11 +15,11 @@ var items = [
         name: 'Plain Chest',
         ability: ABILITY_WEAPON_BASIC,
         weighting: {
-            uncommon: [1, 4],
-            common: [5, 8]
+            common: [1, 4],
+            uncommon: [5, 8]
         }
     },
-    Treasure = {
+    TreasureGold = {
         char: '#',
         color: Colors.GOLD,
         name: 'Metal Chest',
@@ -27,6 +27,25 @@ var items = [
         weighting: {
             rare: [5, 8],
             uncommon: [9, 11]
+        }
+    },
+    /* Shards */
+    Shard = {
+        char: 'o',
+        color: Colors.PURPLE,
+        name: 'Strange Shard of Glass',
+        ability: PASSIVE_GAIN_MINOR_HEAL,
+        weighting: {
+            rare: [1, 4]
+        }
+    },
+    Shard = {
+        char: 'o',
+        color: Colors.PURPLE,
+        name: 'Strange Shard of Glass',
+        ability: PASSIVE_GAIN_MINOR_POISON,
+        weighting: {
+            rare: [1, 4]
         }
     },
     Bones = {

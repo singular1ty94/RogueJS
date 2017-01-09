@@ -19,7 +19,8 @@ var Colors = {
     BLOOD: "#660000",
     
     GOLD: '#cca300',
-    BRONZE: '#bf8040'
+    BRONZE: '#bf8040',
+    PURPLE: '#8000ff'
 };/**
  * Draft Item Generation Specification.
  * 
@@ -37,11 +38,11 @@ var items = [
         name: 'Plain Chest',
         ability: ABILITY_WEAPON_BASIC,
         weighting: {
-            uncommon: [1, 4],
-            common: [5, 8]
+            common: [1, 4],
+            uncommon: [5, 8]
         }
     },
-    Treasure = {
+    TreasureGold = {
         char: '#',
         color: Colors.GOLD,
         name: 'Metal Chest',
@@ -49,6 +50,25 @@ var items = [
         weighting: {
             rare: [5, 8],
             uncommon: [9, 11]
+        }
+    },
+    /* Shards */
+    Shard = {
+        char: 'o',
+        color: Colors.PURPLE,
+        name: 'Strange Shard of Glass',
+        ability: PASSIVE_GAIN_MINOR_HEAL,
+        weighting: {
+            rare: [1, 4]
+        }
+    },
+    Shard = {
+        char: 'o',
+        color: Colors.PURPLE,
+        name: 'Strange Shard of Glass',
+        ability: PASSIVE_GAIN_MINOR_POISON,
+        weighting: {
+            rare: [1, 4]
         }
     },
     Bones = {
@@ -120,7 +140,7 @@ var weapons = {
         name: 'Dagger',
         color: '#777',
         char: '/',
-        dmg: 3,
+        dmg: 2,
         price: 60
     },
 
@@ -149,6 +169,7 @@ var monsters = [
         name: 'Goblin',
         maxHP: 6,
         XP: 4,
+        range: 4,
         weapon: weapons.Dagger,
         weighting:{
             frequent: [1, 3],
@@ -161,6 +182,7 @@ var monsters = [
         name: 'Goblin Soldier',
         maxHP: 10,
         XP: 10,
+        range: 5,
         weapon: weapons.Scimitar,
         weighting:{
             common: [2, 4],
@@ -173,6 +195,7 @@ var monsters = [
         name: 'Goblin Scout',
         maxHP: 4,
         XP: 3,
+        range: 7,
         weapon: weapons.Dagger,
         weighting:{
             frequent: [1, 3],
@@ -197,6 +220,55 @@ function ABILITY_LEARN_MINOR(player){
 function ABILITY_NOTHING(actor){
     MessageLog("This does nothing.");
 };/**
+ * POSITIVE: Minor Heal
+ */
+var PASSIVE_MINOR_HEAL = {
+    symbol: "%c{"+Colors.HEALTH_LIGHT+"}HP+%c{}",
+    fire: function(player){
+        if(getRandom(0, 100) <= 20){
+            player._HP += 1;
+        }
+        if(player._HP >= player._MaxHP){
+            player._HP = player._MaxHP;
+        }
+    }
+}
+
+function PASSIVE_GAIN_MINOR_HEAL(player){
+    if(RogueJS.player.addPassive(PASSIVE_MINOR_HEAL)){
+        MessageLog("The %c{"+Colors.PURPLE+"}shard%c{} cuts your hand. Ancient %c{"+Colors.PURPLE+"}magic%c{} rushes through your veins!");
+        MessageLog("You now %c{"+Colors.HEALTH_LIGHT+"}regenerate health%c{}.");
+    }else{
+        MessageLog("You are already %c{"+Colors.HEALTH_LIGHTBLOOD+"}regenerating health%c{}.")
+    }
+
+}
+
+/**
+ * NEGATIVE: Minor Poison
+ */
+var PASSIVE_MINOR_POISON = {
+    symbol: this.symbol = "%c{"+Colors.PURPLE+"}HP-%c{}",
+    fire: function(player){
+        /* 20% chance of poison damange */
+        if(getRandom(0, 100) <= 20){
+            player._HP -= 1;
+        }
+        if(player._HP <= 0){
+            RogueJS.postmortem();
+        }
+    }
+}
+
+function PASSIVE_GAIN_MINOR_POISON(player){
+    if(RogueJS.player.addPassive(PASSIVE_MINOR_POISON)){
+        MessageLog("The %c{"+Colors.PURPLE+"}shard%c{} cuts your hand. Ancient %c{"+Colors.PURPLE+"}magic%c{} rushes through your veins!");
+        MessageLog("You are %c{"+Colors.BLOOD+"}poisoned%c{}!");
+    }else{
+        MessageLog("You are already %c{"+Colors.BLOOD+"}poisoned%c{}.")
+    }
+
+};/**
  * Grants a random basic weapon.
  */
 function ABILITY_WEAPON_BASIC(player){
@@ -206,7 +278,7 @@ function ABILITY_WEAPON_BASIC(player){
     var color = "#d77";
     var char = "/";
     
-    var dmg = getRandom(2, 6);
+    var dmg = getRandom(1, 7);
     var price = getRandom(25, 60);
     var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
 
@@ -237,7 +309,7 @@ function ABILITY_WEAPON_DECENT(player){
 ** Stores information about actors, how to draw them,
 ** and their movement properties.
 */
-var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
+var Actor = function(x, y, char, color, name, maxHP, XP, range, weapon){
     this._x = x;
     this._y = y;
     this._char = char;
@@ -246,6 +318,7 @@ var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
     this._maxHP = maxHP;
     this._HP = this._maxHP;     //Init with full health.
     this._XP = XP;
+    this._range = range;
     this._weapon = new Weapon(weapon.name, weapon.char, weapon.color, weapon.dmg, weapon.price);
     
     /**
@@ -254,7 +327,7 @@ var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
     */
     this._draw = function(){
         //Only draw if we're in the player's fov
-        if(IsInFOV(this._x, this._y) || RogueJS.player.seeEnemies){
+        if(IsInFOV(this._x, this._y) || (RogueJS.player && RogueJS.player.seeEnemies)){
             RogueJS.display.draw(this._x, this._y, this._char, this._color, Colors.FOV_FLOOR);
         }else{
             if(RogueJS.discovered[this._x+","+this._y] == 0){
@@ -267,7 +340,7 @@ var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
     }
     
     this.act = function(){
-        if(RogueJS.player && IsInFOV(this._x, this._y)){
+        if(RogueJS.player){
             RogueJS.engine.lock();
             var x = RogueJS.player.getX();
             var y = RogueJS.player.getY();
@@ -287,7 +360,7 @@ var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
                 attackTile(this, RogueJS.player.getX(), RogueJS.player.getY());
             } else if(IsOccupied(path[0][0], path[0][1])){
                 //Another entity (NOT the player) occupies the spot
-            }else {
+            }else if(path.length <= this._range) {
                 x = path[0][0];
                 y = path[0][1];
                 RogueJS.display.draw(this._x, this._y, RogueJS.map[this._x + "," + this._y]);
@@ -295,15 +368,13 @@ var Actor = function(x, y, char, color, name, maxHP, XP, weapon){
                 this._y = y;
                 this._draw();
             }
+            recalculateMap();
             RogueJS.engine.unlock();
         }else{
             RogueJS.display.draw(this._x, this._y, RogueJS.map[this._x + "," + this._y]);
             this._x = this._x;
             this._y = this._y;
             this._draw();
-        }
-        if(RogueJS.player){
-            recalculateMap();
         }
     }
     
@@ -347,8 +418,13 @@ var Item = function(x, y, name, char, color, AbilityCallback){
     */
     this._draw = function(bckColor){
         //Only draw if we're in the player's fov
-        if(IsInFOV(this._x, this._y) || RogueJS.player.seeItems){
-            RogueJS.display.draw(this._x, this._y, this._char, this._color, Colors.FOV_FLOOR);
+        if(IsInFOV(this._x, this._y) || (RogueJS.player && RogueJS.player.seeItems)){
+            if(this._name == "Blood" || this._name == "Bloody Corpse"){
+                RogueJS.display.draw(this._x, this._y, this._char, Colors.WHITE, this._color);
+            }else{
+                RogueJS.display.draw(this._x, this._y, this._char, this._color, Colors.FOV_FLOOR);
+            }
+            
         }else{
             if(RogueJS.discovered[this._x+","+this._y] == 0){
                 RogueJS.display.draw(this._x, this._y, "", Colors.BLACK, Colors.BLACK);
@@ -397,6 +473,34 @@ var Player = function(x, y){
 
     this.seeItems = false; //Dev flag
     this.seeEnemies = false; //Dev flag
+
+    this._passives = [];    //Array of passive abilities.
+
+    this.addPassive = function(ability){
+        for(var i = 0; i < this._passives.length; i++){
+            if(ability == this._passives[i]){
+                return false;   //already have passive
+            }
+        }
+        this._passives.unshift(ability);
+        return false;
+    }
+    this.removePassive = function(ability){
+        for(var i = 0; i < this._passives.length; i++){
+            if(ability == this._passives[i]){
+                this._passives.splice(i, 1);
+                return true;
+            }
+        }
+        return false;
+    }
+    this.getPassives = function(){ return this._passives; }
+    this.firePassives = function(){
+        //Trigger all our passives first.
+        for(var i = 0; i < this._passives.length; i++){
+            this._passives[i].fire(this);
+        }
+    }
     
     this.getName = function(){return this._name;}
     this.getX = function(){return this._x;}
@@ -449,6 +553,7 @@ var Player = function(x, y){
         this._weapon = newWeapon;
     }
 }
+
 
 //The player's drawing function
 Player.prototype._draw = function(){
@@ -505,6 +610,7 @@ Player.prototype.handleEvent = function(e){
         }
 
         //Unlock and move on.
+        this.firePassives();
         RogueJS.engine.unlock();
         recalculateMap();
         return;
@@ -515,12 +621,14 @@ Player.prototype.handleEvent = function(e){
     }
     
     if (RogueJSData[newX+","+newY] == 1){ 
+        this.firePassives();
         return; //Cannot move there
     } else if (IsOccupied(newX, newY)){
         attackTile(this, newX, newY);
         //Clear the event listener and unlock the engine
         window.removeEventListener("keydown", this);
-        recalculateMap();
+        this.firePassives();
+        //recalculateMap();
         RogueJS.engine.unlock();
     }else {
         //Get what's under foot there.
@@ -537,6 +645,7 @@ Player.prototype.handleEvent = function(e){
 
         //Clear the event listener and unlock the engine
         window.removeEventListener("keydown", this);
+        this.firePassives();
         recalculateMap();
         RogueJS.engine.unlock();
     }
@@ -545,8 +654,8 @@ var RogueJSData = {};
 var Entities = [];
 var Messages = [];
 
-var MIN_MOBS = 10;
-var MAX_MOBS = 20;
+var MIN_MOBS = 8;
+var MAX_MOBS = 16;
 
 var MIN_ITEMS = 4;
 var MAX_ITEMS = 8;
@@ -557,7 +666,7 @@ var CHANCE_COMMON = 25;
 var CHANCE_FREQUENT = 35;
 
 var RogueJS = {    
-    w : 115,
+    w : 93,
     h : 28,
     display : null,
     hud : null,
@@ -593,9 +702,6 @@ var RogueJS = {
         //Setup the scehduler and engine
         this.engine = new ROT.Engine(this.scheduler);
         this.engine.start();
-        
-        //Output callback
-        recalculateMap();
         
         //Update the HUD
         UpdateHUD();
@@ -655,6 +761,7 @@ var RogueJS = {
                                             monster.name,
                                             monster.maxHP,
                                             monster.XP,
+                                            monster.range,
                                             monster.weapon);
                                         
                         Entities.push(entity);
@@ -693,10 +800,12 @@ var RogueJS = {
                 if(!place && item.weighting.rare && (RogueJS.level >= item.weighting.rare[0] && RogueJS.level <= item.weighting.rare[1])){ 
                     if(chance <= CHANCE_RARE){ place = true; } 
                 }
-                if(!place && item.weighting.uncommon && (RogueJS.level >= item.weighting.uncommon[0] && RogueJS.level <= item.weighting.uncommon[1])){ 
+                if(!place && item.weighting.uncommon && (RogueJS.level >= item.weighting.uncommon[0] && RogueJS.level <= item.weighting.uncommon[1])){
+                    console.log(item.name + " / uncommon / " + chance); 
                     if(chance <= CHANCE_UNCOMMON){ place = true; } 
                 }
-                if(!place && item.weighting.common && (RogueJS.level >= item.weighting.common[0] && RogueJS.level <= item.weighting.common[1])){ 
+                if(!place && item.weighting.common && (RogueJS.level >= item.weighting.common[0] && RogueJS.level <= item.weighting.common[1])){
+                    console.log(item.name + " / common / " + chance); 
                     if(chance <= CHANCE_COMMON){ place = true; } 
                 }
                 if(!place && item.weighting.frequent && (RogueJS.level >= item.weighting.frequent[0] && RogueJS.level <= item.weighting.frequent[1])){ 
@@ -828,33 +937,6 @@ var RogueJS = {
         this.display.drawText(5,  25, "Refresh your browser to play again.");
 
         this.engine = null;
-    },
-
-    adjustViewport: function(size){
-        this.engine.lock();
-        this.display = null;
-        this.hud = null;
-        this.msgLog = null;
-        if(size == 'xs'){
-            this.display = new ROT.Display({width: this.w, height: this.h, fontSize: 8});
-            this.hud = new ROT.Display({width:this.w, height:1, fontSize:8});
-            this.msgLog = new ROT.Display({width: this.w, height: 5, fontSize: 8});
-        }else if(size == 'md'){
-            this.display = new ROT.Display({width: this.w, height: this.h, fontSize: 16});
-            this.hud = new ROT.Display({width:this.w, height:1, fontSize:16});
-            this.msgLog = new ROT.Display({width: this.w, height: 5, fontSize: 16});
-        }
-        document.getElementById("RogueCanvas").removeChild(document.getElementById("RogueCanvas").firstChild);
-        document.getElementById("RogueCanvas").appendChild(this.display.getContainer());
-
-        document.getElementById("RogueHUD").removeChild(document.getElementById("RogueHUD").firstChild);
-        document.getElementById("RogueHUD").appendChild(this.hud.getContainer());
-
-        document.getElementById("RogueMessages").removeChild(document.getElementById("RogueMessages").firstChild);
-        document.getElementById("RogueMessages").appendChild(this.msgLog.getContainer());
-        recalculateMap();
-        UpdateHUD();
-        this.engine.unlock();
     }
     
 };
@@ -1001,6 +1083,11 @@ function attackTile(attacker, tileX, tileY){
         defender.damageHP(attacker.getDamage());
         var msg = attacker.getName() + " attacks " + defender.getName() + " for " + attacker.getDamage() + " %c{red}damage!";
         MessageLog(msg);
+
+        //Random blood splatter! 60% chance
+        if(getRandom(0, 100) <= 60){
+            bloodSplatter(tileX, tileY, getRandom(0, 7));
+        }
         
         //Check for death
         if(defender.isDead()){
@@ -1027,6 +1114,78 @@ function attackTile(attacker, tileX, tileY){
         //Ain't nothing to attack there.
         return;
     }
+}
+
+//Splatter some blood.
+/**
+ * 0 1 2
+ * 7 . 3
+ * 6 5 4
+ */
+function bloodSplatter(tileX, tileY, direction){
+    if(GetObjectAtTile(tileX, tileY).getName() != "Blood"){
+        dirs = [];
+        switch(direction){
+            case 0: dirs = [tileX - 1, tileY - 1]; break;
+            case 1: dirs = [tileX, tileY - 1]; break;
+            case 2: dirs = [tileX + 1, tileY - 1]; break;
+            case 3: dirs = [tileX + 1, tileY]; break;
+            case 4: dirs = [tileX + 1, tileY + 1]; break;
+            case 5: dirs = [tileX, tileY + 1]; break;
+            case 6: dirs = [tileX - 1, tileY + 1]; break;
+            case 7: dirs = [tileX - 1, tileY]; break;
+        }
+        var blood = new Item(dirs[0], dirs[1], "Blood", "", Colors.BLOOD, ABILITY_NOTHING);
+        Entities.unshift(blood);
+    }
+}
+
+/**
+ * Return all neighbors in a concentric ring
+ * @param {int} cx center-x
+ * @param {int} cy center-y
+ * @param {int} r range
+ */
+function getCircle(cx, cy, r) {
+	var result = [];
+	var dirs, countFactor, startOffset;
+    dirs = ROT.DIRS[4];
+    countFactor = 2;
+    startOffset = [-1, 1];
+	
+	/* starting neighbor */
+	var x = cx + startOffset[0]*r;
+	var y = cy + startOffset[1]*r;
+
+	/* circle */
+	for (var i=0;i<dirs.length;i++) {
+		for (var j=0;j<r*countFactor;j++) {
+			result.push([x, y]);
+			x += dirs[i][0];
+			y += dirs[i][1];
+
+		}
+	}
+
+	return result;
+}
+
+function bloomEffect(tileX, tileY, radius, colour){
+    //Leverage the FOV circular computation.
+    bloomTiles = getCircle(tileX, tileY, radius);
+    for(var i = 0; i < bloomTiles.length; i++){
+        RogueJS.display.draw(bloomTiles[i][0], bloomTiles[i][1], "", Colors.WHITE, colour);
+    }
+    try {
+        RogueJS.engine.lock();
+        setTimeout(tryUnlock, 100)
+    } catch (err) { }
+}
+
+function tryUnlock(){
+    try{
+        RogueJS.engine.unlock();
+    }catch(err){ }
 }
 
 //Check if anything's under foot
@@ -1079,6 +1238,12 @@ function UpdateHUD(){
 
         curWeapon = RogueJS.player._weapon.getName() + " " + RogueJS.player._weapon.getChar() + " " + "(" + RogueJS.player._weapon.getDamage() + " dmg)";
         drawBar(29, 0, curWeapon.length + 2, 1, 1, Colors.ORANGE_GOLD, Colors.ORANGE_GOLD, curWeapon);
+
+        passive = "";
+        for(var i = 0; i < RogueJS.player.getPassives().length; i++){
+            passive = passive + RogueJS.player.getPassives()[i].symbol + " ";
+        }
+        RogueJS.hud.drawText(29 + (curWeapon.length + 4), 0, passive);
     }
 }
 

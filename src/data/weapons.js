@@ -34,7 +34,7 @@ var weapons = {
         name: 'Dagger',
         color: '#777',
         char: '/',
-        dmg: 3,
+        dmg: 2,
         price: 60
     },
 

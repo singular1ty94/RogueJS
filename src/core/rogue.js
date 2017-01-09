@@ -3,8 +3,8 @@ var RogueJSData = {};
 var Entities = [];
 var Messages = [];
 
-var MIN_MOBS = 10;
-var MAX_MOBS = 20;
+var MIN_MOBS = 8;
+var MAX_MOBS = 16;
 
 var MIN_ITEMS = 4;
 var MAX_ITEMS = 8;
@@ -15,7 +15,7 @@ var CHANCE_COMMON = 25;
 var CHANCE_FREQUENT = 35;
 
 var RogueJS = {    
-    w : 115,
+    w : 93,
     h : 28,
     display : null,
     hud : null,
@@ -51,9 +51,6 @@ var RogueJS = {
         //Setup the scehduler and engine
         this.engine = new ROT.Engine(this.scheduler);
         this.engine.start();
-        
-        //Output callback
-        recalculateMap();
         
         //Update the HUD
         UpdateHUD();
@@ -113,6 +110,7 @@ var RogueJS = {
                                             monster.name,
                                             monster.maxHP,
                                             monster.XP,
+                                            monster.range,
                                             monster.weapon);
                                         
                         Entities.push(entity);
@@ -151,10 +149,12 @@ var RogueJS = {
                 if(!place && item.weighting.rare && (RogueJS.level >= item.weighting.rare[0] && RogueJS.level <= item.weighting.rare[1])){ 
                     if(chance <= CHANCE_RARE){ place = true; } 
                 }
-                if(!place && item.weighting.uncommon && (RogueJS.level >= item.weighting.uncommon[0] && RogueJS.level <= item.weighting.uncommon[1])){ 
+                if(!place && item.weighting.uncommon && (RogueJS.level >= item.weighting.uncommon[0] && RogueJS.level <= item.weighting.uncommon[1])){
+                    console.log(item.name + " / uncommon / " + chance); 
                     if(chance <= CHANCE_UNCOMMON){ place = true; } 
                 }
-                if(!place && item.weighting.common && (RogueJS.level >= item.weighting.common[0] && RogueJS.level <= item.weighting.common[1])){ 
+                if(!place && item.weighting.common && (RogueJS.level >= item.weighting.common[0] && RogueJS.level <= item.weighting.common[1])){
+                    console.log(item.name + " / common / " + chance); 
                     if(chance <= CHANCE_COMMON){ place = true; } 
                 }
                 if(!place && item.weighting.frequent && (RogueJS.level >= item.weighting.frequent[0] && RogueJS.level <= item.weighting.frequent[1])){ 
@@ -286,33 +286,6 @@ var RogueJS = {
         this.display.drawText(5,  25, "Refresh your browser to play again.");
 
         this.engine = null;
-    },
-
-    adjustViewport: function(size){
-        this.engine.lock();
-        this.display = null;
-        this.hud = null;
-        this.msgLog = null;
-        if(size == 'xs'){
-            this.display = new ROT.Display({width: this.w, height: this.h, fontSize: 8});
-            this.hud = new ROT.Display({width:this.w, height:1, fontSize:8});
-            this.msgLog = new ROT.Display({width: this.w, height: 5, fontSize: 8});
-        }else if(size == 'md'){
-            this.display = new ROT.Display({width: this.w, height: this.h, fontSize: 16});
-            this.hud = new ROT.Display({width:this.w, height:1, fontSize:16});
-            this.msgLog = new ROT.Display({width: this.w, height: 5, fontSize: 16});
-        }
-        document.getElementById("RogueCanvas").removeChild(document.getElementById("RogueCanvas").firstChild);
-        document.getElementById("RogueCanvas").appendChild(this.display.getContainer());
-
-        document.getElementById("RogueHUD").removeChild(document.getElementById("RogueHUD").firstChild);
-        document.getElementById("RogueHUD").appendChild(this.hud.getContainer());
-
-        document.getElementById("RogueMessages").removeChild(document.getElementById("RogueMessages").firstChild);
-        document.getElementById("RogueMessages").appendChild(this.msgLog.getContainer());
-        recalculateMap();
-        UpdateHUD();
-        this.engine.unlock();
     }
     
 };
@@ -459,6 +432,11 @@ function attackTile(attacker, tileX, tileY){
         defender.damageHP(attacker.getDamage());
         var msg = attacker.getName() + " attacks " + defender.getName() + " for " + attacker.getDamage() + " %c{red}damage!";
         MessageLog(msg);
+
+        //Random blood splatter! 60% chance
+        if(getRandom(0, 100) <= 60){
+            bloodSplatter(tileX, tileY, getRandom(0, 7));
+        }
         
         //Check for death
         if(defender.isDead()){
@@ -485,6 +463,78 @@ function attackTile(attacker, tileX, tileY){
         //Ain't nothing to attack there.
         return;
     }
+}
+
+//Splatter some blood.
+/**
+ * 0 1 2
+ * 7 . 3
+ * 6 5 4
+ */
+function bloodSplatter(tileX, tileY, direction){
+    if(GetObjectAtTile(tileX, tileY).getName() != "Blood"){
+        dirs = [];
+        switch(direction){
+            case 0: dirs = [tileX - 1, tileY - 1]; break;
+            case 1: dirs = [tileX, tileY - 1]; break;
+            case 2: dirs = [tileX + 1, tileY - 1]; break;
+            case 3: dirs = [tileX + 1, tileY]; break;
+            case 4: dirs = [tileX + 1, tileY + 1]; break;
+            case 5: dirs = [tileX, tileY + 1]; break;
+            case 6: dirs = [tileX - 1, tileY + 1]; break;
+            case 7: dirs = [tileX - 1, tileY]; break;
+        }
+        var blood = new Item(dirs[0], dirs[1], "Blood", "", Colors.BLOOD, ABILITY_NOTHING);
+        Entities.unshift(blood);
+    }
+}
+
+/**
+ * Return all neighbors in a concentric ring
+ * @param {int} cx center-x
+ * @param {int} cy center-y
+ * @param {int} r range
+ */
+function getCircle(cx, cy, r) {
+	var result = [];
+	var dirs, countFactor, startOffset;
+    dirs = ROT.DIRS[4];
+    countFactor = 2;
+    startOffset = [-1, 1];
+	
+	/* starting neighbor */
+	var x = cx + startOffset[0]*r;
+	var y = cy + startOffset[1]*r;
+
+	/* circle */
+	for (var i=0;i<dirs.length;i++) {
+		for (var j=0;j<r*countFactor;j++) {
+			result.push([x, y]);
+			x += dirs[i][0];
+			y += dirs[i][1];
+
+		}
+	}
+
+	return result;
+}
+
+function bloomEffect(tileX, tileY, radius, colour){
+    //Leverage the FOV circular computation.
+    bloomTiles = getCircle(tileX, tileY, radius);
+    for(var i = 0; i < bloomTiles.length; i++){
+        RogueJS.display.draw(bloomTiles[i][0], bloomTiles[i][1], "", Colors.WHITE, colour);
+    }
+    try {
+        RogueJS.engine.lock();
+        setTimeout(tryUnlock, 100)
+    } catch (err) { }
+}
+
+function tryUnlock(){
+    try{
+        RogueJS.engine.unlock();
+    }catch(err){ }
 }
 
 //Check if anything's under foot
@@ -537,6 +587,12 @@ function UpdateHUD(){
 
         curWeapon = RogueJS.player._weapon.getName() + " " + RogueJS.player._weapon.getChar() + " " + "(" + RogueJS.player._weapon.getDamage() + " dmg)";
         drawBar(29, 0, curWeapon.length + 2, 1, 1, Colors.ORANGE_GOLD, Colors.ORANGE_GOLD, curWeapon);
+
+        passive = "";
+        for(var i = 0; i < RogueJS.player.getPassives().length; i++){
+            passive = passive + RogueJS.player.getPassives()[i].symbol + " ";
+        }
+        RogueJS.hud.drawText(29 + (curWeapon.length + 4), 0, passive);
     }
 }
 
