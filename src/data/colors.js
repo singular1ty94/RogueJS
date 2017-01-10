@@ -20,5 +20,6 @@ var Colors = {
     
     GOLD: '#cca300',
     BRONZE: '#bf8040',
-    PURPLE: '#8000ff'
+    PURPLE: '#8000ff',
+    BRIGHT_GOLD: '#ffde23'
 }

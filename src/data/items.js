@@ -15,8 +15,8 @@ var items = [
         name: 'Plain Chest',
         ability: ABILITY_WEAPON_BASIC,
         weighting: {
-            common: [1, 4],
-            uncommon: [5, 8]
+            common: [1, 3],
+            uncommon: [4, 6]
         }
     },
     TreasureGold = {
@@ -25,8 +25,19 @@ var items = [
         name: 'Metal Chest',
         ability: ABILITY_WEAPON_DECENT,
         weighting: {
-            rare: [5, 8],
-            uncommon: [9, 11]
+            rare: [2, 3],
+            uncommon: [4, 5],
+            common: [6, 8]
+        }
+    },
+    TreasureGold = {
+        char: '#',
+        color: Colors.BRIGHT_GOLD,
+        name: 'Golden Chest',
+        ability: ABILITY_WEAPON_EXCELLENT,
+        weighting: {
+            uncommon: [7, 8],
+            common: [9, 10]
         }
     },
     /* Shards */
@@ -63,20 +74,55 @@ var items = [
         name: 'Minor Flask',
         ability: ABILITY_HEAL,
         weighting:{
-            frequent: [3, 5],
-            common: [1, 2]
+            common: [1, 3]
         }
     },
-
+    MajorFlask = {
+        char: ':',
+        color: '#4da500',
+        name: 'Minor Flask',
+        ability: ABILITY_MAJOR_HEAL,
+        weighting:{
+            common: [4, 7]
+        }
+    },
+    DivineFlask = {
+        char: ':',
+        color: '#7301ba',
+        name: 'Tears of a God',
+        ability: ABILITY_DIVINE_HEAL,
+        weighting:{
+            common: [8, 10]
+        }
+    },
     LearnBook = {
         char: '[',
         color: '#cc0000',
         name: 'Small Book',
         ability: ABILITY_LEARN_MINOR,
         weighting:{
-            common: [6, 8],
-            uncommon: [4, 5],
-            rare: [2, 3]
+            common: [2, 3],
+            uncommon: [4, 5]
+        }
+    },
+    LearnBookMajor = {
+        char: '[',
+        color: '#ba3c01',
+        name: 'Dusty Tome',
+        ability: ABILITY_LEARN_MAJOR,
+        weighting:{
+            uncommon: [3, 4],
+            common: [5, 7]
+        }
+    },
+    LearnBookDivine = {
+        char: '[',
+        color: '#910063',
+        name: 'Knowledge of the Gods',
+        ability: ABILITY_LEARN_DIVINE,
+        weighting:{
+            uncommon: [5, 6],
+            common: [7, 10]
         }
     }
 ]

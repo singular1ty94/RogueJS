@@ -45,5 +45,21 @@ var weapons = {
         char: '/',
         dmg: 5,
         price: 90
+    },
+
+    Claws : {
+        name: 'Claws',
+        color: '#6210ff',
+        char: '/',
+        dmg: 10,
+        price: 90
+    },
+
+    Demonic_Blade : {
+        name: 'Demonic Blade',
+        color: '#6210ff',
+        char: '/',
+        dmg: 20,
+        price: 90
     }
 }

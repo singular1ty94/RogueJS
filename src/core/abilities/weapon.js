@@ -8,7 +8,7 @@ function ABILITY_WEAPON_BASIC(player){
     var color = "#d77";
     var char = "/";
     
-    var dmg = getRandom(1, 7);
+    var dmg = getRandom(3, 7);
     var price = getRandom(25, 60);
     var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
 
@@ -28,6 +28,25 @@ function ABILITY_WEAPON_DECENT(player){
     var char = "/";
     
     var dmg = getRandom(12, 26);
+    var price = getRandom(80, 150);
+    var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
+
+    MessageLog("You wield the %c{"+Colors.GOLD+"}" + name + "%c{}!");
+    var weapon = new Weapon(name, char, color, dmg, price, null, null);
+    player.changeWeapon(weapon);
+}
+
+/**
+ * Grants a random excellent weapon.
+ */
+function ABILITY_WEAPON_EXCELLENT(player){
+    // Excellent weapon criteria.
+    var adjective = ['Stunning', 'Honed', 'Superb', 'Shattering', 'Gods-Borne'];
+    var weapon = ['Sword', 'Katana', 'Spear', 'Mace', 'Battle-Axe', 'Flail'];
+    var color = "#d77";
+    var char = "/";
+    
+    var dmg = getRandom(45, 80);
     var price = getRandom(80, 150);
     var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
 

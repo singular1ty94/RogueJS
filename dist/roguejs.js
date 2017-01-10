@@ -20,7 +20,8 @@ var Colors = {
     
     GOLD: '#cca300',
     BRONZE: '#bf8040',
-    PURPLE: '#8000ff'
+    PURPLE: '#8000ff',
+    BRIGHT_GOLD: '#ffde23'
 };/**
  * Draft Item Generation Specification.
  * 
@@ -38,8 +39,8 @@ var items = [
         name: 'Plain Chest',
         ability: ABILITY_WEAPON_BASIC,
         weighting: {
-            common: [1, 4],
-            uncommon: [5, 8]
+            common: [1, 3],
+            uncommon: [4, 6]
         }
     },
     TreasureGold = {
@@ -48,8 +49,19 @@ var items = [
         name: 'Metal Chest',
         ability: ABILITY_WEAPON_DECENT,
         weighting: {
-            rare: [5, 8],
-            uncommon: [9, 11]
+            rare: [2, 3],
+            uncommon: [4, 5],
+            common: [6, 8]
+        }
+    },
+    TreasureGold = {
+        char: '#',
+        color: Colors.BRIGHT_GOLD,
+        name: 'Golden Chest',
+        ability: ABILITY_WEAPON_EXCELLENT,
+        weighting: {
+            uncommon: [7, 8],
+            common: [9, 10]
         }
     },
     /* Shards */
@@ -86,20 +98,55 @@ var items = [
         name: 'Minor Flask',
         ability: ABILITY_HEAL,
         weighting:{
-            frequent: [3, 5],
-            common: [1, 2]
+            common: [1, 3]
         }
     },
-
+    MajorFlask = {
+        char: ':',
+        color: '#4da500',
+        name: 'Minor Flask',
+        ability: ABILITY_MAJOR_HEAL,
+        weighting:{
+            common: [4, 7]
+        }
+    },
+    DivineFlask = {
+        char: ':',
+        color: '#7301ba',
+        name: 'Tears of a God',
+        ability: ABILITY_DIVINE_HEAL,
+        weighting:{
+            common: [8, 10]
+        }
+    },
     LearnBook = {
         char: '[',
         color: '#cc0000',
         name: 'Small Book',
         ability: ABILITY_LEARN_MINOR,
         weighting:{
-            common: [6, 8],
-            uncommon: [4, 5],
-            rare: [2, 3]
+            common: [2, 3],
+            uncommon: [4, 5]
+        }
+    },
+    LearnBookMajor = {
+        char: '[',
+        color: '#ba3c01',
+        name: 'Dusty Tome',
+        ability: ABILITY_LEARN_MAJOR,
+        weighting:{
+            uncommon: [3, 4],
+            common: [5, 7]
+        }
+    },
+    LearnBookDivine = {
+        char: '[',
+        color: '#910063',
+        name: 'Knowledge of the Gods',
+        ability: ABILITY_LEARN_DIVINE,
+        weighting:{
+            uncommon: [5, 6],
+            common: [7, 10]
         }
     }
 ]
@@ -151,6 +198,22 @@ var weapons = {
         char: '/',
         dmg: 5,
         price: 90
+    },
+
+    Claws : {
+        name: 'Claws',
+        color: '#6210ff',
+        char: '/',
+        dmg: 10,
+        price: 90
+    },
+
+    Demonic_Blade : {
+        name: 'Demonic Blade',
+        color: '#6210ff',
+        char: '/',
+        dmg: 20,
+        price: 90
     }
 }
 ;/**
@@ -172,12 +235,12 @@ var monsters = [
         range: 4,
         weapon: weapons.Dagger,
         weighting:{
-            frequent: [1, 3],
-            common: [4, 5]
+            frequent: [1, 2],
+            common: [3, 3]
         }
     },
     Goblin_Soldier = {
-        char: 'g',
+        char: 'G',
         color: Colors.GOBLIN_GREEN_DARK,
         name: 'Goblin Soldier',
         maxHP: 10,
@@ -185,8 +248,8 @@ var monsters = [
         range: 5,
         weapon: weapons.Scimitar,
         weighting:{
-            common: [2, 4],
-            uncommon: [5, 7]
+            common: [2, 3],
+            rare: [1, 1]
         }
     },
     Goblin_Scout = {
@@ -198,8 +261,32 @@ var monsters = [
         range: 7,
         weapon: weapons.Dagger,
         weighting:{
-            frequent: [1, 3],
-            common: [4, 5]
+            frequent: [1, 3]
+        }
+    },
+    Demon_Spawn = {
+        char: 'd',
+        color: '#d60000',
+        name: 'Demon Spawn',
+        maxHP: 15,
+        XP: 25,
+        range: 6,
+        weapon: weapons.Claws,
+        weighting:{
+            frequent: [4, 7]
+        }
+    },
+    Demon_Elite = {
+        char: 'x',
+        color: '#992121',
+        name: 'Demon Xaigon',
+        maxHP: 25,
+        XP: 45,
+        range: 7,
+        weapon: weapons.Demonic_Blade,
+        weighting:{
+            uncommon: [4, 4],
+            common: [5, 8]
         }
     }
 
@@ -209,11 +296,40 @@ var monsters = [
  */
 function ABILITY_HEAL(actor){
     actor.restoreHP(20);
+}
+
+/**
+ * Takes an actor and heals them.
+ */
+function ABILITY_MAJOR_HEAL(actor){
+    actor.restoreHP(40);
+}
+
+/**
+ * Takes an actor and heals them.
+ */
+function ABILITY_DIVINE_HEAL(actor){
+    actor.restoreHP(9999);
 };/**
  * Takes a player and gains XP.
  */
 function ABILITY_LEARN_MINOR(player){
-    player.gainXP(10);
+    player.gainXP(15);
+}
+
+/**
+ * Takes a player and gains XP.
+ */
+function ABILITY_LEARN_MAJOR(player){
+    player.gainXP(50);
+}
+
+
+/**
+ * Takes a player and gains XP.
+ */
+function ABILITY_LEARN_DIVINE(player){
+    player.gainXP(100);
 };/**
  * Does nothing.
  */
@@ -278,7 +394,7 @@ function ABILITY_WEAPON_BASIC(player){
     var color = "#d77";
     var char = "/";
     
-    var dmg = getRandom(1, 7);
+    var dmg = getRandom(3, 7);
     var price = getRandom(25, 60);
     var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
 
@@ -298,6 +414,25 @@ function ABILITY_WEAPON_DECENT(player){
     var char = "/";
     
     var dmg = getRandom(12, 26);
+    var price = getRandom(80, 150);
+    var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
+
+    MessageLog("You wield the %c{"+Colors.GOLD+"}" + name + "%c{}!");
+    var weapon = new Weapon(name, char, color, dmg, price, null, null);
+    player.changeWeapon(weapon);
+}
+
+/**
+ * Grants a random excellent weapon.
+ */
+function ABILITY_WEAPON_EXCELLENT(player){
+    // Excellent weapon criteria.
+    var adjective = ['Stunning', 'Honed', 'Superb', 'Shattering', 'Gods-Borne'];
+    var weapon = ['Sword', 'Katana', 'Spear', 'Mace', 'Battle-Axe', 'Flail'];
+    var color = "#d77";
+    var char = "/";
+    
+    var dmg = getRandom(45, 80);
     var price = getRandom(80, 150);
     var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
 
