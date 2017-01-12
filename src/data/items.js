@@ -74,7 +74,7 @@ var items = [
         name: 'Minor Flask',
         ability: ABILITY_HEAL,
         weighting:{
-            common: [1, 3]
+            frequent: [1, 3]
         }
     },
     MajorFlask = {

@@ -3,11 +3,11 @@ var RogueJSData = {};
 var Entities = [];
 var Messages = [];
 
-var MIN_MOBS = 8;
-var MAX_MOBS = 16;
+var MIN_MOBS = 6;
+var MAX_MOBS = 13;
 
-var MIN_ITEMS = 4;
-var MAX_ITEMS = 8;
+var MIN_ITEMS = 5;
+var MAX_ITEMS = 10;
 
 var CHANCE_RARE = 5;
 var CHANCE_UNCOMMON = 15;
@@ -209,7 +209,7 @@ var RogueJS = {
         RogueJS.scheduler.clear();
 
         RogueJS.level = RogueJS.level + 1;
-        MessageLog("You advance to the next level...");
+        MessageLog("You advance to %c{red}Level " + RogueJS.level + "%c{}...");
         RogueJS.makeLevel(RogueJS.level);
     },
 
@@ -554,8 +554,6 @@ function checkUnderFoot(tileX, tileY){
 */
 function MessageLog(str){
     Messages.unshift(str);
-
-    //Draw the log
     RogueJS.msgLog.clear();
     
     if(Messages.length > 5){
@@ -565,8 +563,6 @@ function MessageLog(str){
     for (var i = 0; i < Messages.length; i++) {
         RogueJS.msgLog.drawText(1, i, Messages[i]);
     }
-
-    
 }
 
 /**
@@ -578,21 +574,28 @@ function UpdateHUD(){
     RogueJS.hud.clear();
     
     //Show player's status
+    // HP bar       Xp bar               Weapon bar                     Stats
+    // ------------ -------------------- ----------------------------  ----->>>
+    // =HP=(46/74)= =XP=(34/223)=|=Lv=5= =Adequate=Battle-Axe=(17=dmg) HP+ ATK+
+    //
     if(RogueJS.player){
         curHealth = "HP (" + RogueJS.player.getHP() + "/" + RogueJS.player.getMaxHP() + ")";
-        drawBar(1, 0, 12, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), Colors.HEALTH_LIGHT, Colors.HEALTH_DARK, curHealth);
+        curHealthWidth = curHealth.length + 2;
+        drawBar(1, 0, curHealthWidth, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), Colors.HEALTH_LIGHT, Colors.HEALTH_DARK, curHealth);
 
-        curXP = "XP (" + RogueJS.player.getXP() + "/" + RogueJS.player.getNextXP() + ")";
-        drawBar(15, 0, 12, RogueJS.player.getNextXP(), RogueJS.player.getXP(), Colors.XP_LIGHT, Colors.XP_DARK, curXP);
+        curXP = "XP (" + RogueJS.player.getXP() + "/" + RogueJS.player.getNextXP() + ") | Lv " + RogueJS.player.getLevel();
+        curXPWidth = curXP.length + 2;
+        drawBar(curHealthWidth + 2, 0, curXPWidth, RogueJS.player.getNextXP(), RogueJS.player.getXP(), Colors.XP_LIGHT, Colors.XP_DARK, curXP);
 
-        curWeapon = RogueJS.player._weapon.getName() + " " + RogueJS.player._weapon.getChar() + " " + "(" + RogueJS.player._weapon.getDamage() + " dmg)";
-        drawBar(29, 0, curWeapon.length + 2, 1, 1, Colors.ORANGE_GOLD, Colors.ORANGE_GOLD, curWeapon);
+        curWeapon = RogueJS.player._weapon.getName() + " " + "(" + RogueJS.player._weapon.getDamage() + " dmg)";
+        curWeaponWidth = curWeapon.length + 2;
+        drawBar(curHealthWidth + curXPWidth + 3, 0, curWeaponWidth, 1, 1, Colors.ORANGE_GOLD, Colors.ORANGE_GOLD, curWeapon);
 
         passive = "";
         for(var i = 0; i < RogueJS.player.getPassives().length; i++){
             passive = passive + RogueJS.player.getPassives()[i].symbol + " ";
         }
-        RogueJS.hud.drawText(29 + (curWeapon.length + 4), 0, passive);
+        RogueJS.hud.drawText(curHealthWidth + curXPWidth + curWeaponWidth + 4, 0, passive);
     }
 }
 
@@ -604,3 +607,25 @@ function lightPasses(x, y) {
     if (key in RogueJSData) { return (RogueJSData[key] == 0); }
     return false;
 }
+
+/**
+ * Call the canvas flash effect for levelups.
+ */
+function flashScreen(){
+    $("#RogueFlash").show();
+    $("#RogueFlash").addClass("flash");
+    $("#RogueCanvas").hide();
+    
+    setTimeout( function(){
+        $("#RogueFlash").removeClass("flash");
+        $("#RogueFlash").hide();
+        $("#RogueCanvas").show();
+    }, 250);	// Timeout must be the same length as the CSS3 transition or longer (or you'll mess up the transition)
+}
+
+// function runSimulations(){
+//     for(var i = 0; i < 30; i++){
+//         console.log(RogueJS.player.getLevel() + " LV", RogueJS.player.getMaxHP() + " HP", RogueJS.player.getNextXP() + " XP");
+//         RogueJS.player.levelUp()
+//     }
+// }

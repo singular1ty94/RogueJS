@@ -5,20 +5,43 @@
  * Each Monster knows its rates per LEVEL group, ie: "common: [3, 5]" indicates that 
  *      for levels 3-5 (inclusive), the item has a COMMON
  *      chance of appearing.
+ *
+ * Draft Design:
+ * --- Goblin Outpost ---
+ * Level 1: Bloodflies++, Goblins+, Goblin Soldiers-
+ * Level 2: Bloodflies++, Goblins+, Goblin Soldiers+, Rare-
+ * Level 3: Goblins+, Goblin Soldiers+, Troll
  * 
  */
 var monsters = [
+    WatcherOfTheAbyss = {
+        char: 'W',
+        color: '#00748e',
+        name: 'Watcher of the Abyss',
+        maxHP: 35,
+        XP: 115,
+        range: 99,
+        weapon: {
+            name: 'Abyss Tentacle',
+            color: '#6210ff',
+            char: '/',
+            dmg: 20,
+            price: 90
+        },
+        weighting:{
+            uncommon: [8, 9]
+        }
+    },
     Goblin = {
         char: 'g',
         color: Colors.GOBLIN_GREEN,
         name: 'Goblin',
         maxHP: 6,
-        XP: 4,
+        XP: 7,
         range: 4,
         weapon: weapons.Dagger,
         weighting:{
-            frequent: [1, 2],
-            common: [3, 3]
+            common: [1, 3]
         }
     },
     Goblin_Soldier = {
@@ -26,24 +49,51 @@ var monsters = [
         color: Colors.GOBLIN_GREEN_DARK,
         name: 'Goblin Soldier',
         maxHP: 10,
-        XP: 10,
+        XP: 15,
         range: 5,
-        weapon: weapons.Scimitar,
+        weapon: {
+            name: 'Scimitar',
+            color: '#6210ff',
+            char: '/',
+            dmg: 5,
+            price: 90
+        },
         weighting:{
             common: [2, 3],
             rare: [1, 1]
         }
     },
-    Goblin_Scout = {
-        char: 'g',
-        color: Colors.GOBLIN_SCOUT,
-        name: 'Goblin Scout',
+    CaptiveTroll = {
+        char: 'T',
+        color: '#4d9e8d',
+        name: 'Captive Troll',
+        maxHP: 35,
+        XP: 32,
+        range: 4,
+        weapon: {
+            name: 'Fists', color: '#777', char: '/',
+            dmg: 12,
+            price: 60
+        },
+        weighting:{
+            uncommon: [3,3],
+            rare: [2, 2]
+        }
+    },
+    BloodFly = {
+        char: '\u00F5',
+        color: '#c12600',
+        name: 'Bloodfly',
         maxHP: 4,
         XP: 3,
-        range: 7,
-        weapon: weapons.Dagger,
+        range: 16,
+        weapon: {
+            name: 'Fly Bite', color: '#777', char: '/',
+            dmg: 2,
+            price: 60
+        },
         weighting:{
-            frequent: [1, 3]
+            frequent: [1, 2]
         }
     },
     Demon_Spawn = {

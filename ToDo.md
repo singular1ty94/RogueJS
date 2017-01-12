@@ -11,10 +11,12 @@ making players take educated risks.
 * Less HP gain with XP boosts
 
 ## Fun Stuff
+* Dev testing: autoplaying and stat tracking
 
 ## Serious Stuff
 * Performance issues
 * Fix player respawn after death
+* Fix player dying from poison
 * Ranged enemies
 * Stats tracking
 * Better levelling up

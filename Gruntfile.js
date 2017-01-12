@@ -8,13 +8,11 @@ module.exports = function(grunt) {
       },
       dist: {
         src: ['src/data/colors.js', 'src/data/items.js', 'src/data/weapons.js', 'src/data/monsters.js', 'src/core/**/*.js'],
-        dest: 'dist/<%= pkg.name %>.js'
+        dest: 'dist/<%= pkg.name %>.min.js'
       }
     },
     uglify: {
-      options: {
-        banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n'
-      },
+      options: { },
       dist: {
         files: {
           'dist/<%= pkg.name %>.min.js': ['<%= concat.dist.dest %>']
