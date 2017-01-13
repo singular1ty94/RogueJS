@@ -8,7 +8,7 @@ function ABILITY_WEAPON_BASIC(player){
     var color = "#d77";
     var char = "/";
     
-    var dmg = getRandom(3, 7);
+    var dmg = getRandom(3, 8);
     var price = getRandom(25, 60);
     var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
 
@@ -27,7 +27,7 @@ function ABILITY_WEAPON_DECENT(player){
     var color = "#d77";
     var char = "/";
     
-    var dmg = getRandom(12, 26);
+    var dmg = getRandom(12, 20);
     var price = getRandom(80, 150);
     var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
 
@@ -46,7 +46,7 @@ function ABILITY_WEAPON_EXCELLENT(player){
     var color = "#d77";
     var char = "/";
     
-    var dmg = getRandom(45, 80);
+    var dmg = getRandom(35, 45);
     var price = getRandom(80, 150);
     var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
 

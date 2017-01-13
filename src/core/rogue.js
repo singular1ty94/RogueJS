@@ -45,7 +45,7 @@ var RogueJS = {
         this.fov = new ROT.FOV.PreciseShadowcasting(lightPasses);
         
         //Make the first level
-        this.makeLevel(1);
+        this.makeLevel(this.level);
         MessageLog("Welcome to the %c{red}Rogue's Dungeon%c{}!");
         
         //Setup the scehduler and engine
@@ -85,16 +85,16 @@ var RogueJS = {
 
                 var chance = ROT.RNG.getPercentage();
 
-                if(!place && monster.weighting.rare && (RogueJS.level >= monster.weighting.rare[0] && RogueJS.level <= monster.weighting.rare[1])){ 
+                if(!place && monster.weighting.rare && (level >= monster.weighting.rare[0] && level <= monster.weighting.rare[1])){ 
                     if(chance <= CHANCE_RARE){ place = true; } 
                 }
-                if(!place && monster.weighting.uncommon && (RogueJS.level >=monster.weighting.uncommon[0] && RogueJS.level <= monster.weighting.uncommon[1])){ 
+                if(!place && monster.weighting.uncommon && (level >=monster.weighting.uncommon[0] && level <= monster.weighting.uncommon[1])){ 
                     if(chance <= CHANCE_UNCOMMON){ place = true; } 
                 }
-                if(!place && monster.weighting.common && (RogueJS.level >= monster.weighting.common[0] && RogueJS.level <= monster.weighting.common[1])){ 
+                if(!place && monster.weighting.common && (level >= monster.weighting.common[0] && level <= monster.weighting.common[1])){ 
                     if(chance <= CHANCE_COMMON){ place = true; } 
                 }
-                if(!place && monster.weighting.frequent && (RogueJS.level >= monster.weighting.frequent[0] && RogueJS.level <= monster.weighting.frequent[1])){ 
+                if(!place && monster.weighting.frequent && (level >= monster.weighting.frequent[0] && level <= monster.weighting.frequent[1])){ 
                     if(chance <= CHANCE_FREQUENT){ place = true; } 
                 }
 
@@ -146,18 +146,20 @@ var RogueJS = {
 
                 var chance = ROT.RNG.getPercentage();
 
-                if(!place && item.weighting.rare && (RogueJS.level >= item.weighting.rare[0] && RogueJS.level <= item.weighting.rare[1])){ 
+                if(!place && item.weighting.rare && (level >= item.weighting.rare[0] && level <= item.weighting.rare[1])){ 
+                    console.log(item.name + " / rare / " + chance); 
                     if(chance <= CHANCE_RARE){ place = true; } 
                 }
-                if(!place && item.weighting.uncommon && (RogueJS.level >= item.weighting.uncommon[0] && RogueJS.level <= item.weighting.uncommon[1])){
+                if(!place && item.weighting.uncommon && (level >= item.weighting.uncommon[0] && level <= item.weighting.uncommon[1])){
                     console.log(item.name + " / uncommon / " + chance); 
                     if(chance <= CHANCE_UNCOMMON){ place = true; } 
                 }
-                if(!place && item.weighting.common && (RogueJS.level >= item.weighting.common[0] && RogueJS.level <= item.weighting.common[1])){
+                if(!place && item.weighting.common && (level >= item.weighting.common[0] && level <= item.weighting.common[1])){
                     console.log(item.name + " / common / " + chance); 
                     if(chance <= CHANCE_COMMON){ place = true; } 
                 }
-                if(!place && item.weighting.frequent && (RogueJS.level >= item.weighting.frequent[0] && RogueJS.level <= item.weighting.frequent[1])){ 
+                if(!place && item.weighting.frequent && (level >= item.weighting.frequent[0] && level <= item.weighting.frequent[1])){ 
+                    console.log(item.name + " / frequent / " + chance); 
                     if(chance <= CHANCE_FREQUENT){ place = true; } 
                 }
 
