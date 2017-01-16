@@ -2,16 +2,25 @@
 <html>
     <head>
         <title>RogueJS</title>
-        <link type="text/css" rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
-        <link type="text/css" rel="stylesheet" href="bootstrap/css/main.css" />
-        <script type="text/javascript" src="dist/roguejs.js"></script>
+        <!-- Insert this line above script imports  -->
+        <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+
+        <!-- normal script imports etc  -->
         <script type="text/javascript" src="bootstrap/js/jquery-2.2.4.min.js"></script>
         <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="dist/roguejs.min.js"></script>
+
+        <!-- Insert this line after script imports -->
+        <script>if (window.module) module = window.module;</script>
+        <link type="text/css" rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
+        <link type="text/css" rel="stylesheet" href="bootstrap/css/main.css" />
+
     </head>
     <body>
     <div class="container-fluid" id="container">
         <div class="row">
             <div class="col-md-12">
+                <div id="RogueFlash"></div>
                 <div id="RogueCanvas"></div>
             </div>
         </div>

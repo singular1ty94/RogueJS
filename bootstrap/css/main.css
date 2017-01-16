@@ -5,6 +5,13 @@
    padding: 2px; 
 } 
 
+#RogueFlash {
+    display: none;
+    width: 100%;
+    height: 450px;
+   padding: 2px; 
+}
+
 #RogueHUD{
    /*width: 1185px;*/
    height: 25px; 
@@ -30,4 +37,33 @@ body, html{
     width: 100%; 
     height: 100%;
     overflow: hidden;
+}
+
+.flash {
+  -moz-animation: flash 250ms ease-out;
+  -moz-animation-iteration-count: 1;
+
+  -webkit-animation: flash 250ms ease-out;
+  -webkit-animation-iteration-count: 1;
+
+  -ms-animation: flash 250ms ease-out;
+  -ms-animation-iteration-count: 1;
+}
+
+@-webkit-keyframes flash {
+    0% { background-color: none; }
+    50% { background-color: #23cbff; }
+    100% { background-color: none; }
+}
+
+@-moz-keyframes flash {
+    0% { background-color: none; }
+    50% { background-color: #23cbff; }
+    100% { background-color: none; }
+}
+
+@-ms-keyframes flash {
+    0% { background-color: none; }
+    50% { background-color: #23cbff; }
+    100% { background-color: none; }
 }

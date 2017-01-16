@@ -1,18 +1,24 @@
-#RogueJs Development ToDo's
+# RogueJs Development ToDo's
 Vision taking shape: a fun roguelike where weapons and abilities are picked up/used without consent,
 making players take educated risks.
+
+# Initial Release Goal:
+* 10 Levels
+* More abilities and enemy varieties
 
 ## Balance Notes
 * More frequent chests
 * Less HP gain with XP boosts
 
 ## Fun Stuff
+* Dev testing: autoplaying and stat tracking
 
 ## Serious Stuff
-* Fix player death
+* Performance issues
+* Fix player respawn after death
+* Fix player dying from poison
 * Ranged enemies
-* Stats tracking
-* Better levelling up
+* Better levelling up - perks and stat boosts
 
 ## Experimental
 * Change to speed-based schedule
