@@ -18,32 +18,5 @@ var weapons = {
         char: '/',
         dmg: 3,
         price: 34
-    },
-    
-    //Basic club.
-    Club : {
-        name: 'Wooden Club',
-        color: '#d77',
-        char: '/',
-        dmg: 2,
-        price: 50
-    },
-    
-    //A very basic dagger.
-    Dagger : {
-        name: 'Dagger',
-        color: '#777',
-        char: '/',
-        dmg: 2,
-        price: 60
-    },
-
-    //Another basic weapon
-    Scimitar : {
-        name: 'Scimitar',
-        color: '#6210ff',
-        char: '/',
-        dmg: 5,
-        price: 90
     }
 }

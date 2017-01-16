@@ -2,8 +2,8 @@ var Colors = {
     /* Named Colours */    
     FOV_WALL: '#595959',
     FOV_FLOOR: '#404040',
-    DISCOVERED_WALL: '#222',
-    DISCOVERED_FLOOR: '#111',
+    DISCOVERED_WALL: '#101010',
+    DISCOVERED_FLOOR: '#070707',
     HEALTH_DARK: '#145214',
     HEALTH_LIGHT: '#2eb82e',
     XP_DARK: '#4d004d',
@@ -20,5 +20,6 @@ var Colors = {
     
     GOLD: '#cca300',
     BRONZE: '#bf8040',
-    PURPLE: '#8000ff'
+    PURPLE: '#8000ff',
+    BRIGHT_GOLD: '#ffde23'
 }

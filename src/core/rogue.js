@@ -1,13 +1,14 @@
 //ROGUE.JS A JAVASCRIPT ROGUELIKE BY SINGULAR1TY94
 var RogueJSData = {};
+var RogueJSLight = {};
 var Entities = [];
 var Messages = [];
 
-var MIN_MOBS = 8;
-var MAX_MOBS = 16;
+var MIN_MOBS = 6;
+var MAX_MOBS = 13;
 
-var MIN_ITEMS = 4;
-var MAX_ITEMS = 8;
+var MIN_ITEMS = 5;
+var MAX_ITEMS = 10;
 
 var CHANCE_RARE = 5;
 var CHANCE_UNCOMMON = 15;
@@ -24,6 +25,7 @@ var RogueJS = {
     player : null,
     engine : null,
     fov : null,
+    lighting: null,
     scheduler: null,
     FOV_RADIUS : 5,
     fovmap : [],
@@ -40,14 +42,21 @@ var RogueJS = {
         document.getElementById("RogueCanvas").appendChild(this.display.getContainer());
         document.getElementById("RogueHUD").appendChild(this.hud.getContainer());
         document.getElementById("RogueMessages").appendChild(this.msgLog.getContainer());
+
+        document.getElementById("RogueCanvas").addEventListener("click", canvasClick);
         
         //The fov
         this.fov = new ROT.FOV.PreciseShadowcasting(lightPasses);
+        this.lighting = new ROT.Lighting(reflectivity, {range: this.FOV_RADIUS + 1, passes:2, emissionThreshold: 2});
+        this.lighting.setFOV(this.fov);
         
         //Make the first level
-        this.makeLevel(1);
+        this.makeLevel(this.level);
         MessageLog("Welcome to the %c{red}Rogue's Dungeon%c{}!");
-        
+
+        this.lighting.setLight(RogueJS.player.getX(), RogueJS.player.getY(), [240, 240, 30]);
+        this.lighting.compute(lightingCallback);
+
         //Setup the scehduler and engine
         this.engine = new ROT.Engine(this.scheduler);
         this.engine.start();
@@ -85,16 +94,16 @@ var RogueJS = {
 
                 var chance = ROT.RNG.getPercentage();
 
-                if(!place && monster.weighting.rare && (RogueJS.level >= monster.weighting.rare[0] && RogueJS.level <= monster.weighting.rare[1])){ 
+                if(!place && monster.weighting.rare && (level >= monster.weighting.rare[0] && level <= monster.weighting.rare[1])){ 
                     if(chance <= CHANCE_RARE){ place = true; } 
                 }
-                if(!place && monster.weighting.uncommon && (RogueJS.level >=monster.weighting.uncommon[0] && RogueJS.level <= monster.weighting.uncommon[1])){ 
+                if(!place && monster.weighting.uncommon && (level >=monster.weighting.uncommon[0] && level <= monster.weighting.uncommon[1])){ 
                     if(chance <= CHANCE_UNCOMMON){ place = true; } 
                 }
-                if(!place && monster.weighting.common && (RogueJS.level >= monster.weighting.common[0] && RogueJS.level <= monster.weighting.common[1])){ 
+                if(!place && monster.weighting.common && (level >= monster.weighting.common[0] && level <= monster.weighting.common[1])){ 
                     if(chance <= CHANCE_COMMON){ place = true; } 
                 }
-                if(!place && monster.weighting.frequent && (RogueJS.level >= monster.weighting.frequent[0] && RogueJS.level <= monster.weighting.frequent[1])){ 
+                if(!place && monster.weighting.frequent && (level >= monster.weighting.frequent[0] && level <= monster.weighting.frequent[1])){ 
                     if(chance <= CHANCE_FREQUENT){ place = true; } 
                 }
 
@@ -146,18 +155,20 @@ var RogueJS = {
 
                 var chance = ROT.RNG.getPercentage();
 
-                if(!place && item.weighting.rare && (RogueJS.level >= item.weighting.rare[0] && RogueJS.level <= item.weighting.rare[1])){ 
+                if(!place && item.weighting.rare && (level >= item.weighting.rare[0] && level <= item.weighting.rare[1])){ 
+                    console.log(item.name + " / rare / " + chance); 
                     if(chance <= CHANCE_RARE){ place = true; } 
                 }
-                if(!place && item.weighting.uncommon && (RogueJS.level >= item.weighting.uncommon[0] && RogueJS.level <= item.weighting.uncommon[1])){
+                if(!place && item.weighting.uncommon && (level >= item.weighting.uncommon[0] && level <= item.weighting.uncommon[1])){
                     console.log(item.name + " / uncommon / " + chance); 
                     if(chance <= CHANCE_UNCOMMON){ place = true; } 
                 }
-                if(!place && item.weighting.common && (RogueJS.level >= item.weighting.common[0] && RogueJS.level <= item.weighting.common[1])){
+                if(!place && item.weighting.common && (level >= item.weighting.common[0] && level <= item.weighting.common[1])){
                     console.log(item.name + " / common / " + chance); 
                     if(chance <= CHANCE_COMMON){ place = true; } 
                 }
-                if(!place && item.weighting.frequent && (RogueJS.level >= item.weighting.frequent[0] && RogueJS.level <= item.weighting.frequent[1])){ 
+                if(!place && item.weighting.frequent && (level >= item.weighting.frequent[0] && level <= item.weighting.frequent[1])){ 
+                    console.log(item.name + " / frequent / " + chance); 
                     if(chance <= CHANCE_FREQUENT){ place = true; } 
                 }
 
@@ -209,7 +220,7 @@ var RogueJS = {
         RogueJS.scheduler.clear();
 
         RogueJS.level = RogueJS.level + 1;
-        MessageLog("You advance to the next level...");
+        MessageLog("You advance to %c{red}Level " + RogueJS.level + "%c{}...");
         RogueJS.makeLevel(RogueJS.level);
     },
 
@@ -308,6 +319,11 @@ var recalculateMap = function(){
             }
         }
     }
+
+    //Reset the lights
+    RogueJS.lighting.clearLights();
+    RogueJS.lighting.setLight(RogueJS.player.getX(), RogueJS.player.getY(), [240, 240, 30]);
+    RogueJS.lighting.compute(lightingCallback);
     
     //Reset the fov
     RogueJS.fovmap = [];
@@ -318,11 +334,25 @@ var recalculateMap = function(){
             var ch = (r ? "" : "@");
             var color = (RogueJSData[x+","+y] ? Colors.FOV_WALL: Colors.FOV_FLOOR);
             RogueJS.display.draw(x, y, ch, Colors.WHITE, color);
+
             RogueJS.fovmap[x+","+y] = 1;
             RogueJS.discovered[x+","+y] = 1;   //now been discovered
+
+            var ambientLight = [100, 100, 100];
+
+                var baseColor = (RogueJSData[x+","+y] ? [100, 100, 100] : [50, 50, 50]);
+                var light = ambientLight;
+
+                if ([x+","+y] in RogueJSLight) { /* add light from our computation */
+                    light = ROT.Color.add(light, RogueJSLight[x+","+y]);
+                }
+
+                var finalColor = ROT.Color.multiply(baseColor, light);
+                RogueJS.display.draw(x, y, null, null, ROT.Color.toRGB(finalColor));
         });
     }
-    
+
+    //Appropriately draw the entities
     for(var i = 0; i < Entities.length; i++){
         Entities[i]._draw();
     }
@@ -554,8 +584,6 @@ function checkUnderFoot(tileX, tileY){
 */
 function MessageLog(str){
     Messages.unshift(str);
-
-    //Draw the log
     RogueJS.msgLog.clear();
     
     if(Messages.length > 5){
@@ -565,8 +593,6 @@ function MessageLog(str){
     for (var i = 0; i < Messages.length; i++) {
         RogueJS.msgLog.drawText(1, i, Messages[i]);
     }
-
-    
 }
 
 /**
@@ -578,21 +604,28 @@ function UpdateHUD(){
     RogueJS.hud.clear();
     
     //Show player's status
+    // HP bar       Xp bar               Weapon bar                     Stats
+    // ------------ -------------------- ----------------------------  ----->>>
+    // =HP=(46/74)= =XP=(34/223)=|=Lv=5= =Adequate=Battle-Axe=(17=dmg) HP+ ATK+
+    //
     if(RogueJS.player){
         curHealth = "HP (" + RogueJS.player.getHP() + "/" + RogueJS.player.getMaxHP() + ")";
-        drawBar(1, 0, 12, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), Colors.HEALTH_LIGHT, Colors.HEALTH_DARK, curHealth);
+        curHealthWidth = curHealth.length + 2;
+        drawBar(1, 0, curHealthWidth, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), Colors.HEALTH_LIGHT, Colors.HEALTH_DARK, curHealth);
 
-        curXP = "XP (" + RogueJS.player.getXP() + "/" + RogueJS.player.getNextXP() + ")";
-        drawBar(15, 0, 12, RogueJS.player.getNextXP(), RogueJS.player.getXP(), Colors.XP_LIGHT, Colors.XP_DARK, curXP);
+        curXP = "XP (" + RogueJS.player.getXP() + "/" + RogueJS.player.getNextXP() + ") | Lv " + RogueJS.player.getLevel();
+        curXPWidth = curXP.length + 2;
+        drawBar(curHealthWidth + 2, 0, curXPWidth, RogueJS.player.getNextXP(), RogueJS.player.getXP(), Colors.XP_LIGHT, Colors.XP_DARK, curXP);
 
-        curWeapon = RogueJS.player._weapon.getName() + " " + RogueJS.player._weapon.getChar() + " " + "(" + RogueJS.player._weapon.getDamage() + " dmg)";
-        drawBar(29, 0, curWeapon.length + 2, 1, 1, Colors.ORANGE_GOLD, Colors.ORANGE_GOLD, curWeapon);
+        curWeapon = RogueJS.player._weapon.getName() + " " + "(" + RogueJS.player._weapon.getDamage() + " dmg)";
+        curWeaponWidth = curWeapon.length + 2;
+        drawBar(curHealthWidth + curXPWidth + 3, 0, curWeaponWidth, 1, 1, Colors.ORANGE_GOLD, Colors.ORANGE_GOLD, curWeapon);
 
         passive = "";
         for(var i = 0; i < RogueJS.player.getPassives().length; i++){
             passive = passive + RogueJS.player.getPassives()[i].symbol + " ";
         }
-        RogueJS.hud.drawText(29 + (curWeapon.length + 4), 0, passive);
+        RogueJS.hud.drawText(curHealthWidth + curXPWidth + curWeaponWidth + 4, 0, passive);
     }
 }
 
@@ -604,3 +637,45 @@ function lightPasses(x, y) {
     if (key in RogueJSData) { return (RogueJSData[key] == 0); }
     return false;
 }
+
+/* prepare a lighting algorithm */
+function reflectivity(x, y) {
+    return (RogueJSData[x+","+y] == 1 ? 0.3 : 0);
+}
+
+var lightingCallback = function(x, y, color) {
+    RogueJSLight[x+","+y] = color;
+}
+
+/**
+ * Call the canvas flash effect for levelups.
+ */
+function flashScreen(){
+    $("#RogueFlash").show();
+    $("#RogueFlash").addClass("flash");
+    $("#RogueCanvas").hide();
+    
+    setTimeout( function(){
+        $("#RogueFlash").removeClass("flash");
+        $("#RogueFlash").hide();
+        $("#RogueCanvas").show();
+    }, 250);	// Timeout must be the same length as the CSS3 transition or longer (or you'll mess up the transition)
+}
+
+
+/**
+ * Handle the user clicking on the display canvas.
+ */
+function canvasClick(e){
+    var pos = RogueJS.display.eventToPosition(e);
+    var object = GetObjectAtTile(pos[0], pos[1]);
+
+    if (object && IsInFOV(pos[0], pos[1])){
+        MessageLog("You see a %c{#007dcc}" + object.getName() + "%c{}.");
+    } else if (!object && IsInFOV(pos[0], pos[1])){
+        MessageLog("There's nothing there.");
+    } else if (!IsInFOV(pos[0], pos[1])) {
+        MessageLog("You can't see there.");
+    }
+}
+

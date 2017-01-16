@@ -7,11 +7,11 @@
 var Player = function(x, y){
     this._x = x;
     this._y = y;
-    this._MaxHP = 40;
+    this._MaxHP = 30;
     this._HP = this._MaxHP;
     this._level = 1;
     this._XP = 0;
-    this._NextXP = 20;
+    this._NextXP = 30;
     this._draw();
     this._name = "Player";
     this._weapon = new Weapon(weapons.playerWeapon.name, 
@@ -54,6 +54,7 @@ var Player = function(x, y){
     this.getName = function(){return this._name;}
     this.getX = function(){return this._x;}
     this.getY = function(){return this._y;}
+    this.getLevel = function(){return this._level;}
     this.getDamage = function(){
         //Returns the damage from the weapon.
         return this._weapon.getDamage();
@@ -70,9 +71,13 @@ var Player = function(x, y){
         //Increment levelUp
         this._level += 1;
         this._XP = leftover;
-        this._NextXP = Math.round(Math.pow(this._level, 1.3) * 20);
+        this._NextXP = Math.round(Math.pow(this._level, 2) * 20);
         //Boost HP
-        this._MaxHP += Math.round(Math.pow(this._level, 1.3) * 10);
+        this._MaxHP += Math.round(Math.pow(this._level, 1.5) * 3);
+        this.restoreHP(this._MaxHP * 0.5);
+
+        //Flash the screen
+        flashScreen();
     }
 
     this.gainXP = function(xp){

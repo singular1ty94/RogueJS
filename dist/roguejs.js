@@ -20,7 +20,8 @@ var Colors = {
     
     GOLD: '#cca300',
     BRONZE: '#bf8040',
-    PURPLE: '#8000ff'
+    PURPLE: '#8000ff',
+    BRIGHT_GOLD: '#ffde23'
 };/**
  * Draft Item Generation Specification.
  * 
@@ -38,8 +39,8 @@ var items = [
         name: 'Plain Chest',
         ability: ABILITY_WEAPON_BASIC,
         weighting: {
-            common: [1, 4],
-            uncommon: [5, 8]
+            common: [1, 3],
+            uncommon: [4, 6]
         }
     },
     TreasureGold = {
@@ -48,8 +49,19 @@ var items = [
         name: 'Metal Chest',
         ability: ABILITY_WEAPON_DECENT,
         weighting: {
-            rare: [5, 8],
-            uncommon: [9, 11]
+            rare: [2, 3],
+            uncommon: [4, 5],
+            common: [6, 8]
+        }
+    },
+    TreasureGold = {
+        char: '#',
+        color: Colors.BRIGHT_GOLD,
+        name: 'Golden Chest',
+        ability: ABILITY_WEAPON_EXCELLENT,
+        weighting: {
+            uncommon: [7, 8],
+            common: [9, 10]
         }
     },
     /* Shards */
@@ -86,20 +98,55 @@ var items = [
         name: 'Minor Flask',
         ability: ABILITY_HEAL,
         weighting:{
-            frequent: [3, 5],
-            common: [1, 2]
+            frequent: [1, 3]
         }
     },
-
+    MajorFlask = {
+        char: ':',
+        color: '#4da500',
+        name: 'Minor Flask',
+        ability: ABILITY_MAJOR_HEAL,
+        weighting:{
+            common: [4, 7]
+        }
+    },
+    DivineFlask = {
+        char: ':',
+        color: '#7301ba',
+        name: 'Tears of a God',
+        ability: ABILITY_DIVINE_HEAL,
+        weighting:{
+            common: [8, 10]
+        }
+    },
     LearnBook = {
         char: '[',
         color: '#cc0000',
         name: 'Small Book',
         ability: ABILITY_LEARN_MINOR,
         weighting:{
-            common: [6, 8],
-            uncommon: [4, 5],
-            rare: [2, 3]
+            common: [2, 3],
+            uncommon: [4, 5]
+        }
+    },
+    LearnBookMajor = {
+        char: '[',
+        color: '#ba3c01',
+        name: 'Dusty Tome',
+        ability: ABILITY_LEARN_MAJOR,
+        weighting:{
+            uncommon: [3, 4],
+            common: [5, 7]
+        }
+    },
+    LearnBookDivine = {
+        char: '[',
+        color: '#910063',
+        name: 'Knowledge of the Gods',
+        ability: ABILITY_LEARN_DIVINE,
+        weighting:{
+            uncommon: [5, 6],
+            common: [7, 10]
         }
     }
 ]
@@ -151,6 +198,22 @@ var weapons = {
         char: '/',
         dmg: 5,
         price: 90
+    },
+
+    Claws : {
+        name: 'Claws',
+        color: '#6210ff',
+        char: '/',
+        dmg: 10,
+        price: 90
+    },
+
+    Demonic_Blade : {
+        name: 'Demonic Blade',
+        color: '#6210ff',
+        char: '/',
+        dmg: 20,
+        price: 90
     }
 }
 ;/**
@@ -160,46 +223,120 @@ var weapons = {
  * Each Monster knows its rates per LEVEL group, ie: "common: [3, 5]" indicates that 
  *      for levels 3-5 (inclusive), the item has a COMMON
  *      chance of appearing.
+ *
+ * Draft Design:
+ * --- Goblin Outpost ---
+ * Level 1: Bloodflies++, Goblins+, Goblin Soldiers-
+ * Level 2: Bloodflies++, Goblins+, Goblin Soldiers+, Rare-
+ * Level 3: Goblins+, Goblin Soldiers+, Troll
  * 
  */
 var monsters = [
+    WatcherOfTheAbyss = {
+        char: 'W',
+        color: '#00748e',
+        name: 'Watcher of the Abyss',
+        maxHP: 35,
+        XP: 115,
+        range: 99,
+        weapon: {
+            name: 'Abyss Tentacle',
+            color: '#6210ff',
+            char: '/',
+            dmg: 20,
+            price: 90
+        },
+        weighting:{
+            uncommon: [8, 9]
+        }
+    },
     Goblin = {
         char: 'g',
         color: Colors.GOBLIN_GREEN,
         name: 'Goblin',
         maxHP: 6,
-        XP: 4,
+        XP: 7,
         range: 4,
         weapon: weapons.Dagger,
         weighting:{
-            frequent: [1, 3],
-            common: [4, 5]
+            common: [1, 3]
         }
     },
     Goblin_Soldier = {
-        char: 'g',
+        char: 'G',
         color: Colors.GOBLIN_GREEN_DARK,
         name: 'Goblin Soldier',
         maxHP: 10,
-        XP: 10,
+        XP: 15,
         range: 5,
-        weapon: weapons.Scimitar,
+        weapon: {
+            name: 'Scimitar',
+            color: '#6210ff',
+            char: '/',
+            dmg: 5,
+            price: 90
+        },
         weighting:{
-            common: [2, 4],
-            uncommon: [5, 7]
+            common: [2, 3],
+            rare: [1, 1]
         }
     },
-    Goblin_Scout = {
-        char: 'g',
-        color: Colors.GOBLIN_SCOUT,
-        name: 'Goblin Scout',
+    CaptiveTroll = {
+        char: 'T',
+        color: '#4d9e8d',
+        name: 'Captive Troll',
+        maxHP: 35,
+        XP: 32,
+        range: 4,
+        weapon: {
+            name: 'Fists', color: '#777', char: '/',
+            dmg: 12,
+            price: 60
+        },
+        weighting:{
+            uncommon: [3,3],
+            rare: [2, 2]
+        }
+    },
+    BloodFly = {
+        char: '\u00F5',
+        color: '#c12600',
+        name: 'Bloodfly',
         maxHP: 4,
         XP: 3,
-        range: 7,
-        weapon: weapons.Dagger,
+        range: 16,
+        weapon: {
+            name: 'Fly Bite', color: '#777', char: '/',
+            dmg: 2,
+            price: 60
+        },
         weighting:{
-            frequent: [1, 3],
-            common: [4, 5]
+            frequent: [1, 2]
+        }
+    },
+    Demon_Spawn = {
+        char: 'd',
+        color: '#d60000',
+        name: 'Demon Spawn',
+        maxHP: 15,
+        XP: 25,
+        range: 6,
+        weapon: weapons.Claws,
+        weighting:{
+            frequent: [4, 7]
+        }
+    },
+    Demon_Elite = {
+        char: 'x',
+        color: '#992121',
+        name: 'Demon Xaigon',
+        maxHP: 25,
+        XP: 45,
+        range: 7,
+        weapon: weapons.Demonic_Blade,
+        weighting:{
+            uncommon: [4, 4],
+            common: [5, 8]
         }
     }
 
@@ -209,11 +346,40 @@ var monsters = [
  */
 function ABILITY_HEAL(actor){
     actor.restoreHP(20);
+}
+
+/**
+ * Takes an actor and heals them.
+ */
+function ABILITY_MAJOR_HEAL(actor){
+    actor.restoreHP(40);
+}
+
+/**
+ * Takes an actor and heals them.
+ */
+function ABILITY_DIVINE_HEAL(actor){
+    actor.restoreHP(9999);
 };/**
  * Takes a player and gains XP.
  */
 function ABILITY_LEARN_MINOR(player){
-    player.gainXP(10);
+    player.gainXP(15);
+}
+
+/**
+ * Takes a player and gains XP.
+ */
+function ABILITY_LEARN_MAJOR(player){
+    player.gainXP(50);
+}
+
+
+/**
+ * Takes a player and gains XP.
+ */
+function ABILITY_LEARN_DIVINE(player){
+    player.gainXP(100);
 };/**
  * Does nothing.
  */
@@ -278,7 +444,7 @@ function ABILITY_WEAPON_BASIC(player){
     var color = "#d77";
     var char = "/";
     
-    var dmg = getRandom(1, 7);
+    var dmg = getRandom(3, 7);
     var price = getRandom(25, 60);
     var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
 
@@ -298,6 +464,25 @@ function ABILITY_WEAPON_DECENT(player){
     var char = "/";
     
     var dmg = getRandom(12, 26);
+    var price = getRandom(80, 150);
+    var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
+
+    MessageLog("You wield the %c{"+Colors.GOLD+"}" + name + "%c{}!");
+    var weapon = new Weapon(name, char, color, dmg, price, null, null);
+    player.changeWeapon(weapon);
+}
+
+/**
+ * Grants a random excellent weapon.
+ */
+function ABILITY_WEAPON_EXCELLENT(player){
+    // Excellent weapon criteria.
+    var adjective = ['Stunning', 'Honed', 'Superb', 'Shattering', 'Gods-Borne'];
+    var weapon = ['Sword', 'Katana', 'Spear', 'Mace', 'Battle-Axe', 'Flail'];
+    var color = "#d77";
+    var char = "/";
+    
+    var dmg = getRandom(45, 80);
     var price = getRandom(80, 150);
     var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
 
@@ -458,11 +643,11 @@ var Item = function(x, y, name, char, color, AbilityCallback){
 var Player = function(x, y){
     this._x = x;
     this._y = y;
-    this._MaxHP = 40;
+    this._MaxHP = 30;
     this._HP = this._MaxHP;
     this._level = 1;
     this._XP = 0;
-    this._NextXP = 20;
+    this._NextXP = 30;
     this._draw();
     this._name = "Player";
     this._weapon = new Weapon(weapons.playerWeapon.name, 
@@ -471,8 +656,8 @@ var Player = function(x, y){
                              weapons.playerWeapon.dmg,
                              weapons.playerWeapon.price);
 
-    this.seeItems = false; //Dev flag
-    this.seeEnemies = false; //Dev flag
+    this.seeItems = true; //Dev flag
+    this.seeEnemies = true; //Dev flag
 
     this._passives = [];    //Array of passive abilities.
 
@@ -505,6 +690,7 @@ var Player = function(x, y){
     this.getName = function(){return this._name;}
     this.getX = function(){return this._x;}
     this.getY = function(){return this._y;}
+    this.getLevel = function(){return this._level;}
     this.getDamage = function(){
         //Returns the damage from the weapon.
         return this._weapon.getDamage();
@@ -521,9 +707,13 @@ var Player = function(x, y){
         //Increment levelUp
         this._level += 1;
         this._XP = leftover;
-        this._NextXP = Math.round(Math.pow(this._level, 1.3) * 20);
+        this._NextXP = Math.round(Math.pow(this._level, 2) * 20);
         //Boost HP
-        this._MaxHP += Math.round(Math.pow(this._level, 1.3) * 10);
+        this._MaxHP += Math.round(Math.pow(this._level, 1.5) * 3);
+        this.restoreHP(this._MaxHP * 0.5);
+
+        //Flash the screen
+        flashScreen();
     }
 
     this.gainXP = function(xp){
@@ -654,11 +844,11 @@ var RogueJSData = {};
 var Entities = [];
 var Messages = [];
 
-var MIN_MOBS = 8;
-var MAX_MOBS = 16;
+var MIN_MOBS = 6;
+var MAX_MOBS = 13;
 
-var MIN_ITEMS = 4;
-var MAX_ITEMS = 8;
+var MIN_ITEMS = 5;
+var MAX_ITEMS = 10;
 
 var CHANCE_RARE = 5;
 var CHANCE_UNCOMMON = 15;
@@ -860,7 +1050,7 @@ var RogueJS = {
         RogueJS.scheduler.clear();
 
         RogueJS.level = RogueJS.level + 1;
-        MessageLog("You advance to the next level...");
+        MessageLog("You advance to %c{red}Level " + RogueJS.level + "%c{}...");
         RogueJS.makeLevel(RogueJS.level);
     },
 
@@ -1205,8 +1395,6 @@ function checkUnderFoot(tileX, tileY){
 */
 function MessageLog(str){
     Messages.unshift(str);
-
-    //Draw the log
     RogueJS.msgLog.clear();
     
     if(Messages.length > 5){
@@ -1216,8 +1404,6 @@ function MessageLog(str){
     for (var i = 0; i < Messages.length; i++) {
         RogueJS.msgLog.drawText(1, i, Messages[i]);
     }
-
-    
 }
 
 /**
@@ -1229,21 +1415,28 @@ function UpdateHUD(){
     RogueJS.hud.clear();
     
     //Show player's status
+    // HP bar       Xp bar               Weapon bar                     Stats
+    // ------------ -------------------- ----------------------------  ----->>>
+    // =HP=(46/74)= =XP=(34/223)=|=Lv=5= =Adequate=Battle-Axe=(17=dmg) HP+ ATK+
+    //
     if(RogueJS.player){
         curHealth = "HP (" + RogueJS.player.getHP() + "/" + RogueJS.player.getMaxHP() + ")";
-        drawBar(1, 0, 12, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), Colors.HEALTH_LIGHT, Colors.HEALTH_DARK, curHealth);
+        curHealthWidth = curHealth.length + 2;
+        drawBar(1, 0, curHealthWidth, RogueJS.player.getMaxHP(), RogueJS.player.getHP(), Colors.HEALTH_LIGHT, Colors.HEALTH_DARK, curHealth);
 
-        curXP = "XP (" + RogueJS.player.getXP() + "/" + RogueJS.player.getNextXP() + ")";
-        drawBar(15, 0, 12, RogueJS.player.getNextXP(), RogueJS.player.getXP(), Colors.XP_LIGHT, Colors.XP_DARK, curXP);
+        curXP = "XP (" + RogueJS.player.getXP() + "/" + RogueJS.player.getNextXP() + ") | Lv " + RogueJS.player.getLevel();
+        curXPWidth = curXP.length + 2;
+        drawBar(curHealthWidth + 2, 0, curXPWidth, RogueJS.player.getNextXP(), RogueJS.player.getXP(), Colors.XP_LIGHT, Colors.XP_DARK, curXP);
 
-        curWeapon = RogueJS.player._weapon.getName() + " " + RogueJS.player._weapon.getChar() + " " + "(" + RogueJS.player._weapon.getDamage() + " dmg)";
-        drawBar(29, 0, curWeapon.length + 2, 1, 1, Colors.ORANGE_GOLD, Colors.ORANGE_GOLD, curWeapon);
+        curWeapon = RogueJS.player._weapon.getName() + " " + "(" + RogueJS.player._weapon.getDamage() + " dmg)";
+        curWeaponWidth = curWeapon.length + 2;
+        drawBar(curHealthWidth + curXPWidth + 3, 0, curWeaponWidth, 1, 1, Colors.ORANGE_GOLD, Colors.ORANGE_GOLD, curWeapon);
 
         passive = "";
         for(var i = 0; i < RogueJS.player.getPassives().length; i++){
             passive = passive + RogueJS.player.getPassives()[i].symbol + " ";
         }
-        RogueJS.hud.drawText(29 + (curWeapon.length + 4), 0, passive);
+        RogueJS.hud.drawText(curHealthWidth + curXPWidth + curWeaponWidth + 4, 0, passive);
     }
 }
 
@@ -1254,6 +1447,28 @@ function lightPasses(x, y) {
     var key = x+","+y;
     if (key in RogueJSData) { return (RogueJSData[key] == 0); }
     return false;
+}
+
+/**
+ * Call the canvas flash effect for levelups.
+ */
+function flashScreen(){
+    $("#RogueFlash").show();
+    $("#RogueFlash").addClass("flash");
+    $("#RogueCanvas").hide();
+    
+    setTimeout( function(){
+        $("#RogueFlash").removeClass("flash");
+        $("#RogueFlash").hide();
+        $("#RogueCanvas").show();
+    }, 250);	// Timeout must be the same length as the CSS3 transition or longer (or you'll mess up the transition)
+}
+
+function runSimulations(){
+    for(var i = 0; i < 30; i++){
+        console.log(RogueJS.player.getLevel() + " LV", RogueJS.player.getMaxHP() + " HP", RogueJS.player.getNextXP() + " XP");
+        RogueJS.player.levelUp()
+    }
 };/*
 	This is rot.js, the ROguelike Toolkit in JavaScript.
 	Version 0.7~dev, generated on Tue Aug 30 12:08:59 CEST 2016.
