@@ -18,8 +18,7 @@ making players take educated risks.
 * Fix player respawn after death
 * Fix player dying from poison
 * Ranged enemies
-* Stats tracking
-* Better levelling up
+* Better levelling up - perks and stat boosts
 
 ## Experimental
 * Change to speed-based schedule

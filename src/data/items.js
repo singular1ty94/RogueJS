@@ -54,11 +54,20 @@ var items = [
         char: 'o',
         color: Colors.PURPLE,
         name: 'Strange Shard of Glass',
-        ability: PASSIVE_GAIN_MINOR_POISON,
+        ability: FOV_BOOST,
         weighting: {
-            rare: [1, 4]
+            common: [1, 4]
         }
     },
+    // Shard = {
+    //     char: 'o',
+    //     color: Colors.PURPLE,
+    //     name: 'Strange Shard of Glass',
+    //     ability: PASSIVE_GAIN_MINOR_POISON,
+    //     weighting: {
+    //         rare: [1, 4]
+    //     }
+    // },
     Bones = {
         char: '%',
         color: Colors.WHITE,

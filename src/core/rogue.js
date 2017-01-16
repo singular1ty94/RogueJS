@@ -47,7 +47,7 @@ var RogueJS = {
         
         //The fov
         this.fov = new ROT.FOV.PreciseShadowcasting(lightPasses);
-        this.lighting = new ROT.Lighting(reflectivity, {range: this.FOV_RADIUS + 1, passes:4});
+        this.lighting = new ROT.Lighting(reflectivity, {range: this.FOV_RADIUS + 1, passes:2, emissionThreshold: 2});
         this.lighting.setFOV(this.fov);
         
         //Make the first level
