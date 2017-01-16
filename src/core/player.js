@@ -20,8 +20,8 @@ var Player = function(x, y){
                              weapons.playerWeapon.dmg,
                              weapons.playerWeapon.price);
 
-    this.seeItems = true; //Dev flag
-    this.seeEnemies = true; //Dev flag
+    this.seeItems = false; //Dev flag
+    this.seeEnemies = false; //Dev flag
 
     this._passives = [];    //Array of passive abilities.
 

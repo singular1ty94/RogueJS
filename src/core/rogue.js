@@ -1,5 +1,6 @@
 //ROGUE.JS A JAVASCRIPT ROGUELIKE BY SINGULAR1TY94
 var RogueJSData = {};
+var RogueJSLight = {};
 var Entities = [];
 var Messages = [];
 
@@ -24,6 +25,7 @@ var RogueJS = {
     player : null,
     engine : null,
     fov : null,
+    lighting: null,
     scheduler: null,
     FOV_RADIUS : 5,
     fovmap : [],
@@ -45,11 +47,16 @@ var RogueJS = {
         
         //The fov
         this.fov = new ROT.FOV.PreciseShadowcasting(lightPasses);
+        this.lighting = new ROT.Lighting(reflectivity, {range: this.FOV_RADIUS + 1, passes:4});
+        this.lighting.setFOV(this.fov);
         
         //Make the first level
         this.makeLevel(this.level);
         MessageLog("Welcome to the %c{red}Rogue's Dungeon%c{}!");
-        
+
+        this.lighting.setLight(RogueJS.player.getX(), RogueJS.player.getY(), [240, 240, 30]);
+        this.lighting.compute(lightingCallback);
+
         //Setup the scehduler and engine
         this.engine = new ROT.Engine(this.scheduler);
         this.engine.start();
@@ -312,6 +319,11 @@ var recalculateMap = function(){
             }
         }
     }
+
+    //Reset the lights
+    RogueJS.lighting.clearLights();
+    RogueJS.lighting.setLight(RogueJS.player.getX(), RogueJS.player.getY(), [240, 240, 30]);
+    RogueJS.lighting.compute(lightingCallback);
     
     //Reset the fov
     RogueJS.fovmap = [];
@@ -322,11 +334,25 @@ var recalculateMap = function(){
             var ch = (r ? "" : "@");
             var color = (RogueJSData[x+","+y] ? Colors.FOV_WALL: Colors.FOV_FLOOR);
             RogueJS.display.draw(x, y, ch, Colors.WHITE, color);
+
             RogueJS.fovmap[x+","+y] = 1;
             RogueJS.discovered[x+","+y] = 1;   //now been discovered
+
+            var ambientLight = [100, 100, 100];
+
+                var baseColor = (RogueJSData[x+","+y] ? [100, 100, 100] : [50, 50, 50]);
+                var light = ambientLight;
+
+                if ([x+","+y] in RogueJSLight) { /* add light from our computation */
+                    light = ROT.Color.add(light, RogueJSLight[x+","+y]);
+                }
+
+                var finalColor = ROT.Color.multiply(baseColor, light);
+                RogueJS.display.draw(x, y, null, null, ROT.Color.toRGB(finalColor));
         });
     }
-    
+
+    //Appropriately draw the entities
     for(var i = 0; i < Entities.length; i++){
         Entities[i]._draw();
     }
@@ -612,6 +638,15 @@ function lightPasses(x, y) {
     return false;
 }
 
+/* prepare a lighting algorithm */
+function reflectivity(x, y) {
+    return (RogueJSData[x+","+y] == 1 ? 0.3 : 0);
+}
+
+var lightingCallback = function(x, y, color) {
+    RogueJSLight[x+","+y] = color;
+}
+
 /**
  * Call the canvas flash effect for levelups.
  */
@@ -643,3 +678,4 @@ function canvasClick(e){
         MessageLog("You can't see there.");
     }
 }
+

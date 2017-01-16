@@ -22,13 +22,13 @@ var Actor = function(x, y, char, color, name, maxHP, XP, range, weapon){
     this._draw = function(){
         //Only draw if we're in the player's fov
         if(IsInFOV(this._x, this._y) || (RogueJS.player && RogueJS.player.seeEnemies)){
-            RogueJS.display.draw(this._x, this._y, this._char, this._color, Colors.FOV_FLOOR);
+            RogueJS.display.draw(this._x, this._y, this._char, this._color, RogueJSLight[this._x+","+this._y]);
         }else{
             if(RogueJS.discovered[this._x+","+this._y] == 0){
-                RogueJS.display.draw(this._x, this._y, "", Colors.BLACK, Colors.BLACK);
+                RogueJS.display.draw(this._x, this._y, "", RogueJSLight[this._x+","+this._y], RogueJSLight[this._x+","+this._y]);
             }else{
                 var color = (RogueJSData[this._x+","+this._y] ? Colors.DISCOVERED_WALL: Colors.DISCOVERED_FLOOR);
-                RogueJS.display.draw(this._x, this._y, "", Colors.WHITE, color);
+                RogueJS.display.draw(this._x, this._y, "", RogueJSLight[this._x+","+this._y], RogueJSLight[this._x+","+this._y]);
             }
         }   
     }
