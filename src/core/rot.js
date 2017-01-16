@@ -832,6 +832,7 @@ ROT.Display.prototype.computeFontSize = function(availWidth, availHeight) {
  * @returns {int[2]} -1 for values outside of the canvas
  */
 ROT.Display.prototype.eventToPosition = function(e) {
+
 	if (e.touches) {
 		var x = e.touches[0].clientX;
 		var y = e.touches[0].clientY;

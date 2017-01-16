@@ -40,6 +40,8 @@ var RogueJS = {
         document.getElementById("RogueCanvas").appendChild(this.display.getContainer());
         document.getElementById("RogueHUD").appendChild(this.hud.getContainer());
         document.getElementById("RogueMessages").appendChild(this.msgLog.getContainer());
+
+        document.getElementById("RogueCanvas").addEventListener("click", canvasClick);
         
         //The fov
         this.fov = new ROT.FOV.PreciseShadowcasting(lightPasses);
@@ -625,9 +627,19 @@ function flashScreen(){
     }, 250);	// Timeout must be the same length as the CSS3 transition or longer (or you'll mess up the transition)
 }
 
-// function runSimulations(){
-//     for(var i = 0; i < 30; i++){
-//         console.log(RogueJS.player.getLevel() + " LV", RogueJS.player.getMaxHP() + " HP", RogueJS.player.getNextXP() + " XP");
-//         RogueJS.player.levelUp()
-//     }
-// }
+
+/**
+ * Handle the user clicking on the display canvas.
+ */
+function canvasClick(e){
+    var pos = RogueJS.display.eventToPosition(e);
+    var object = GetObjectAtTile(pos[0], pos[1]);
+
+    if (object && IsInFOV(pos[0], pos[1])){
+        MessageLog("You see a %c{#007dcc}" + object.getName() + "%c{}.");
+    } else if (!object && IsInFOV(pos[0], pos[1])){
+        MessageLog("There's nothing there.");
+    } else if (!IsInFOV(pos[0], pos[1])) {
+        MessageLog("You can't see there.");
+    }
+}
