@@ -1,10 +1,24 @@
 /* Styling for Rogue.Js */
+*{
+    font-family: 'VT323', monospace;
+}
+
 #RogueCanvas{
    /*width: 1180px;*/
    height: 450px;
    padding: 2px; 
 } 
 
+h1{
+    color: #f0f0f0;
+}
+p{
+    color: #8a8a8a;
+    font-size: 18pt;
+}
+#start-container{
+    text-align: center;
+}
 #RogueFlash {
     display: none;
     width: 100%;
@@ -38,6 +52,14 @@ body, html{
     height: 100%;
     overflow: hidden;
 }
+
+#game-container{
+    display: none; 
+} 
+
+#start-container{
+    display: block; 
+}     
 
 .flash {
   -moz-animation: flash 250ms ease-out;

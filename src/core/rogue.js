@@ -676,3 +676,10 @@ function canvasClick(e){
     }
 }
 
+/**
+ * Start the game.
+ */
+function startGame(){
+    $("#game-container").css("display", "block");
+    $("#start-container").css("display", "none");
+}

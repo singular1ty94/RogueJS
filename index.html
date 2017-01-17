@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>RogueJS</title>
+        <link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet">
         <!-- Insert this line above script imports  -->
         <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 
@@ -17,7 +18,20 @@
 
     </head>
     <body>
-    <div class="container-fluid" id="container">
+    <div class="container-fluid" id="start-container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 style="text-align:center; font-size: 42pt;">RogueJS</h1>
+                <p>A Javascript Roguelike by <a href="https://github.com/singular1ty94/RogueJS" target="_blank">singular1ty94</a>.</p>
+            </div>
+        </div>
+        <div class="row" style="margin-top: 250px;">
+            <div class="col-md-12">
+                <a href="javascript:startGame()" class="btn btn-default">PLAY</a>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid" id="game-container">
         <div class="row">
             <div class="col-md-12">
                 <div id="RogueFlash"></div>
