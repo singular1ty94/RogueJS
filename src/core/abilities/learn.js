@@ -2,14 +2,14 @@
  * Takes a player and gains XP.
  */
 function ABILITY_LEARN_MINOR(player){
-    player.gainXP(15);
+    player.gainXP(20);
 }
 
 /**
  * Takes a player and gains XP.
  */
 function ABILITY_LEARN_MAJOR(player){
-    player.gainXP(50);
+    player.gainXP(70);
 }
 
 
@@ -17,5 +17,5 @@ function ABILITY_LEARN_MAJOR(player){
  * Takes a player and gains XP.
  */
 function ABILITY_LEARN_DIVINE(player){
-    player.gainXP(100);
+    player.gainXP(250);
 }

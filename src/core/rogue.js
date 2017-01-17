@@ -47,7 +47,7 @@ var RogueJS = {
         
         //The fov
         this.fov = new ROT.FOV.PreciseShadowcasting(lightPasses);
-        this.lighting = new ROT.Lighting(reflectivity, {range: this.FOV_RADIUS + 1, passes:2, emissionThreshold: 2});
+        this.lighting = new ROT.Lighting(reflectivity, {range: this.FOV_RADIUS + 1, passes:1});
         this.lighting.setFOV(this.fov);
         
         //Make the first level
@@ -313,9 +313,6 @@ var recalculateMap = function(){
             //Check if we have NOT discovered the tile, make it black
             if(RogueJS.discovered[x+","+y] == 0){
                 RogueJS.display.draw(x, y, "",  Colors.BLACK, Colors.BLACK);
-            }else{
-                var color = (RogueJSData[x+","+y] ? Colors.DISCOVERED_WALL: Colors.DISCOVERED_FLOOR);
-                RogueJS.display.draw(x, y, "",  Colors.WHITE, color);
             }
         }
     }

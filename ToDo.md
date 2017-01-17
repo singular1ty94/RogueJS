@@ -6,17 +6,8 @@ making players take educated risks.
 * 10 Levels
 * More abilities and enemy varieties
 
-## Balance Notes
-* More frequent chests
-* Less HP gain with XP boosts
-
-## Fun Stuff
-* Dev testing: autoplaying and stat tracking
-
 ## Serious Stuff
-* Performance issues
 * Fix player respawn after death
-* Fix player dying from poison
 * Ranged enemies
 * Better levelling up - perks and stat boosts
 

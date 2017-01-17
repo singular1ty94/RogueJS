@@ -73,12 +73,12 @@ var monsters = [
         char: 'T',
         color: '#4d9e8d',
         name: 'Captive Troll',
-        maxHP: 35,
+        maxHP: 30,
         XP: 32,
         range: 4,
         weapon: {
             name: 'Fists', color: '#777', char: '/',
-            dmg: 12,
+            dmg: 9,
             price: 60
         },
         weighting:{
@@ -121,7 +121,7 @@ var monsters = [
         }
     },
     Demon_Swordsman = {
-        char: 'd',
+        char: 'k',
         color: '#d60000',
         name: 'Demon Kixa',
         maxHP: 35,
@@ -131,7 +131,7 @@ var monsters = [
             name: 'Blade',
             color: '#6210ff',
             char: '/',
-            dmg: 22,
+            dmg: 20,
             price: 90
         },
         weighting:{
@@ -149,12 +149,12 @@ var monsters = [
             name: 'Demonic Blade',
             color: '#6210ff',
             char: '/',
-            dmg: 20,
+            dmg: 25,
             price: 90
         },
         weighting:{
-            uncommon: [4, 4],
-            common: [5, 8]
+            uncommon: [6, 7],
+            common: [8, 9]
         }
     }
 

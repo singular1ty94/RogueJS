@@ -14,11 +14,7 @@ var Player = function(x, y){
     this._NextXP = 30;
     this._draw();
     this._name = "Player";
-    this._weapon = new Weapon(weapons.playerWeapon.name, 
-                             weapons.playerWeapon.char,
-                             weapons.playerWeapon.color,
-                             weapons.playerWeapon.dmg,
-                             weapons.playerWeapon.price);
+    this._weapon = new Weapon('Broken Sword', '#777','/',3,34);
 
     this.seeItems = false; //Dev flag
     this.seeEnemies = false; //Dev flag

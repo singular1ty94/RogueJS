@@ -15,8 +15,7 @@ var items = [
         name: 'Plain Chest',
         ability: ABILITY_WEAPON_BASIC,
         weighting: {
-            common: [1, 3],
-            uncommon: [4, 6]
+            common: [1, 3]
         }
     },
     TreasureGold = {
@@ -26,8 +25,7 @@ var items = [
         ability: ABILITY_WEAPON_DECENT,
         weighting: {
             rare: [2, 3],
-            uncommon: [4, 5],
-            common: [6, 8]
+            common: [4, 6],
         }
     },
     TreasureGold = {
@@ -36,29 +34,29 @@ var items = [
         name: 'Golden Chest',
         ability: ABILITY_WEAPON_EXCELLENT,
         weighting: {
-            uncommon: [7, 8],
-            common: [9, 10]
+            rare: [5, 6],
+            common: [7, 9]
         }
     },
-    /* Shards */
-    Shard = {
-        char: 'o',
-        color: Colors.PURPLE,
-        name: 'Strange Shard of Glass',
-        ability: PASSIVE_GAIN_MINOR_HEAL,
-        weighting: {
-            rare: [1, 4]
-        }
-    },
-    Shard = {
-        char: 'o',
-        color: Colors.PURPLE,
-        name: 'Strange Shard of Glass',
-        ability: FOV_BOOST,
-        weighting: {
-            common: [1, 4]
-        }
-    },
+    // /* Shards */
+    // Shard = {
+    //     char: 'o',
+    //     color: Colors.PURPLE,
+    //     name: 'Strange Shard of Glass',
+    //     ability: PASSIVE_GAIN_MINOR_HEAL,
+    //     weighting: {
+    //         rare: [1, 4]
+    //     }
+    // },
+    // Shard = {
+    //     char: 'o',
+    //     color: Colors.PURPLE,
+    //     name: 'Strange Shard of Glass',
+    //     ability: FOV_BOOST,
+    //     weighting: {
+    //         common: [1, 4]
+    //     }
+    // },
     // Shard = {
     //     char: 'o',
     //     color: Colors.PURPLE,
@@ -89,25 +87,28 @@ var items = [
     MajorFlask = {
         char: ':',
         color: '#4da500',
-        name: 'Minor Flask',
+        name: 'Major Flask',
         ability: ABILITY_MAJOR_HEAL,
         weighting:{
-            common: [4, 7]
+            rare: [3, 3],
+            frequent: [4, 7]
         }
     },
     DivineFlask = {
         char: ':',
         color: '#7301ba',
-        name: 'Tears of a God',
+        name: 'Divine Flask',
         ability: ABILITY_DIVINE_HEAL,
         weighting:{
+            rare: [4, 4],
+            uncommon: [5, 7],
             common: [8, 10]
         }
     },
     LearnBook = {
         char: '[',
         color: '#cc0000',
-        name: 'Small Book',
+        name: 'Leather Book',
         ability: ABILITY_LEARN_MINOR,
         weighting:{
             common: [2, 3],
@@ -127,7 +128,7 @@ var items = [
     LearnBookDivine = {
         char: '[',
         color: '#910063',
-        name: 'Knowledge of the Gods',
+        name: 'Demonic Tablet',
         ability: ABILITY_LEARN_DIVINE,
         weighting:{
             uncommon: [5, 6],
