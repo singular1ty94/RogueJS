@@ -140,6 +140,7 @@ Player.prototype.handleEvent = function(e){
     keyMap[46] = 99;    //delete on numpad, stay in spot
     keyMap[71] = 100;   // [g]rab an item from the floor
     keyMap[85] = 100;  // alias for [u]se
+    keyMap[83] = 83;    // [s]kills
     
     var code = e.keyCode;
     
@@ -164,6 +165,8 @@ Player.prototype.handleEvent = function(e){
         RogueJS.engine.unlock();
         recalculateMap();
         return;
+    }else if (keyMap[code] = 83){
+        showSkills();
     }else{
         var diff = ROT.DIRS[8][keyMap[code]];
         newX = this._x + diff[0];

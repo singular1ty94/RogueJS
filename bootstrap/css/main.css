@@ -33,6 +33,14 @@ p{
    border-top: 1px solid lightgray;
 } 
 
+table, h3 {
+    color: lightgray;
+}
+
+td{
+    font-size: 16px;
+}
+
 #RogueMessages{
    /*width: 1185px;*/
    height: 90px; 
@@ -50,7 +58,7 @@ body, html{
     overflow: hidden;
 }
 
-#game-container, #end-container{
+#game-container, #end-container, #skills-container{
     display: none; 
 } 
 

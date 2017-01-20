@@ -704,3 +704,8 @@ function restartGame(){
     $("canvas").remove();
     RogueJS.init();
 }
+
+function showSkills(){
+    $("#game-container").css("display", "none");
+    $("#skills-container").css("display", "block");
+}

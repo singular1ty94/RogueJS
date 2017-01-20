@@ -7,15 +7,24 @@ making players take educated risks.
 * More abilities and enemy varieties
 
 ## Serious Stuff
-* Fix player respawn after death
 * Ranged enemies
-* Better levelling up - perks and stat boosts
+* Skills on Level up
+
+## Skills
+### Awareness
+1. Increased FOV 
+2. Sense items and stairs
+3. Sense enemies
+
+### Weapon Art
+1. Increased damage from all weapons
+2. Reduced damage from all enemies
+3. First strike deals double damage to enemy
+
+### Arcana
+1. Gain more XP per enemy kill 
+2. Gain HP from slaying enemies
+3. Regenerate health automatically 
 
 ## Experimental
 * Change to speed-based schedule
-
-#Roadmap
-* Endgame
-* More abilities and pickups
-* More enemies and tactics
-* More things for the player to "do"
