@@ -54,7 +54,7 @@ var RogueJS = {
         this.makeLevel(this.level);
         MessageLog("Welcome to the %c{red}Rogue's Dungeon%c{}!");
 
-        this.lighting.setLight(RogueJS.player.getX(), RogueJS.player.getY(), [240, 240, 30]);
+        // this.lighting.setLight(RogueJS.player.getX(), RogueJS.player.getY(), [240, 240, 30]);
         this.lighting.compute(lightingCallback);
 
         //Setup the scehduler and engine
@@ -271,16 +271,21 @@ var RogueJS = {
     postmortem: function(){
         RogueJS.engine.lock();
 
-        for(var i = 0; i < 10; i++){
+        for(var i = 0; i < 99; i++){
             //TODO: Implement proper pushing of timeouts to a timeout array and clear that array
             clearTimeout(i);
         }
 
         //Wipe everything
         this.display.clear();
-        this.scheduler = null;
-        this.RogueJSData = null;
-        this.Entities = null;
+        this.hud.clear();
+        this.msgLog.clear();
+        this.scheduler.clear();
+
+        RogueJSData = {};
+        RogueJSLight = {};
+        Entities = [];
+        Messages = [];
 
         var endPlayer = {
             name: this.player.getName(),
@@ -289,12 +294,15 @@ var RogueJS = {
 
         this.player = null;
 
-        document.getElementById("RogueHUD").style.display = "none";
+        $("#game-container").css("display", "none");
+        $("#end-container").css("display", "block");
 
-        this.display.drawText(5,  2, "You have %c{red}perished%c{} on level " + this.level);
-        this.display.drawText(5,  5, "You had a Max HP of " + endPlayer.maxHP + ".");
+        // document.getElementById("RogueHUD").style.display = "none";
 
-        this.display.drawText(5,  25, "Refresh your browser to play again.");
+        // this.display.drawText(5,  2, "You have %c{red}perished%c{} on level " + this.level);
+        // this.display.drawText(5,  5, "You had a Max HP of " + endPlayer.maxHP + ".");
+
+        // this.display.drawText(5,  25, "Refresh your browser to play again.");
 
         this.engine = null;
     }
@@ -307,54 +315,57 @@ var RogueJS = {
 * then draws the fov, then draws entities ontop.
 */
 var recalculateMap = function(){
-    //Loop through entire map and reset.
-    for(var y = 0; y < RogueJS.h; y++){
-        for(var x = 0; x < RogueJS.w; x++){
-            //Check if we have NOT discovered the tile, make it black
-            if(RogueJS.discovered[x+","+y] == 0){
-                RogueJS.display.draw(x, y, "",  Colors.BLACK, Colors.BLACK);
+    if(RogueJS.player){
+        //Loop through entire map and reset.
+        for(var y = 0; y < RogueJS.h; y++){
+            for(var x = 0; x < RogueJS.w; x++){
+                //Check if we have NOT discovered the tile, make it black
+                if(RogueJS.discovered[x+","+y] == 0){
+                    RogueJS.display.draw(x, y, "",  Colors.BLACK, Colors.BLACK);
+                }
             }
         }
-    }
 
-    //Reset the lights
-    RogueJS.lighting.clearLights();
-    RogueJS.lighting.setLight(RogueJS.player.getX(), RogueJS.player.getY(), [240, 240, 30]);
-    RogueJS.lighting.compute(lightingCallback);
+        //Reset the lights
+        RogueJS.lighting.clearLights();
+        RogueJS.lighting.setLight(RogueJS.player.getX(), RogueJS.player.getY(), [240, 240, 30]);
+        RogueJS.lighting.compute(lightingCallback);
+        
+        //Reset the fov
+        RogueJS.fovmap = [];
+
+        //Recompute the fov from the player's perspective.
+        if(RogueJS.player){
+            RogueJS.fov.compute(RogueJS.player._x, RogueJS.player._y, RogueJS.FOV_RADIUS, function(x, y, r, visibility) {
+                var ch = (r ? "" : "@");
+                var color = (RogueJSData[x+","+y] ? Colors.FOV_WALL: Colors.FOV_FLOOR);
+                RogueJS.display.draw(x, y, ch, Colors.WHITE, color);
+
+                RogueJS.fovmap[x+","+y] = 1;
+                RogueJS.discovered[x+","+y] = 1;   //now been discovered
+
+                var ambientLight = [100, 100, 100];
+
+                    var baseColor = (RogueJSData[x+","+y] ? [100, 100, 100] : [50, 50, 50]);
+                    var light = ambientLight;
+
+                    if ([x+","+y] in RogueJSLight) { /* add light from our computation */
+                        light = ROT.Color.add(light, RogueJSLight[x+","+y]);
+                    }
+
+                    var finalColor = ROT.Color.multiply(baseColor, light);
+                    RogueJS.display.draw(x, y, null, null, ROT.Color.toRGB(finalColor));
+            });
+        }
+
+        //Appropriately draw the entities
+        for(var i = 0; i < Entities.length; i++){
+            Entities[i]._draw();
+        }
+
+        UpdateHUD();
+    }
     
-    //Reset the fov
-    RogueJS.fovmap = [];
-
-    //Recompute the fov from the player's perspective.
-    if(RogueJS.player){
-        RogueJS.fov.compute(RogueJS.player._x, RogueJS.player._y, RogueJS.FOV_RADIUS, function(x, y, r, visibility) {
-            var ch = (r ? "" : "@");
-            var color = (RogueJSData[x+","+y] ? Colors.FOV_WALL: Colors.FOV_FLOOR);
-            RogueJS.display.draw(x, y, ch, Colors.WHITE, color);
-
-            RogueJS.fovmap[x+","+y] = 1;
-            RogueJS.discovered[x+","+y] = 1;   //now been discovered
-
-            var ambientLight = [100, 100, 100];
-
-                var baseColor = (RogueJSData[x+","+y] ? [100, 100, 100] : [50, 50, 50]);
-                var light = ambientLight;
-
-                if ([x+","+y] in RogueJSLight) { /* add light from our computation */
-                    light = ROT.Color.add(light, RogueJSLight[x+","+y]);
-                }
-
-                var finalColor = ROT.Color.multiply(baseColor, light);
-                RogueJS.display.draw(x, y, null, null, ROT.Color.toRGB(finalColor));
-        });
-    }
-
-    //Appropriately draw the entities
-    for(var i = 0; i < Entities.length; i++){
-        Entities[i]._draw();
-    }
-
-    UpdateHUD();
 }
 
 
@@ -682,4 +693,14 @@ function canvasClick(e){
 function startGame(){
     $("#game-container").css("display", "block");
     $("#start-container").css("display", "none");
+}
+
+/**
+ * Start the game.
+ */
+function restartGame(){
+    $("#game-container").css("display", "block");
+    $("#end-container").css("display", "none");
+    $("canvas").remove();
+    RogueJS.init();
 }

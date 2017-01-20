@@ -16,9 +16,6 @@ p{
     color: #8a8a8a;
     font-size: 18pt;
 }
-#start-container{
-    text-align: center;
-}
 #RogueFlash {
     display: none;
     width: 100%;
@@ -53,11 +50,12 @@ body, html{
     overflow: hidden;
 }
 
-#game-container{
+#game-container, #end-container{
     display: none; 
 } 
 
 #start-container{
+    text-align: center;
     display: block; 
 }     
 
