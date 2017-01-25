@@ -706,6 +706,19 @@ function restartGame(){
 }
 
 function showSkills(){
-    $("#game-container").css("display", "none");
-    $("#skills-container").css("display", "block");
+    if($("#skills-container").css("display") == "none"){
+        $("#game-container").css("display", "none");
+        $("#skills-container").css("display", "block");
+
+        window.addEventListener("keydown", handleSkillsEscape); 
+    }
+}
+
+function handleSkillsEscape(e){
+     var code = e.keyCode;
+     if(code == 27){ //escape 
+        $("#game-container").css("display", "block");
+        $("#skills-container").css("display", "none");
+        RogueJS.engine.unlock();
+     }
 }

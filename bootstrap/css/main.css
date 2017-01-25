@@ -62,6 +62,16 @@ body, html{
     display: none; 
 } 
 
+tr.active>td{
+    background-color: #406715 !important;
+    color: #ffd632 !important;
+}
+
+tr:hover >td{
+    background-color: #32441e !important;
+    cursor: pointer;
+}
+
 #start-container{
     text-align: center;
     display: block; 

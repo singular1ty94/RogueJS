@@ -165,41 +165,42 @@ Player.prototype.handleEvent = function(e){
         RogueJS.engine.unlock();
         recalculateMap();
         return;
-    }else if (keyMap[code] = 83){
+    }else if (keyMap[code] == 83){
+        window.removeEventListener("keydown", this);
         showSkills();
     }else{
         var diff = ROT.DIRS[8][keyMap[code]];
         newX = this._x + diff[0];
         newY = this._y + diff[1];
-    }
-    
-    if (RogueJSData[newX+","+newY] == 1){ 
-        this.firePassives();
-        return; //Cannot move there
-    } else if (IsOccupied(newX, newY)){
-        attackTile(this, newX, newY);
-        //Clear the event listener and unlock the engine
-        window.removeEventListener("keydown", this);
-        this.firePassives();
-        //recalculateMap();
-        RogueJS.engine.unlock();
-    }else {
-        //Get what's under foot there.
-        var object = checkUnderFoot(newX, newY);
-        if(object){
-            MessageLog("You are standing on a %c{"+Colors.ORANGE_GOLD+"}" + object.getName() + "%c{}.");
+
+        if (RogueJSData[newX+","+newY] == 1){ 
+            this.firePassives();
+            return; //Cannot move there
+        } else if (IsOccupied(newX, newY)){
+            attackTile(this, newX, newY);
+            //Clear the event listener and unlock the engine
+            window.removeEventListener("keydown", this);
+            this.firePassives();
+            //recalculateMap();
+            RogueJS.engine.unlock();
+        } else {
+            //Get what's under foot there.
+            var object = checkUnderFoot(newX, newY);
+            if(object){
+                MessageLog("You are standing on a %c{"+Colors.ORANGE_GOLD+"}" + object.getName() + "%c{}.");
+            }
+
+            //Regular move
+            RogueJS.display.draw(this._x, this._y, RogueJS.map[this._x + "," + this._y]);
+            this._x = newX;
+            this._y = newY;
+            this._draw();
+
+            //Clear the event listener and unlock the engine
+            window.removeEventListener("keydown", this);
+            this.firePassives();
+            recalculateMap();
+            RogueJS.engine.unlock();
         }
-
-        //Regular move
-        RogueJS.display.draw(this._x, this._y, RogueJS.map[this._x + "," + this._y]);
-        this._x = newX;
-        this._y = newY;
-        this._draw();
-
-        //Clear the event listener and unlock the engine
-        window.removeEventListener("keydown", this);
-        this.firePassives();
-        recalculateMap();
-        RogueJS.engine.unlock();
     }
 }
