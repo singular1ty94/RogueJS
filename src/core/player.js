@@ -39,6 +39,14 @@ var Player = function(x, y){
         }
         return false;
     }
+    this.hasPassive = function(ability){
+        for(var i = 0; i < this._passives.length; i++){
+            if(ability == this._passives[i]){
+                return true;
+            }
+        }
+        return false;
+    }
     this.getPassives = function(){ return this._passives; }
     this.firePassives = function(){
         //Trigger all our passives first.
@@ -77,6 +85,8 @@ var Player = function(x, y){
     }
 
     this.gainXP = function(xp){
+        if(this.hasPassive(PASSIVE_ARCANA_RANK_ONE)){ xp = xp + (Math.round(xp / 2)); }
+        
         this._XP += xp;
         if(this._XP >= this._NextXP){
             this.levelUp(this._XP - this._NextXP);

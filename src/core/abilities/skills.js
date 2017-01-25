@@ -1,0 +1,1 @@
+var PASSIVE_ARCANA_RANK_ONE = { }
