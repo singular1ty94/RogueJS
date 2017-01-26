@@ -320,9 +320,13 @@ var recalculateMap = function(){
                 //Check if we have NOT discovered the tile, make it black
                 if(RogueJS.discovered[x+","+y] == 0){
                     RogueJS.display.draw(x, y, "",  Colors.BLACK, Colors.BLACK);
+                } else {
+                    RogueJS.display.draw(x, y, "",  Colors.DISCOVERED_FLOOR, Colors.DISCOVERED_FLOOR);
                 }
             }
         }
+
+        RogueJSLight = [];
 
         //Reset the lights
         RogueJS.lighting.clearLights();
