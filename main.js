@@ -12,14 +12,10 @@ const url = require('url')
 let mainWindow
 
 function createWindow () {
-  if(process.env.DEV_MODE == true){
-    // Open the DevTools.
-    mainWindow = new BrowserWindow({width: 960, height: 580})
-    mainWindow.webContents.openDevTools()
-  }else{
-    // Create the browser window.
-    mainWindow = new BrowserWindow({width: 960, height: 580, resizable: false, minimizable: true, maximizable: false})
-  }
+  // Create the browser window.
+  mainWindow = new BrowserWindow({width: 960, height: 580, resizable: false, minimizable: true, maximizable: false})
+  mainWindow.webContents.openDevTools()
+  mainWindow.setMenu(null);
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({

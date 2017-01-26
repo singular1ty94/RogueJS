@@ -628,12 +628,6 @@ function UpdateHUD(){
         curWeapon = RogueJS.player._weapon.getName() + " " + "(" + RogueJS.player._weapon.getDamage() + " dmg)";
         curWeaponWidth = curWeapon.length + 2;
         drawBar(curHealthWidth + curXPWidth + 3, 0, curWeaponWidth, 1, 1, Colors.ORANGE_GOLD, Colors.ORANGE_GOLD, curWeapon);
-
-        passive = "";
-        for(var i = 0; i < RogueJS.player.getPassives().length; i++){
-            passive = passive + RogueJS.player.getPassives()[i].symbol + " ";
-        }
-        RogueJS.hud.drawText(curHealthWidth + curXPWidth + curWeaponWidth + 4, 0, passive);
     }
 }
 
@@ -705,15 +699,46 @@ function restartGame(){
     RogueJS.init();
 }
 
+/**
+ * Show the skills panel and control purchasing new skills.
+ */
 function showSkills(){
     if($("#skills-container").css("display") == "none"){
         $("#game-container").css("display", "none");
         $("#skills-container").css("display", "block");
 
+        $("#SKILL_POINTS").html(RogueJS.player.getSkillPoints());
+
+        //Loop through the skills array and higlight ones we have.
+        SKILLS.forEach(function (skill){
+            if(RogueJS.player.hasPassive(skill)){
+                $("tr[data-skill='" + skill.name + "']").addClass("active");
+            }
+        })
+
+        //Click listener for the rows.
+        $("tr").click(function (e){
+            e.preventDefault();
+            if(RogueJS.player.getSkillPoints() > 0){
+                if(!$(this).hasClass("active")){
+                    //Use skill point and add to passive array.
+                    RogueJS.player.useSkillPoint(1);
+                    var clickedSkill = $(this).data("skill");
+                    var skill = SKILLS.find(clickedSkill);
+                    RogueJS.player.addPassive(skill);
+                    $(this).addClass("active");
+                    $("#SKILL_POINTS").html(RogueJS.player.getSkillPoints());
+                }
+            }
+        })
+        //Listen for quitting the screen.
         window.addEventListener("keydown", handleSkillsEscape); 
     }
 }
 
+/**
+ * Handle escaping the Skills window.
+ */
 function handleSkillsEscape(e){
      var code = e.keyCode;
      if(code == 27){ //escape 

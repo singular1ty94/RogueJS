@@ -16,6 +16,8 @@ var Player = function(x, y){
     this._name = "Player";
     this._weapon = new Weapon('Broken Sword', '#777','/',3,34);
 
+    this._skillPoints = 0;
+
     this.seeItems = false; //Dev flag
     this.seeEnemies = false; //Dev flag
 
@@ -51,9 +53,15 @@ var Player = function(x, y){
     this.firePassives = function(){
         //Trigger all our passives first.
         for(var i = 0; i < this._passives.length; i++){
-            this._passives[i].fire(this);
+            if(this._passives[i].fire){
+                this._passives[i].fire(this);
+            }
         }
     }
+
+    this.getSkillPoints = function(){ return this._skillPoints; }
+    this.addSkillPoint = function(s){ this._skillPoints += s; }
+    this.useSkillPoint = function(s){ this._skillPoints -= s; }
     
     this.getName = function(){return this._name;}
     this.getX = function(){return this._x;}
@@ -76,9 +84,13 @@ var Player = function(x, y){
         this._level += 1;
         this._XP = leftover;
         this._NextXP = Math.round(Math.pow(this._level, 2) * 20);
+
         //Boost HP
         this._MaxHP += Math.round(Math.pow(this._level, 1.5) * 3);
         this.restoreHP(this._MaxHP * 0.5);
+
+        //Add a skill point.
+        this.addSkillPoint(1);
 
         //Flash the screen
         flashScreen();

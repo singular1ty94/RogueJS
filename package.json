@@ -4,8 +4,7 @@
   "description": "A Roguelike written in Javascript.",
   "main": "main.js",
   "scripts": {
-    "start": "grunt build && electron .",
-    "dev": "grunt build && DEV_MODE=true electron ."
+    "start": "grunt build && electron ."
   },
   "repository": {
     "type": "git",
