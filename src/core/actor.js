@@ -74,6 +74,8 @@ var Actor = function(x, y, char, color, name, maxHP, XP, range, weapon){
     
     this.getX = function(){return this._x;}
     this.getY = function(){return this._y;}
+    this.getHP = function(){return this._HP;}
+    this.getMaxHP = function(){return this._maxHP; }
     this.getXP = function(){return this._XP; }
     this.getName = function(){return this._name;}
     this.getDamage = function(){

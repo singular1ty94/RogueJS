@@ -28,12 +28,19 @@ var PASSIVE_PERCEPTION_RANK_TWO = {
  }
 var PASSIVE_PERCEPTION_RANK_THREE = { 
     name: 'PASSIVE_PERCEPTION_RANK_THREE',
-    prereq: PASSIVE_PERCEPTION_RANK_THREE
+    prereq: PASSIVE_PERCEPTION_RANK_TWO
 }
 
 var PASSIVE_WEAPONS_RANK_ONE = { 
     name: 'PASSIVE_WEAPONS_RANK_ONE',
-    prereq: null
+    prereq: null,
+    runOnce: false,
+    fire: function(obj){
+        if(!this.runOnce){
+            this.runOnce = true;
+            RogueJS.player._weapon._dmg = RogueJS.player._weapon.getDamage() + Math.round(RogueJS.player._weapon.getDamage() / 3) 
+        }
+    }
 }
 var PASSIVE_WEAPONS_RANK_TWO = { 
     name: 'PASSIVE_WEAPONS_RANK_TWO',

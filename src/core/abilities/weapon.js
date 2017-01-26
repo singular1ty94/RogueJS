@@ -9,6 +9,7 @@ function ABILITY_WEAPON_BASIC(player){
     var char = "/";
     
     var dmg = getRandom(4, 9);
+    if(RogueJS.player.hasPassive(PASSIVE_WEAPONS_RANK_ONE)){ dmg += Math.round(dmg/3); }
     var price = getRandom(25, 60);
     var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
 
@@ -28,6 +29,7 @@ function ABILITY_WEAPON_DECENT(player){
     var char = "/";
     
     var dmg = getRandom(12, 24);
+    if(RogueJS.player.hasPassive(PASSIVE_WEAPONS_RANK_ONE)){ dmg += Math.round(dmg/3); }
     var price = getRandom(80, 150);
     var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
 
@@ -47,6 +49,7 @@ function ABILITY_WEAPON_EXCELLENT(player){
     var char = "/";
     
     var dmg = getRandom(35, 45);
+    if(RogueJS.player.hasPassive(PASSIVE_WEAPONS_RANK_ONE)){ dmg += Math.round(dmg/3); }
     var price = getRandom(80, 150);
     var name = adjective[getRandom(0, adjective.length)] + " " + weapon[getRandom(0, weapon.length)];
 

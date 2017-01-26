@@ -221,6 +221,11 @@ var RogueJS = {
 
         RogueJS.level = RogueJS.level + 1;
         MessageLog("You advance to %c{red}Level " + RogueJS.level + "%c{}...");
+
+        //Heal the player if we have the skill
+        if(RogueJS.player.hasPassive(PASSIVE_ARCANA_RANK_THREE)){
+            RogueJS.player.restoreHP(RogueJS.player.getMaxHP());
+        }
         RogueJS.makeLevel(RogueJS.level);
     },
 
@@ -296,13 +301,6 @@ var RogueJS = {
 
         $("#game-container").css("display", "none");
         $("#end-container").css("display", "block");
-
-        // document.getElementById("RogueHUD").style.display = "none";
-
-        // this.display.drawText(5,  2, "You have %c{red}perished%c{} on level " + this.level);
-        // this.display.drawText(5,  5, "You had a Max HP of " + endPlayer.maxHP + ".");
-
-        // this.display.drawText(5,  25, "Refresh your browser to play again.");
 
         this.engine = null;
     }
@@ -466,9 +464,20 @@ function attackTile(attacker, tileX, tileY){
         //There's something occupying that cell (assume it's attackable).
         var defender = GetEnemyAtTile(tileX, tileY);
         
+        var damageDealt = attacker.getDamage();
+
+        if((defender instanceof Player) && RogueJS.player.hasPassive(PASSIVE_WEAPONS_RANK_TWO)){
+            damageDealt -= Math.round(damageDealt/3);
+        }
+
+        if((defender instanceof Actor) && defender.getHP() <= Math.round(defender.getMaxHP() / 3)){
+            damageDealt = defender.getMaxHP() - defender.getHP();
+        }
+
         //Attacker deals damage to defender.
-        defender.damageHP(attacker.getDamage());
-        var msg = attacker.getName() + " attacks " + defender.getName() + " for " + attacker.getDamage() + " %c{red}damage!";
+        defender.damageHP(damageDealt);
+
+        var msg = attacker.getName() + " attacks " + defender.getName() + " for " + damageDealt + " %c{red}damage!";
         MessageLog(msg);
 
         //Random blood splatter! 60% chance
@@ -490,6 +499,11 @@ function attackTile(attacker, tileX, tileY){
                 //Leave a corpse.
                 var corpse = new Item(defender.getX(), defender.getY(), "Bloody Corpse", "%", Colors.BLOOD, ABILITY_NOTHING);
                 Entities.unshift(corpse);
+
+                //Give us back some HP if we have the skill
+                if(RogueJS.player.hasPassive(PASSIVE_ARCANA_RANK_TWO)){
+                    RogueJS.player.restoreHP(Math.round(RogueJS.player.getMaxHP() / 5));
+                }
                 
                 //Finish up
                 recalculateMap();
@@ -703,7 +717,7 @@ function restartGame(){
  * Show the skills panel and control purchasing new skills.
  */
 function showSkills(){
-    if($("#skills-container").css("display") == "none"){
+    if($("#skills-container").css("display") == "none" && $("#game-container").css("display") == "block"){
         $("#game-container").css("display", "none");
         $("#skills-container").css("display", "block");
 

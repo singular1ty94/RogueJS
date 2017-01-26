@@ -19,7 +19,7 @@ making players take educated risks.
 ### Weapon Art
 1. Increased damage from all weapons
 2. Reduced damage from all enemies
-3. First strike deals double damage to enemy
+3. Enemies below 30% health are executed.
 
 ### Arcana
 1. Gain more XP per enemy kill 
