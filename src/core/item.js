@@ -15,7 +15,7 @@ var Item = function(x, y, name, char, color, AbilityCallback){
     */
     this._draw = function(bckColor){
         //Only draw if we're in the player's fov
-        if(IsInFOV(this._x, this._y) || (RogueJS.player && RogueJS.player.seeItems)){
+        if(IsInFOV(this._x, this._y) || (RogueJS.player && RogueJS.player.hasPassive(PASSIVE_PERCEPTION_RANK_TWO))){
             if(this._name == "Blood" || this._name == "Bloody Corpse"){
                 var color = (this._name == "Blood" ? RogueJSLight[this._x+","+this._y]: Colors.WHITE);
                 RogueJS.display.draw(this._x, this._y, this._char, color, this._color);

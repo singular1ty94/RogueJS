@@ -21,7 +21,7 @@ var Actor = function(x, y, char, color, name, maxHP, XP, range, weapon){
     */
     this._draw = function(){
         //Only draw if we're in the player's fov
-        if(IsInFOV(this._x, this._y) || (RogueJS.player && RogueJS.player.seeEnemies)){
+        if(IsInFOV(this._x, this._y) || (RogueJS.player && RogueJS.player.hasPassive(PASSIVE_PERCEPTION_RANK_THREE))){
             RogueJS.display.draw(this._x, this._y, this._char, this._color, RogueJSLight[this._x+","+this._y]);
         }else{
             if(RogueJS.discovered[this._x+","+this._y] == 0){

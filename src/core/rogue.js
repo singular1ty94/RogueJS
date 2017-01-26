@@ -721,13 +721,18 @@ function showSkills(){
             e.preventDefault();
             if(RogueJS.player.getSkillPoints() > 0){
                 if(!$(this).hasClass("active")){
-                    //Use skill point and add to passive array.
-                    RogueJS.player.useSkillPoint(1);
                     var clickedSkill = $(this).data("skill");
                     var skill = SKILLS.find(clickedSkill);
-                    RogueJS.player.addPassive(skill);
-                    $(this).addClass("active");
-                    $("#SKILL_POINTS").html(RogueJS.player.getSkillPoints());
+
+                    //Check we have the prereq
+                    if(RogueJS.player.hasPassive(skill.prereq)){
+                        //Use skill point and add to passive array.
+                        RogueJS.player.useSkillPoint(1);
+                        RogueJS.player.addPassive(skill);                    
+                        //Set the active class and reload the points
+                        $(this).addClass("active");
+                        $("#SKILL_POINTS").html(RogueJS.player.getSkillPoints());
+                    }
                 }
             }
         })

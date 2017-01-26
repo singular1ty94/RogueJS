@@ -16,10 +16,7 @@ var Player = function(x, y){
     this._name = "Player";
     this._weapon = new Weapon('Broken Sword', '#777','/',3,34);
 
-    this._skillPoints = 0;
-
-    this.seeItems = false; //Dev flag
-    this.seeEnemies = false; //Dev flag
+    this._skillPoints = 3;
 
     this._passives = [];    //Array of passive abilities.
 
@@ -42,6 +39,7 @@ var Player = function(x, y){
         return false;
     }
     this.hasPassive = function(ability){
+        if(ability == null) return true;
         for(var i = 0; i < this._passives.length; i++){
             if(ability == this._passives[i]){
                 return true;
