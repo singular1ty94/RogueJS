@@ -25,11 +25,18 @@
   },
   "homepage": "https://github.com/singular1ty94/RogueJS#readme",
   "devDependencies": {
+    "@types/jquery": "^3.3.29",
     "electron": "^1.4.1",
     "grunt": "~0.4.5",
     "grunt-contrib-concat": "~1.0.1",
     "grunt-contrib-jshint": "~1.0.0",
     "grunt-contrib-uglify": "~2.0.0",
-    "grunt-contrib-watch": "~1.0.0"
+    "grunt-contrib-watch": "~1.0.0",
+    "tslint-microsoft-contrib": "^6.0.0"
+  },
+  "dependencies": {
+    "grunt-ts": "^6.0.0-beta.21",
+    "tslint": "^5.12.1",
+    "typescript": "^3.2.2"
   }
 }

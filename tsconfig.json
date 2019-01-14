@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "target": "es5",
+    "outDir": "dist",
+    "sourceMap": false,
+    "lib": ["dom", "es6", "es2016"],
+    "allowJs": true
+  },
+  "include": ["./src/**/*.ts"]
+}
